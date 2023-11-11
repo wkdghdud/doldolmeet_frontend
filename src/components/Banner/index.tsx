@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+
 import React from "react";
 import Carousel from "react-material-ui-carousel";
 
@@ -11,7 +11,7 @@ export default function Banner() {
   return (
     <Carousel>
       {imageUrls.map((url, i) => (
-        <Image key={i} src={url} alt="" />
+        <img key={i} src={url} alt="" />
       ))}
     </Carousel>
   );
