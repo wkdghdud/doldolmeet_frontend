@@ -1,7 +1,11 @@
+import Header from "@/components/Header";
+import Banner from "@/components/Banner";
+
 export default function Home() {
   return (
     <main>
-      <h1>메인 페이지입니다.</h1>
+      <Header />
+      <Banner />
     </main>
   );
 }
