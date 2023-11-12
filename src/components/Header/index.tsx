@@ -6,9 +6,12 @@ export default function Header() {
   return (
     <AppBar component="nav">
       <Toolbar>
-        <Typography variant="h5">돌돌밋</Typography>
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <Typography variant="h5">돌돌밋</Typography>
+        </Link>
         <Box sx={{ flexGrow: 1 }}></Box>
-        <Link href="/login">
+
+        <Link href="/login" style={{ textDecoration: "none" }}>
           <Button variant="contained" disableElevation>
             로그인
           </Button>

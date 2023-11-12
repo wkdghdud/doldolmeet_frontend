@@ -4,14 +4,23 @@ import React from "react";
 import Carousel from "react-material-ui-carousel";
 
 const imageUrls: string[] = [
-  "https://images.khan.co.kr/article/2023/05/09/news-p.v1.20230509.81d6231f8f364496a03089815eef0340.jpg",
-  "https://img.marieclairekorea.com/2021/05/mck_609b3b60db9c2.jpg",
+  "https://pbs.twimg.com/media/F6GjqPia0AAHxaN.jpg:large",
 ];
 export default function Banner() {
   return (
     <Carousel>
       {imageUrls.map((url, i) => (
-        <img key={i} src={url} alt="" />
+        <div key={i} style={{ display: "flex", justifyContent: "center" }}>
+          <img
+            src={url}
+            alt=""
+            style={{
+              height: "auto",
+              maxHeight: 500,
+              objectFit: "cover",
+            }}
+          />
+        </div>
       ))}
     </Carousel>
   );
