@@ -1,9 +1,13 @@
+"use client";
 import Banner from "@/components/Banner";
 import ShowCard from "@/components/ShowCard";
 import { Button, Grid, Stack, Typography } from "@mui/material";
 import ForwardIcon from "@mui/icons-material/Forward";
+import { useMeetings } from "@/hooks/useMeetings";
 
 export default function Home() {
+  const { data } = useMeetings(1);
+
   return (
     <Grid
       container
@@ -32,21 +36,11 @@ export default function Home() {
         </Stack>
       </Grid>
 
-      <Grid item xs={6}>
-        <ShowCard />
-      </Grid>
-
-      <Grid item xs={6}>
-        <ShowCard />
-      </Grid>
-
-      <Grid item xs={6}>
-        <ShowCard />
-      </Grid>
-
-      <Grid item xs={6}>
-        <ShowCard />
-      </Grid>
+      {data?.map((meeting, i) => (
+        <Grid key={i} item xs={6}>
+          <ShowCard title={meeting.name} date={meeting.email} />
+        </Grid>
+      ))}
     </Grid>
   );
 }

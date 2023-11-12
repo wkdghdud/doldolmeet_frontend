@@ -5,7 +5,12 @@ import CardMedia from "@mui/material/CardMedia";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 
-export default function ShowCard() {
+interface Props {
+  title: string;
+  date: string;
+}
+
+export default function ShowCard({ title, date }: Props) {
   return (
     <Card sx={{ display: "flex", justifyContent: "center" }}>
       <CardMedia
@@ -17,14 +22,14 @@ export default function ShowCard() {
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardContent sx={{ flex: "1 0 auto" }}>
           <Typography component="div" variant="h5">
-            Live From Space
+            {title}
           </Typography>
           <Typography
             variant="subtitle1"
             color="text.secondary"
             component="div"
           >
-            Mac Miller
+            {date}
           </Typography>
         </CardContent>
         <Box sx={{ display: "flex", alignItems: "center", pl: 1, pb: 1 }}>
