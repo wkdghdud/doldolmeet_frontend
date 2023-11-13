@@ -6,7 +6,7 @@ import UserVideoComponent from "@/components/UserVideoComponent";
 
 const APPLICATION_SERVER_URL =
   process.env.NODE_ENV === "production"
-    ? "https://13.125.45.221:5000/"
+    ? "https://api.doldolmeet.shop/"
     : "http://localhost:5001/"; // TODO: 각자 실행한 백엔드 서버에 맞게 포트 수정 필요
 
 const VideoCall = () => {
