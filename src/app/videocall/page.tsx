@@ -5,7 +5,9 @@ import axios from "axios";
 import UserVideoComponent from "@/components/UserVideoComponent";
 
 const APPLICATION_SERVER_URL =
-  process.env.NODE_ENV === "production" ? "" : "http://localhost:5001/"; // TODO: 각자 실행한 백엔드 서버에 맞게 포트 수정 필요
+  process.env.NODE_ENV === "production"
+    ? "http://13.125.45.221:5000/"
+    : "http://localhost:5001/"; // TODO: 각자 실행한 백엔드 서버에 맞게 포트 수정 필요
 
 const VideoCall = () => {
   /* 세션 구분용 ID */
@@ -36,8 +38,6 @@ const VideoCall = () => {
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
-
-    joinSession(); // TODO: 일단 카메라가 뜰 수 있도록 임시로 여기 넣어둔 코드인데 수정 필요
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -232,38 +232,36 @@ const VideoCall = () => {
           </div>
           <div id="join-dialog" className="jumbotron vertical-center">
             <h1> Join a video session </h1>
-            <form className="form-group" onSubmit={joinSession}>
-              <p>
-                <label>Participant: </label>
-                <input
-                  className="form-control"
-                  type="text"
-                  id="userName"
-                  value={myUserName}
-                  onChange={handleChangeUserName}
-                  required
-                />
-              </p>
-              <p>
-                <label> Session: </label>
-                <input
-                  className="form-control"
-                  type="text"
-                  id="sessionId"
-                  value={mySessionId}
-                  onChange={handleChangeSessionId}
-                  required
-                />
-              </p>
-              <p className="text-center">
-                <input
-                  className="btn btn-lg btn-success"
-                  name="commit"
-                  type="submit"
-                  value="JOIN"
-                />
-              </p>
-            </form>
+            <p>
+              <label>Participant: </label>
+              <input
+                className="form-control"
+                type="text"
+                id="userName"
+                value={myUserName}
+                onChange={handleChangeUserName}
+                required
+              />
+            </p>
+            <p>
+              <label> Session: </label>
+              <input
+                className="form-control"
+                type="text"
+                id="sessionId"
+                value={mySessionId}
+                onChange={handleChangeSessionId}
+                required
+              />
+            </p>
+            <p className="text-center">
+              <input
+                className="btn btn-lg btn-success"
+                name="commit"
+                value="JOIN"
+                onClick={joinSession}
+              />
+            </p>
           </div>
         </div>
       ) : null}
