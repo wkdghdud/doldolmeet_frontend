@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { OpenVidu } from "openvidu-browser";
 import axios from "axios";
 import UserVideoComponent from "@/components/UserVideoComponent";
+import DeviceControlButton from "@/components/meeting/DeviceControlButton";
 
 const APPLICATION_SERVER_URL =
   process.env.NODE_ENV === "production"
@@ -141,6 +142,44 @@ const VideoCall = () => {
     setMyUserName("Participant" + Math.floor(Math.random() * 100));
   };
 
+  const toggleDevice = async (audio, video) => {
+    const ov = new OpenVidu();
+
+    try {
+      let devices = await ov.getDevices();
+      let videoDevices = devices.filter(
+        (device) => device.kind === "videoinput",
+      );
+
+      let newPublisher = ov.initPublisher(undefined, {
+        audioSource: undefined, // The source of audio. If undefined default microphone
+        videoSource: videoDevices[0].deviceId, // The source of video. If undefined default webcam
+        publishAudio: audio, // Whether you want to start publishing with your audio unmuted or not
+        publishVideo: video, // Whether you want to start publishing with your video enabled or not
+        resolution: "640x480", // The resolution of your video
+        frameRate: 30, // The frame rate of your video
+        insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
+        mirror: false, // Whether to mirror your local video
+      });
+
+      await session.unpublish(mainStreamManager);
+
+      await session.publish(newPublisher);
+
+      const dataObj = {
+        currentVideoDevice: videoDevices[0],
+        publisher: newPublisher,
+      };
+      // dispatch(ovActions.createPublisher(dataObj));
+
+      setCurrentVideoDevice(dataObj.currentVideoDevice);
+      setMainStreamManager(newPublisher);
+      setPublisher(newPublisher);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   /* 카메라 전환 */
   const switchCamera = async () => {
     try {
@@ -224,12 +263,6 @@ const VideoCall = () => {
     <div className="container">
       {session === undefined ? (
         <div id="join">
-          <div id="img-div">
-            <img
-              src="resources/images/openvidu_grey_bg_transp_cropped.png"
-              alt="OpenVidu logo"
-            />
-          </div>
           <div id="join-dialog" className="jumbotron vertical-center">
             <h1> Join a video session </h1>
             <p>
@@ -284,6 +317,7 @@ const VideoCall = () => {
               onClick={switchCamera}
               value="Switch Camera"
             />
+            <DeviceControlButton toggleDevice={toggleDevice} />
           </div>
 
           {mainStreamManager !== undefined ? (
