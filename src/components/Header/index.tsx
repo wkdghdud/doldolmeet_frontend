@@ -8,7 +8,10 @@ export default function Header() {
   return (
     <AppBar
       component="nav"
-      sx={{ backgroundColor: "#FFFFFF", justifyContent: "center" }}
+      sx={{
+        backgroundColor: "#FFFFFF",
+        justifyContent: "center",
+      }}
       elevation={0}
     >
       <Toolbar>

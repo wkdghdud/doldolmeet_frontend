@@ -27,7 +27,11 @@ export default function RootLayout({
             justifyContent="center"
             alignItems="center"
             maxWidth="xl"
-            sx={{ mx: "auto", marginTop: 10 }}
+            sx={{
+              mx: "auto",
+              backgroundColor: "#F8F8F8",
+              paddingTop: 10,
+            }}
           >
             {children}
           </Grid>

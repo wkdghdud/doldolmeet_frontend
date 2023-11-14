@@ -30,7 +30,7 @@ export default function Home() {
       maxWidth="lg"
       spacing={2}
     >
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{ marginTop: 1 }}>
         <Banner />
       </Grid>
 
