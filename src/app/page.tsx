@@ -4,6 +4,7 @@ import ShowCard from "@/components/ShowCard";
 import { Button, Grid, Stack, Typography } from "@mui/material";
 import ForwardIcon from "@mui/icons-material/Forward";
 import { useMeetings } from "@/hooks/useMeetings";
+import GradientButton from "@/components/GradientButton";
 
 export default function Home() {
   const { data } = useMeetings(1);
@@ -30,9 +31,13 @@ export default function Home() {
           sx={{ marginTop: 1 }}
         >
           <Typography variant="h5">OPEN</Typography>
-          <Button variant="contained" endIcon={<ForwardIcon />}>
+          <GradientButton
+            variant="contained"
+            endIcon={<ForwardIcon />}
+            borderRadius={"10px"}
+          >
             전체보기
-          </Button>
+          </GradientButton>
         </Stack>
       </Grid>
 

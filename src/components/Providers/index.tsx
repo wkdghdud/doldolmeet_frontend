@@ -2,6 +2,8 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
+import { ThemeProvider } from "@mui/material";
+import themes from "@/components/theme/DefaultColors";
 
 const defaultQueryFn = async ({ queryKey }) => {
   const { data } = await axios.get(
@@ -21,7 +23,9 @@ const Providers = ({ children }: React.PropsWithChildren) => {
       }),
   );
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <ThemeProvider theme={themes}>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </ThemeProvider>
   );
 };
 
