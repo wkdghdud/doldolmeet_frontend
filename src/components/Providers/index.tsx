@@ -12,6 +12,8 @@ const defaultQueryFn = async ({ queryKey }) => {
   return data;
 };
 const Providers = ({ children }: React.PropsWithChildren) => {
+  const theme = themes();
+
   const [queryClient] = React.useState(
     () =>
       new QueryClient({
@@ -23,7 +25,7 @@ const Providers = ({ children }: React.PropsWithChildren) => {
       }),
   );
   return (
-    <ThemeProvider theme={themes}>
+    <ThemeProvider theme={theme}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </ThemeProvider>
   );
