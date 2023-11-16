@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { OpenVidu } from "openvidu-browser";
 import axios from "axios";
-import CreateVideoCall from "@/components/meeting/CreateVideoCall";
+import VideoCallEntrance from "@/components/meeting/VideoCallEntrance";
 import MeetingRoom from "@/components/meeting/MeetingRoom";
 import Timer from "@/components/Timer";
 import { useAtom } from "jotai/react";
 import { currSessionIdAtom, currSessionIdxAtom, sessionIdsAtom } from "@/atom";
+import { useSearchParams } from "next/navigation";
 
 const APPLICATION_SERVER_URL =
   process.env.NODE_ENV === "production"
@@ -14,6 +15,9 @@ const APPLICATION_SERVER_URL =
     : "http://localhost:5001/";
 
 const VideoCall = () => {
+  const searchParams = useSearchParams();
+  const role = searchParams.get("role");
+
   /* 세션 구분용 ID */
   const [mySessionId, setMySessionId] = useAtom(currSessionIdAtom);
   const [sessionIdx, setSessionIdx] = useAtom(currSessionIdxAtom);
@@ -67,7 +71,7 @@ const VideoCall = () => {
   };
 
   /* Session 참여 */
-  const makeNewSession = async () => {
+  const joinSession = async (role: string) => {
     try {
       // OpneVidu 객체 생성
       const ov = new OpenVidu();
@@ -80,7 +84,6 @@ const VideoCall = () => {
         // 새로운 stream을 받을 때마다
         const subscriber = mySession.subscribe(event.stream, undefined); // stream을 subscribe해서 Subscriber 객체를 반환 받고
         setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
-        setFanStream(subscriber);
       });
 
       // 세션에 streamDestroyed 이벤트 등록: 시청자가 나갔을 때
@@ -98,19 +101,19 @@ const VideoCall = () => {
       mySession
         .connect(token, {
           clientData: myUserName,
-          memberCategory: 0,
+          role: role,
         })
         .then(async () => {
           const newPublisher = await ov.initPublisherAsync(undefined, {
             // properties for the publisher
-            audioSource: undefined, // The source of audio. If undefined default microphone
-            videoSource: undefined, // The source of video. If undefined default webcam
-            publishAudio: true, // Whether you want to start publishing with your audio unmuted or not
-            publishVideo: true, // Whether you want to start publishing with your video enabled or not
-            resolution: "640x480", // The resolution of your video
-            frameRate: 30, // The frame rate of your video
-            insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
-            mirror: false, // Whether to mirror your local video or not TODO: 하트 가능하게 하려면 어떻게 해야 할지 확인 필요
+            // audioSource: undefined, // The source of audio. If undefined default microphone
+            // videoSource: undefined, // The source of video. If undefined default webcam
+            // publishAudio: true, // Whether you want to start publishing with your audio unmuted or not
+            // publishVideo: true, // Whether you want to start publishing with your video enabled or not
+            // resolution: "640x480", // The resolution of your video
+            // frameRate: 30, // The frame rate of your video
+            // insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
+            // mirror: true, // Whether to mirror your local video or not TODO: 하트 가능하게 하려면 어떻게 해야 할지 확인 필요
           });
 
           mySession.publish(newPublisher);
@@ -128,11 +131,14 @@ const VideoCall = () => {
 
           setCurrentVideoDevice(currentVideoDevice);
 
-          if (myUserName === "fan") {
+          if (role === "fan") {
+            console.log("😘 난 팬이야");
             setFanStream(newPublisher);
-          } else if (myUserName === "idol") {
+          } else if (role === "idol") {
+            console.log("😎 난 아이돌이야");
             setIdolStream(newPublisher);
           }
+          setPublisher(newPublisher);
         })
         .catch((error) => {
           console.error(
@@ -284,30 +290,28 @@ const VideoCall = () => {
   };
 
   /* 시간이 종료되면 할 일 */
-  const handleTimeout = () => {
-    setMySessionId(sessionIds[sessionIdx + 1]);
-    setSessionIdx((prev) => prev + 1);
+  const handleTimeout = (role: string) => {
+    if (role === "fan") {
+      setMySessionId(sessionIds[sessionIdx + 1]);
+      setSessionIdx((prev) => prev + 1);
+    }
   };
 
   return (
     <div className="container">
       {session === undefined ? (
-        <CreateVideoCall
-          userName={myUserName}
-          sessionId={mySessionId}
-          handleChangeUserName={handleChangeUserName}
-          handleChangeSessionId={handleChangeSessionId}
-          joinSession={makeNewSession}
-        />
+        <VideoCallEntrance joinSession={joinSession} />
       ) : (
         <>
-          <Timer exitValue={3} handleTimeout={handleTimeout} />
+          <Timer exitValue={3} handleTimeout={() => handleTimeout(role)} />
           <MeetingRoom
-            joinSession={makeNewSession}
+            joinSession={joinSession}
             leaveSession={leaveSession}
             toggleDevice={toggleDevice}
-            idol={idolStream}
-            fan={fanStream}
+            // idol={idolStream}
+            // fan={fanStream}
+            publisher={publisher}
+            subscribers={subscribers}
           />
         </>
       )}

@@ -7,4 +7,4 @@ export const sessionIdsAtom = atom([
   "Session_D",
 ]);
 export const currSessionIdxAtom = atom(0);
-export const currSessionIdAtom = atom("");
+export const currSessionIdAtom = atom("SessionA");
