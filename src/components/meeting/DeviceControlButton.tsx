@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { IconButton } from "@mui/material";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import VideocamOffIcon from "@mui/icons-material/VideocamOff";
+import MicIcon from "@mui/icons-material/Mic";
+import MicOffIcon from "@mui/icons-material/MicOff";
 
 interface Props {
-  toggleDevice: (audio, video) => {};
+  toggleDevice: (audio, video) => void;
 }
 
 const DeviceControlButton = ({ toggleDevice }: Props) => {
@@ -19,9 +21,22 @@ const DeviceControlButton = ({ toggleDevice }: Props) => {
   return (
     <>
       {/* TODO: 마이크 껐다 켰다 하는 아이콘 버튼 추가하고, 음성이 껐다 켜지는지 확인 필요 */}
+      {mic ? (
+        <IconButton aria-label="mic" size="large" onClick={() => setMic(!mic)}>
+          <MicIcon fontSize="inherit" />
+        </IconButton>
+      ) : (
+        <IconButton
+          aria-label="mic-off"
+          size="large"
+          onClick={() => setMic(!mic)}
+        >
+          <MicOffIcon fontSize="inherit" />
+        </IconButton>
+      )}
       {camera ? (
         <IconButton
-          aria-label="delete"
+          aria-label="video"
           size="large"
           onClick={() => setCamera(!camera)}
         >
@@ -29,7 +44,7 @@ const DeviceControlButton = ({ toggleDevice }: Props) => {
         </IconButton>
       ) : (
         <IconButton
-          aria-label="delete"
+          aria-label="video-off"
           size="large"
           onClick={() => setCamera(!camera)}
         >
