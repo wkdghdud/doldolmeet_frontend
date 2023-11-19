@@ -8,13 +8,33 @@ import Timer from "@/components/Timer";
 import { useAtom } from "jotai/react";
 import { currSessionIdAtom, currSessionIdxAtom, sessionIdsAtom } from "@/atom";
 import { useSearchParams } from "next/navigation";
+import { Button, Typography } from "@mui/material";
 
 const APPLICATION_SERVER_URL =
   process.env.NODE_ENV === "production"
     ? "https://api.doldolmeet.shop/"
-    : "http://localhost:5001/";
+    : "http://localhost:8080/";
 
 const VideoCall = () => {
+  /* TODO: ***********/
+  const [waiters, setWaiters] = useState<any[]>([]);
+
+  // 세션 생성 후 토큰 획득하기
+  const addToken = async () => {
+    const token = await createToken("Session_A");
+    setWaiters((prev) => [...prev, token]);
+  };
+
+  // useEffect(() => {
+  //   addToken();
+  //   // 10초 간격으로 함수 실행
+  //   const intervalId = setInterval(addToken, 5000);
+  //
+  //   // 컴포넌트가 언마운트될 때 clearInterval 호출하여 메모리 누수 방지
+  //   return () => clearInterval(intervalId);
+  // }, []); // 빈 배열을 전달하여 컴포넌트가 처음 마운트될 때만 실행되도록 함
+  // /* TODO: ***********/
+
   const searchParams = useSearchParams();
   const role = searchParams.get("role");
 
@@ -93,6 +113,52 @@ const VideoCall = () => {
 
       mySession.on("exception", (exception) => {
         console.warn(exception);
+      });
+
+      mySession.on("add_waiting", (event) => {
+        const token = event.data;
+        console.log("🚀 입장하고 싶어요: ", token);
+        setWaiters((prev) => [...prev, token]);
+      });
+
+      mySession.on("signal_timeout", (event) => {
+        console.log("😎 기다리는 팬", waiters);
+        const nextfan = waiters[0]; //
+        console.log("🥳 다음 팬: ", nextfan);
+        if (nextfan) {
+          mySession
+            .connect(nextfan, {
+              clientData: myUserName,
+              role: role,
+            })
+            .then(async () => {
+              const newPublisher = await ov.initPublisherAsync(undefined, {});
+
+              mySession.publish(newPublisher);
+              const devices = await ov.getDevices();
+              const videoDevices = devices.filter(
+                (device) => device.kind === "videoinput",
+              );
+              const currentVideoDeviceId = newPublisher.stream
+                .getMediaStream()
+                .getVideoTracks()[0]
+                .getSettings().deviceId;
+              const currentVideoDevice = videoDevices.find(
+                (device) => device.deviceId === currentVideoDeviceId,
+              );
+
+              setCurrentVideoDevice(currentVideoDevice);
+
+              if (role === "fan") {
+                console.log("😘 난 팬이야");
+                setFanStream(newPublisher);
+              } else if (role === "idol") {
+                console.log("😎 난 아이돌이야");
+                setIdolStream(newPublisher);
+              }
+              setPublisher(newPublisher);
+            });
+        }
       });
 
       // Connection해서 Token 발급 받기
@@ -279,6 +345,7 @@ const VideoCall = () => {
      * 이 토큰은 unauthorized 사용자가 세션에 접속하지 못하도록 막아준다.
      * 한 번 커넥션을 획득한 클라이언트는 쭉 세션의 참여자로 인식된다.
      * */
+
     const response = await axios.post(
       APPLICATION_SERVER_URL + "api/sessions/" + sessionId + "/connections",
       {},
@@ -286,6 +353,7 @@ const VideoCall = () => {
         headers: { "Content-Type": "application/json" },
       },
     );
+
     return response.data;
   };
 
@@ -297,10 +365,37 @@ const VideoCall = () => {
     }
   };
 
+  const requestWaiting = async () => {
+    const token = await createToken("Session_A");
+
+    axios
+      .post(
+        "http://localhost:4443" + "/openvidu/api/signal",
+        {
+          session: "Session_A",
+          type: "add_waiting",
+          data: token,
+        },
+        {
+          headers: {
+            Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => console.error(error));
+  };
+
   return (
     <div className="container">
       {session === undefined ? (
-        <VideoCallEntrance joinSession={joinSession} />
+        <VideoCallEntrance
+          joinSession={joinSession}
+          requestJoin={requestWaiting}
+        />
       ) : (
         <>
           <Timer exitValue={3} handleTimeout={() => handleTimeout(role)} />
@@ -313,6 +408,10 @@ const VideoCall = () => {
             publisher={publisher}
             subscribers={subscribers}
           />
+          <Button onClick={requestWaiting}>대기 요청하기</Button>
+          <Button onClick={requestWaiting}>참여시키기</Button>
+          {waiters &&
+            waiters.map((w, i) => <Typography key={i}>{w}</Typography>)}
         </>
       )}
     </div>

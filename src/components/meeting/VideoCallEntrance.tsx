@@ -4,9 +4,10 @@ import { useSearchParams } from "next/navigation";
 
 interface Props {
   joinSession: (role: string) => void;
+  requestJoin: () => void;
 }
 
-const VideoCallEntrance = ({ joinSession }: Props) => {
+const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
   const searchParams = useSearchParams();
   const role = searchParams.get("role");
 
@@ -15,7 +16,7 @@ const VideoCallEntrance = ({ joinSession }: Props) => {
       {role === "idol" ? (
         <IdolEntrance createSession={() => joinSession("idol")} />
       ) : (
-        <FanEntrance joinSession={() => joinSession("fan")} />
+        <FanEntrance joinSession={requestJoin} />
       )}
     </>
   );
