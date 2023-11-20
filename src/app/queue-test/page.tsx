@@ -15,7 +15,7 @@ import axios from "axios";
 
 const APPLICATION_SERVER_URL =
   process.env.NODE_ENV === "production"
-    ? "http://43.201.87.133:8080/"
+    ? "https://api.doldolmeet.shop/"
     : "http://localhost:8080/";
 
 const WAITING_ROOM_SESSION_ID = "waiting_room";
