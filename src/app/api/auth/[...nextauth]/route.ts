@@ -1,5 +1,6 @@
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { CookiesOptions } from "next-auth";
 
 const handler = NextAuth({
   providers: [
@@ -26,13 +27,13 @@ const handler = NextAuth({
           }),
         });
         const user = await res.json();
-
+        // localStorage.setItem("token", res.headers.get("Authorization") ?? "");
         if (user) {
-          // Any object returned will be saved in `user` property of the JWT
+          user.data = res.headers.get("Authorization");
           return user;
         } else {
           // If you return null then an error will be displayed advising the user to check their details.
-          return null;
+          return res.headers.get("Authorization");
 
           // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         }
@@ -40,7 +41,11 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      if (user) {
+        // @ts-ignore
+        token.access_token = user.access_token;
+      }
       return { ...token, ...user };
     },
 
