@@ -20,7 +20,7 @@ export const OPENVIDU_SECRET =
 export const openvidu_api = axios.create({
   baseURL: OPENVIDU_URL,
   headers: {
-    Authorization: "Basic " + btoa(`OPENVIDUAPP:${OPENVIDU_SECRET}`),
+    Authorization: "Basic " + btoa(`ADMIN:${OPENVIDU_SECRET}`),
     "Content-Type": "application/json",
   },
 });
