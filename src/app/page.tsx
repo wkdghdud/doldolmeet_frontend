@@ -6,7 +6,7 @@ import { useMeetings } from "@/hooks/useMeetings";
 import GradientButton from "@/components/GradientButton";
 import PostCard, { Post } from "@/components/PostCard";
 import ShowDialog from "../components/ShowDialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 export default function Home() {
   const { data } = useMeetings(1);
@@ -30,9 +30,17 @@ export default function Home() {
     createdAt: "05 Mar 2023",
   };
 
-  const [roomId, setRoomId] = useState(
-    localStorage.getItem("wschat.roomId") || "",
-  );
+  const [roomId, setRoomId] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedRoomId = localStorage.getItem("wschat.roomId");
+      if (storedRoomId) {
+        setRoomId(storedRoomId);
+      }
+    }
+  }, []);
+
   const [room, setRoom] = useState({});
 
   // const [sender, setSender] = useState(
