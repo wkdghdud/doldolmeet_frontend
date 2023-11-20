@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { TextField, Button } from "@mui/material";
+import { useState } from "react";
+import { Button, TextField } from "@mui/material";
 import axios from "axios";
-import { useSession } from "next-auth/react";
 
 const Signup = () => {
   const [email, setEmail] = useState("");

@@ -1,6 +1,5 @@
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { CookiesOptions } from "next-auth";
 
 const handler = NextAuth({
   providers: [
@@ -27,16 +26,13 @@ const handler = NextAuth({
           }),
         });
         const user = await res.json();
-        // localStorage.setItem("token", res.headers.get("Authorization") ?? "");
-        if (user) {
+
+        if (user && res.ok) {
           user.data = res.headers.get("Authorization");
           return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return res.headers.get("Authorization");
-
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         }
+
+        return Promise.reject(new Error("로그인에 실패했습니다."));
       },
     }),
   ],
@@ -57,6 +53,7 @@ const handler = NextAuth({
   pages: {
     signIn: "/login",
   },
+  session: { strategy: "jwt" },
 });
 
 export { handler as GET, handler as POST };

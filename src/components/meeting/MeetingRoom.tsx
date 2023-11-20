@@ -43,15 +43,19 @@ const MeetingRoom = ({
       <Typography variant={"h2"}>{mySessionId}</Typography>
       <Stack direction={"row"} spacing={3} sx={{ marginTop: 2 }}>
         <p>idol</p>
-        <UserVideoComponent
-          key="idol-video"
-          streamManager={role === "idol" ? publisher : subscribers[0]}
-        />
-        <p>fan</p>
-        <UserVideoComponent
-          key="fan-video"
-          streamManager={role === "idol" ? subscribers[0] : publisher}
-        />
+        {/*<UserVideoComponent*/}
+        {/*  key="idol-video"*/}
+        {/*  streamManager={role === "idol" ? publisher : subscribers[0]}*/}
+        {/*/>*/}
+        {/*<p>fan</p>*/}
+        {/*<UserVideoComponent*/}
+        {/*  key="fan-video"*/}
+        {/*  streamManager={role === "idol" ? subscribers[0] : publisher}*/}
+        {/*/>*/}
+        <UserVideoComponent key="idol-video" streamManager={publisher} />
+        {subscribers.map((sub, i) => (
+          <UserVideoComponent key={i} streamManager={sub} />
+        ))}
       </Stack>
       <Button variant={"contained"} onClick={leaveSession}>
         방 나가기
