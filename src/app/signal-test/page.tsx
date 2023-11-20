@@ -7,7 +7,7 @@ import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 
 const APPLICATION_SERVER_URL =
   process.env.NODE_ENV === "production"
-    ? "https://api.doldolmeet.shop/"
+    ? "http://43.201.87.133:8080/"
     : "http://localhost:8080/";
 
 const WAITING_ROOM_SESSION_ID = "waiting_room";
