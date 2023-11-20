@@ -33,6 +33,7 @@ export default async function RootLayout({
                 mx: "auto",
                 backgroundColor: "#F8F8F8",
                 paddingTop: 10,
+                minHeight: "98vh",
               }}
             >
               {children}

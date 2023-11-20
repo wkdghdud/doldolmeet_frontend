@@ -35,17 +35,6 @@ export default function Header() {
             {session?.user ? "로그아웃" : "로그인"}
           </GradientButton>
         </Link>
-
-        <Link href="/register" style={{ textDecoration: "none" }}>
-          <GradientButton
-            variant="contained"
-            disableElevation
-            borderRadius={"30px"}
-            sx={{ px: 3 }}
-          >
-            회원가입
-          </GradientButton>
-        </Link>
       </Toolbar>
     </AppBar>
   );
