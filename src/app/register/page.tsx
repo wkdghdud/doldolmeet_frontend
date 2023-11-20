@@ -2,9 +2,8 @@
 
 import React, { useState } from "react";
 import { Button, Stack, TextField } from "@mui/material";
-import axios from "axios";
 import Typography from "@mui/material/Typography";
-import Link from "next/link";
+import { backend_api } from "@/utils/api";
 
 const Signup = () => {
   const [userName, setUserName] = useState("");
@@ -12,7 +11,7 @@ const Signup = () => {
 
   const handleSignup = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/signup", {
+      const response = await backend_api.post("/signup", {
         username: userName,
         password: password,
       });

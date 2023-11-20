@@ -1,13 +1,14 @@
 "use client";
 import Banner from "@/components/Banner";
-import { Button, Grid, Stack, Typography, Box } from "@mui/material";
+import { Grid, Stack, Typography } from "@mui/material";
 import ForwardIcon from "@mui/icons-material/Forward";
 import { useMeetings } from "@/hooks/useMeetings";
 import GradientButton from "@/components/GradientButton";
 import PostCard, { Post } from "@/components/PostCard";
 import ShowDialog from "../components/ShowDialog";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { backend_api } from "@/utils/api";
+
 export default function Home() {
   const { data } = useMeetings(1);
 
@@ -57,9 +58,9 @@ export default function Home() {
   const moveWaitingRoom = (e) => {
     e.preventDefault();
 
-    axios
+    backend_api
       .post(
-        "http://localhost:8080/chat/room",
+        "/chat/room",
         { name },
         {
           headers: {

@@ -1,12 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Typography } from "@mui/material";
-
-const APPLICATION_SERVER_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://api.doldolmeet.shop/"
-    : "http://localhost:8080/";
+import { backend_api } from "@/utils/api";
 
 const ReadyQueue = () => {
   const [waiters, setWaiters] = useState<any[]>([]);
@@ -32,8 +27,8 @@ const ReadyQueue = () => {
      * 이 토큰은 unauthorized 사용자가 세션에 접속하지 못하도록 막아준다.
      * 한 번 커넥션을 획득한 클라이언트는 쭉 세션의 참여자로 인식된다.
      * */
-    const response = await axios.post(
-      APPLICATION_SERVER_URL + "api/sessions/" + sessionId + "/connections",
+    const response = await backend_api.post(
+      "/api/sessions/" + sessionId + "/connections",
       {},
       {
         headers: { "Content-Type": "application/json" },

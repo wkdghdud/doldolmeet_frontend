@@ -11,12 +11,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import axios from "axios";
-
-const APPLICATION_SERVER_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://api.doldolmeet.shop/"
-    : "http://localhost:8080/";
+import { backend_api } from "@/utils/api";
 
 const WAITING_ROOM_SESSION_ID = "waiting_room";
 
@@ -25,7 +20,7 @@ const QueueTest = () => {
   const [fanNumber, setFanNumber] = useState<number>(0);
   const [queueSession, setQueueSession] = useState(undefined);
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
-  const [sessionId, setSessionId] = useState<>("");
+  const [sessionId, setSessionId] = useState("");
 
   /*
    * Session 생성
@@ -33,8 +28,8 @@ const QueueTest = () => {
    * 같은 세션에 연결된 사람끼리만 서로 연락할 수 있음.
    * */
   const createSession = async (sessionId) => {
-    const response = await axios.post(
-      APPLICATION_SERVER_URL + "api/sessions",
+    const response = await backend_api.post(
+      "/api/sessions",
       { customSessionId: sessionId },
       {
         headers: { "Content-Type": "application/json" },
@@ -58,8 +53,8 @@ const QueueTest = () => {
      * 이 토큰은 unauthorized 사용자가 세션에 접속하지 못하도록 막아준다.
      * 한 번 커넥션을 획득한 클라이언트는 쭉 세션의 참여자로 인식된다.
      * */
-    const response = await axios.post(
-      APPLICATION_SERVER_URL + "api/sessions/" + sessionId + "/connections",
+    const response = await backend_api.post(
+      "/api/sessions/" + sessionId + "/connections",
       {},
       {
         headers: { "Content-Type": "application/json" },

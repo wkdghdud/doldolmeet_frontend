@@ -9,11 +9,7 @@ import { useAtom } from "jotai/react";
 import { currSessionIdAtom, currSessionIdxAtom, sessionIdsAtom } from "@/atom";
 import { useSearchParams } from "next/navigation";
 import { Button, Typography } from "@mui/material";
-
-const APPLICATION_SERVER_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://api.doldolmeet.shop/"
-    : "http://localhost:8080/";
+import { backend_api, openvidu_api } from "@/utils/api";
 
 const VideoCall = () => {
   /* TODO: ***********/
@@ -320,8 +316,8 @@ const VideoCall = () => {
    * 같은 세션에 연결된 사람끼리만 서로 연락할 수 있음.
    * */
   const createSession = async (sessionId) => {
-    const response = await axios.post(
-      APPLICATION_SERVER_URL + "api/sessions",
+    const response = await backend_api.post(
+      "/api/sessions",
       { customSessionId: sessionId },
       {
         headers: { "Content-Type": "application/json" },
@@ -368,21 +364,12 @@ const VideoCall = () => {
   const requestWaiting = async () => {
     const token = await createToken("Session_A");
 
-    axios
-      .post(
-        "http://localhost:4443" + "/openvidu/api/signal",
-        {
-          session: "Session_A",
-          type: "add_waiting",
-          data: token,
-        },
-        {
-          headers: {
-            Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
-            "Content-Type": "application/json",
-          },
-        },
-      )
+    openvidu_api
+      .post("/openvidu/api/signal", {
+        session: "Session_A",
+        type: "add_waiting",
+        data: token,
+      })
       .then((response) => {
         console.log(response);
       })

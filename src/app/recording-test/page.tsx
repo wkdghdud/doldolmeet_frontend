@@ -1,12 +1,8 @@
 "use client";
 import { OpenVidu } from "openvidu-browser";
-
-import axios from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import UserVideoComponent from "@/components/UserVideoComponent";
-
-const APPLICATION_SERVER_URL =
-  process.env.NODE_ENV === "production" ? "" : "http://localhost:8080/";
+import { backend_api } from "@/utils/api";
 
 export default function App() {
   const [mySessionId, setMySessionId] = useState("SessionA");
@@ -199,8 +195,8 @@ export default function App() {
   }, [mySessionId]);
 
   const createSession = async (sessionId) => {
-    const response = await axios.post(
-      APPLICATION_SERVER_URL + "api/sessions",
+    const response = await backend_api.post(
+      "/api/sessions",
       { customSessionId: sessionId }, // uuid
       {
         headers: { "Content-Type": "application/json" },
@@ -210,8 +206,8 @@ export default function App() {
   };
 
   const createToken = async (sessionId) => {
-    const response = await axios.post(
-      APPLICATION_SERVER_URL + "api/sessions/" + sessionId + "/connections",
+    const response = await backend_api.post(
+      "/api/sessions/" + sessionId + "/connections",
       {},
       {
         headers: { "Content-Type": "application/json" },

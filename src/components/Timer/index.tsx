@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Alert, AlertTitle, Snackbar } from "@mui/material";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import { openvidu_api } from "@/utils/api";
 
 const TIME_IN_MILISECONDS_TO_COUNTDOWN = 10 * 1000;
 const INTERVAL_IN_MILISECONDS = 100;
@@ -25,19 +25,13 @@ const Timer = ({ handleTimeout, exitValue }: Props) => {
       setSnackbarOpen(true);
       setHasAlert(true);
 
-      axios
+      openvidu_api
         .post(
-          "http://localhost:4443" + "/openvidu/api/signal", // TODO: URL 수정 필요
+          "/openvidu/api/signal", // TODO: URL 수정 필요
           {
             session: "Session_A", // TODO: 세션 아이디를 props로 받도록 수정 필요
             type: "signal_timeout",
             data: "This is my signal data",
-          },
-          {
-            headers: {
-              Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"), // TODO: secret 값 수정 필요
-              "Content-Type": "application/json",
-            },
           },
         )
         .then((response) => {

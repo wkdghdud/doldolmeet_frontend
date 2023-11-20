@@ -1,12 +1,8 @@
 "use client";
 import { OpenVidu } from "openvidu-browser";
-
-import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import UserVideoComponent from "@/components/UserVideoComponent";
-
-const APPLICATION_SERVER_URL =
-  process.env.NODE_ENV === "production" ? "" : "http://localhost:4443/";
+import { openvidu_api } from "@/utils/api";
 
 export default function App() {
   const [mySessionId, setMySessionId] = useState("SessionA");
@@ -38,9 +34,9 @@ export default function App() {
   //start recording
 
   const startRecording = () => {
-    axios
+    openvidu_api
       .post(
-        "http://localhost:4443/openvidu/api/recordings/start",
+        "/openvidu/api/recordings/start",
 
         {
           session: mySessionId,
@@ -58,12 +54,6 @@ export default function App() {
           //   id: "media_i-0c58bcdd26l11d0sd",
           // },
         },
-        {
-          headers: {
-            Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
-            "Content-Type": "application/json",
-          },
-        },
       )
       .then((response) => {
         setForceRecordingId(response.data.id);
@@ -74,17 +64,8 @@ export default function App() {
   };
 
   const stopRecording = () => {
-    axios
-      .post(
-        `http://localhost:4443/openvidu/api/recordings/stop/${forceRecordingId}`,
-        {},
-        {
-          headers: {
-            Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
-            "Content-Type": "application/json",
-          },
-        },
-      )
+    openvidu_api
+      .post(`/openvidu/api/recordings/stop/${forceRecordingId}`)
       .then((response) => {
         console.log(response.data);
       })
@@ -302,17 +283,8 @@ export default function App() {
 
   const createSession = async (sessionId) => {
     return new Promise((resolve, reject) => {
-      axios
-        .post(
-          APPLICATION_SERVER_URL + "openvidu/api/sessions",
-          { customSessionId: sessionId },
-          {
-            headers: {
-              Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
-              "Content-Type": "application/json",
-            },
-          },
-        )
+      openvidu_api
+        .post("/openvidu/api/sessions", { customSessionId: sessionId })
         .then((response) => {
           resolve(response.data.id);
         })
@@ -328,20 +300,8 @@ export default function App() {
   const createToken = (mySessionId) => {
     return new Promise((resolve, reject) => {
       var data = {};
-      axios
-        .post(
-          APPLICATION_SERVER_URL +
-            "openvidu/api/sessions/" +
-            mySessionId +
-            "/connection",
-          data,
-          {
-            headers: {
-              Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
-              "Content-Type": "application/json",
-            },
-          },
-        )
+      openvidu_api
+        .post("/openvidu/api/sessions/" + mySessionId + "/connection", data)
         .then((response) => {
           resolve(response.data.token);
         })
