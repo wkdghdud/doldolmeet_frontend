@@ -36,6 +36,7 @@ export default function App() {
     }
   };
   //start recording
+
   const startRecording = () => {
     axios
       .post(
@@ -46,7 +47,7 @@ export default function App() {
           name: "room-" + mySessionId + "_memberId-" + myUserName,
           hasAudio: true,
           hasVideo: true,
-          outputMode: "COMPOSED",
+          outputMode: "INDIVIDUAL",
           // recordingLayout: "CUSTOM",
           // customLayout: "mySimpleLayout",
           // resolution: "1280x720",
@@ -72,6 +73,25 @@ export default function App() {
       });
   };
 
+  const stopRecording = () => {
+    axios
+      .post(
+        `http://localhost:4443/openvidu/api/recordings/stop/${forceRecordingId}`,
+        {},
+        {
+          headers: {
+            Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Stop recording WRONG:", error);
+      });
+  };
   const joinSession = async () => {
     try {
       // OpneVidu 객체 생성
@@ -391,7 +411,7 @@ export default function App() {
               value="Leave session"
             />
             <button onClick={startRecording}>Start Recording</button>
-
+            <button onClick={stopRecording}>Stop Recording</button>
             <input
               className="btn btn-large btn-success"
               type="button"
