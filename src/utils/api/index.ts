@@ -11,11 +11,11 @@ export const backend_api = axios.create({
 
 export const OPENVIDU_URL =
   process.env.NODE_ENV === "production"
-    ? "https://43.200.7.118:443"
+    ? "https://demos.openvidu.io/"
     : "http://localhost:4443";
 
 export const OPENVIDU_SECRET =
-  process.env.NODE_ENV === "production" ? "1234" : "MY_SECRET";
+  process.env.NODE_ENV === "production" ? "MY_SECRET" : "MY_SECRET";
 
 export const openvidu_api = axios.create({
   baseURL: OPENVIDU_URL,
