@@ -10,7 +10,7 @@ const OpenViduVideoComponent = ({ streamManager }: Publisher | Subscriber) => {
     }
   }, [streamManager]);
 
-  return <video autoPlay={true} ref={videoRef} />;
+  return <video autoPlay={true} ref={videoRef} style={{ borderRadius: 20 }} />;
 };
 
 export default OpenViduVideoComponent;

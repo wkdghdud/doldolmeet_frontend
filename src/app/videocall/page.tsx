@@ -2,16 +2,26 @@
 import { useEffect, useState } from "react";
 import { OpenVidu } from "openvidu-browser";
 import axios from "axios";
-import UserVideoComponent from "@/components/UserVideoComponent";
+import VideoCallEntrance from "@/components/meeting/VideoCallEntrance";
+import MeetingRoom from "@/components/meeting/MeetingRoom";
+import Timer from "@/components/Timer";
+import { useAtom } from "jotai/react";
+import { currSessionIdAtom, currSessionIdxAtom, sessionIdsAtom } from "@/atom";
+import { useSearchParams } from "next/navigation";
 
 const APPLICATION_SERVER_URL =
   process.env.NODE_ENV === "production"
     ? "https://api.doldolmeet.shop/"
-    : "http://localhost:5001/"; // TODO: 각자 실행한 백엔드 서버에 맞게 포트 수정 필요
+    : "http://localhost:5001/";
 
 const VideoCall = () => {
+  const searchParams = useSearchParams();
+  const role = searchParams.get("role");
+
   /* 세션 구분용 ID */
-  const [mySessionId, setMySessionId] = useState("SessionA");
+  const [mySessionId, setMySessionId] = useAtom(currSessionIdAtom);
+  const [sessionIdx, setSessionIdx] = useAtom(currSessionIdxAtom);
+  const [sessionIds, setSessionIds] = useAtom(sessionIdsAtom);
 
   /* 세션 참여자로서 보여지는 이름 */
   const [myUserName, setMyUserName] = useState(
@@ -25,13 +35,15 @@ const VideoCall = () => {
    * 스트림은 세션으로 흐르는 미디어 스트림이다.
    * 참가자는 스트림을 게시(publish)할 수 있고, 동일한 세션의 다른 참가자들은 해당 스트림을 구독(subscribe)할 수 있다.
    * */
-  const [mainStreamManager, setMainStreamManager] = useState(undefined);
   const [publisher, setPublisher] = useState(undefined); // 스트리머
   const [subscribers, setSubscribers] = useState([]); // 시청자
+  const [idolStream, setIdolStream] = useState(undefined); // 아이돌
+  const [fanStream, setFanStream] = useState(undefined); // 팬
 
   /* Video 장치 */
   const [currentVideoDevice, setCurrentVideoDevice] = useState(undefined);
 
+  /* 페이지를 나갈 때 leaveSession 함수를 실행하도록 설정 */
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       leaveSession();
@@ -44,18 +56,12 @@ const VideoCall = () => {
     };
   }, []);
 
-  const handleChangeSessionId = (e) => {
+  const handleChangeSessionId = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMySessionId(e.target.value);
   };
 
-  const handleChangeUserName = (e) => {
+  const handleChangeUserName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMyUserName(e.target.value);
-  };
-
-  const handleMainVideoStream = (stream) => {
-    if (mainStreamManager !== stream) {
-      setMainStreamManager(stream);
-    }
   };
 
   /* Subscriber 삭제 */
@@ -65,7 +71,7 @@ const VideoCall = () => {
   };
 
   /* Session 참여 */
-  const joinSession = async () => {
+  const joinSession = async (role: string) => {
     try {
       // OpneVidu 객체 생성
       const ov = new OpenVidu();
@@ -73,14 +79,14 @@ const VideoCall = () => {
       // 세션 초기화
       const mySession = ov.initSession();
 
-      // 세션에 streamCreated 이벤트 등록
+      // 세션에 streamCreated 이벤트 등록: 새로운 시청자가 들어왔을 때
       mySession.on("streamCreated", (event) => {
         // 새로운 stream을 받을 때마다
         const subscriber = mySession.subscribe(event.stream, undefined); // stream을 subscribe해서 Subscriber 객체를 반환 받고
         setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
       });
 
-      // 세션에 streamDestroyed 이벤트 등록
+      // 세션에 streamDestroyed 이벤트 등록: 시청자가 나갔을 때
       mySession.on("streamDestroyed", (event) => {
         deleteSubscriber(event.stream.streamManager);
       });
@@ -89,12 +95,25 @@ const VideoCall = () => {
         console.warn(exception);
       });
 
+      // Connection해서 Token 발급 받기
       const token = await getToken();
+
       mySession
-        .connect(token, { clientData: myUserName })
+        .connect(token, {
+          clientData: myUserName,
+          role: role,
+        })
         .then(async () => {
           const newPublisher = await ov.initPublisherAsync(undefined, {
             // properties for the publisher
+            // audioSource: undefined, // The source of audio. If undefined default microphone
+            // videoSource: undefined, // The source of video. If undefined default webcam
+            // publishAudio: true, // Whether you want to start publishing with your audio unmuted or not
+            // publishVideo: true, // Whether you want to start publishing with your video enabled or not
+            // resolution: "640x480", // The resolution of your video
+            // frameRate: 30, // The frame rate of your video
+            // insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
+            // mirror: true, // Whether to mirror your local video or not TODO: 하트 가능하게 하려면 어떻게 해야 할지 확인 필요
           });
 
           mySession.publish(newPublisher);
@@ -111,11 +130,18 @@ const VideoCall = () => {
           );
 
           setCurrentVideoDevice(currentVideoDevice);
-          setMainStreamManager(newPublisher);
+
+          if (role === "fan") {
+            console.log("😘 난 팬이야");
+            setFanStream(newPublisher);
+          } else if (role === "idol") {
+            console.log("😎 난 아이돌이야");
+            setIdolStream(newPublisher);
+          }
           setPublisher(newPublisher);
         })
         .catch((error) => {
-          console.log(
+          console.error(
             "There was an error connecting to the session:",
             error.code,
             error.message,
@@ -134,11 +160,55 @@ const VideoCall = () => {
       session.disconnect();
     }
 
-    setMainStreamManager(undefined);
     setPublisher(undefined);
     setSubscribers([]);
-    setMySessionId("SessionA");
-    setMyUserName("Participant" + Math.floor(Math.random() * 100));
+    setIdolStream(undefined);
+    setFanStream(undefined);
+    setMySessionId("");
+    setMyUserName("");
+  };
+
+  const toggleDevice = async (audio, video) => {
+    const ov = new OpenVidu();
+
+    try {
+      // let devices = await ov.getDevices();
+      // let videoDevices = devices.filter(
+      //   (device) => device.kind === "videoinput",
+      // );
+
+      // 아래가 OpenVidu tutorial 코드
+      const devices = await session.getDevices();
+      const videoDevices = devices.filter(
+        (device) => device.kind === "videoinput",
+      );
+
+      let newPublisher = ov.initPublisher(undefined, {
+        audioSource: undefined, // The source of audio. If undefined default microphone
+        videoSource: videoDevices[0].deviceId, // The source of video. If undefined default webcam
+        publishAudio: audio, // Whether you want to start publishing with your audio unmuted or not
+        publishVideo: video, // Whether you want to start publishing with your video enabled or not
+        resolution: "640x480", // The resolution of your video
+        frameRate: 30, // The frame rate of your video
+        insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
+        mirror: false, // Whether to mirror your local video
+      });
+
+      await session.unpublish(publisher);
+
+      await session.publish(newPublisher);
+
+      const dataObj = {
+        currentVideoDevice: videoDevices[0],
+        publisher: newPublisher,
+      };
+
+      setCurrentVideoDevice(dataObj.currentVideoDevice);
+      setPublisher(newPublisher);
+      setIdolStream(newPublisher);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   /* 카메라 전환 */
@@ -160,12 +230,11 @@ const VideoCall = () => {
             // other properties
           });
 
-          await session.unpublish(mainStreamManager);
+          await session.unpublish(publisher);
           await session.publish(newPublisher);
 
           setCurrentVideoDevice(newVideoDevice[0]);
-          setMainStreamManager(newPublisher);
-          setPublisher(newPublisher);
+          setIdolStream(newPublisher);
         }
       }
     } catch (error) {
@@ -220,99 +289,32 @@ const VideoCall = () => {
     return response.data;
   };
 
+  /* 시간이 종료되면 할 일 */
+  const handleTimeout = (role: string) => {
+    if (role === "fan") {
+      setMySessionId(sessionIds[sessionIdx + 1]);
+      setSessionIdx((prev) => prev + 1);
+    }
+  };
+
   return (
     <div className="container">
       {session === undefined ? (
-        <div id="join">
-          <div id="img-div">
-            <img
-              src="resources/images/openvidu_grey_bg_transp_cropped.png"
-              alt="OpenVidu logo"
-            />
-          </div>
-          <div id="join-dialog" className="jumbotron vertical-center">
-            <h1> Join a video session </h1>
-            <p>
-              <label>Participant: </label>
-              <input
-                className="form-control"
-                type="text"
-                id="userName"
-                value={myUserName}
-                onChange={handleChangeUserName}
-                required
-              />
-            </p>
-            <p>
-              <label> Session: </label>
-              <input
-                className="form-control"
-                type="text"
-                id="sessionId"
-                value={mySessionId}
-                onChange={handleChangeSessionId}
-                required
-              />
-            </p>
-            <p className="text-center">
-              <input
-                className="btn btn-lg btn-success"
-                name="commit"
-                value="JOIN"
-                onClick={joinSession}
-              />
-            </p>
-          </div>
-        </div>
-      ) : null}
-
-      {session !== undefined ? (
-        <div id="session">
-          <div id="session-header">
-            <h1 id="session-title">{mySessionId}</h1>
-            <input
-              className="btn btn-large btn-danger"
-              type="button"
-              id="buttonLeaveSession"
-              onClick={leaveSession}
-              value="Leave session"
-            />
-            <input
-              className="btn btn-large btn-success"
-              type="button"
-              id="buttonSwitchCamera"
-              onClick={switchCamera}
-              value="Switch Camera"
-            />
-          </div>
-
-          {mainStreamManager !== undefined ? (
-            <div id="main-video" className="col-md-6">
-              <UserVideoComponent streamManager={mainStreamManager} />
-            </div>
-          ) : null}
-          <div id="video-container" className="col-md-6">
-            {publisher !== undefined ? (
-              <div
-                className="stream-container col-md-6 col-xs-6"
-                onClick={() => handleMainVideoStream(publisher)}
-              >
-                <UserVideoComponent streamManager={publisher} />
-              </div>
-            ) : null}
-            {subscribers.map((sub, i) => (
-              <div
-                key={sub.id}
-                className="stream-container col-md-6 col-xs-6"
-                onClick={() => handleMainVideoStream(sub)}
-              >
-                <span>{sub.id}</span>
-                <UserVideoComponent streamManager={sub} />
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
+        <VideoCallEntrance joinSession={joinSession} />
+      ) : (
+        <>
+          <Timer exitValue={3} handleTimeout={() => handleTimeout(role)} />
+          <MeetingRoom
+            joinSession={joinSession}
+            leaveSession={leaveSession}
+            toggleDevice={toggleDevice}
+            // idol={idolStream}
+            // fan={fanStream}
+            publisher={publisher}
+            subscribers={subscribers}
+          />
+        </>
+      )}
     </div>
   );
 };
