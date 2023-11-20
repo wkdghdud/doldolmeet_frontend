@@ -27,20 +27,21 @@ const handler = NextAuth({
         });
         const user = await res.json();
 
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
+        if (user && res.ok) {
+          user.data = res.headers.get("Authorization");
           return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null;
-
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         }
+
+        return Promise.reject(new Error("로그인에 실패했습니다."));
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      if (user) {
+        // @ts-ignore
+        token.access_token = user.access_token;
+      }
       return { ...token, ...user };
     },
 
@@ -52,6 +53,7 @@ const handler = NextAuth({
   pages: {
     signIn: "/login",
   },
+  session: { strategy: "jwt" },
 });
 
 export { handler as GET, handler as POST };
