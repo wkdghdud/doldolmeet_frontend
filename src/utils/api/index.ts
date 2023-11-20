@@ -11,7 +11,7 @@ export const backend_api = axios.create({
 
 export const OPENVIDU_URL =
   process.env.NODE_ENV === "production"
-    ? "https://demos.openvidu.io/"
+    ? "https://3.39.215.13"
     : "http://localhost:4443";
 
 export const OPENVIDU_SECRET =
