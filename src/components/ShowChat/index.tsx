@@ -10,7 +10,10 @@ const ShowChat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [sender, setSender] = useState<string | null>("");
-  const sock = new SockJS("https://api.doldolmeet.shop/ws-stomp");
+  const sock = new SockJS("https://api.doldolmeet.shop/ws-stomp", null, {
+    transports: ["websocket"],
+    withCredentials: true,
+  });
   const stompClient = Stomp.over(sock);
 
   const messagesRef = useRef(null);
@@ -75,7 +78,7 @@ const ShowChat = () => {
           padding: "20px",
           maxWidth: "400px",
           width: "100%",
-          height: "600px", // Increase the height here
+          height: "65vh", // Increase the height here
           marginBottom: "20px",
         }}
       >
