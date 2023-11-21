@@ -17,7 +17,7 @@ const handler = NextAuth({
       },
       async authorize(credentials, req) {
         try {
-          const response = await backend_api.post(
+          const response = await backend_api().post(
             "/login",
             {
               username: credentials?.username,

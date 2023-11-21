@@ -27,7 +27,7 @@ const ReadyQueue = () => {
      * 이 토큰은 unauthorized 사용자가 세션에 접속하지 못하도록 막아준다.
      * 한 번 커넥션을 획득한 클라이언트는 쭉 세션의 참여자로 인식된다.
      * */
-    const response = await backend_api.post(
+    const response = await backend_api().post(
       "/api/sessions/" + sessionId + "/connections",
       {},
       {

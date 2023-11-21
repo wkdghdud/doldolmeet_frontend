@@ -1,8 +1,16 @@
 "use client";
 import { useSession } from "next-auth/react";
 import jwt from "jsonwebtoken";
+import { Role } from "@/types";
 
-const useJwtToken = () => {
+export interface JwtToken {
+  auth: Role;
+  exp: number;
+  iat: number;
+  sub: string;
+}
+
+const useJwtToken = async (): Promise<JwtToken | null> => {
   const { data: session } = useSession();
 
   // @ts-ignore
@@ -10,7 +18,8 @@ const useJwtToken = () => {
 
   if (!token) return null;
 
-  return jwt.decode(token);
+  const decoded = await jwt.decode(token);
+  return decoded as JwtToken;
 };
 
 export default useJwtToken;

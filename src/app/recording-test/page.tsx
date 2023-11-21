@@ -195,7 +195,7 @@ export default function App() {
   }, [mySessionId]);
 
   const createSession = async (sessionId) => {
-    const response = await backend_api.post(
+    const response = await backend_api().post(
       "/api/sessions",
       { customSessionId: sessionId }, // uuid
       {
@@ -206,7 +206,7 @@ export default function App() {
   };
 
   const createToken = async (sessionId) => {
-    const response = await backend_api.post(
+    const response = await backend_api().post(
       "/api/sessions/" + sessionId + "/connections",
       {},
       {
