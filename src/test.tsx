@@ -11,7 +11,7 @@ const ShowChat = () => {
 
   // const [message, setMessage] = useState("");
 
-  const sock = new SockJS("http://localhost:8080/ws-stomp");
+  const sock = new SockJS("https://api.doldolmeet.shop/ws-stomp");
   const stompClient = Stomp.over(sock);
   let room = "";
 
