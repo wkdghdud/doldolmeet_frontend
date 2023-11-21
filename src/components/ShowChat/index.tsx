@@ -1,21 +1,28 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { Button, Paper, TextField, Typography } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 
 const ShowChat = () => {
-  const roomId = "11beccc3-7712-4238-bc89-39aa442c353c";
+  const roomId = "460d7533-6db5-4486-b75c-89f28159cf6d";
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [sender, setSender] = useState<string | null>("");
   const sock = new SockJS("http://localhost:8080/ws-stomp");
   const stompClient = Stomp.over(sock);
 
+  const messagesRef = useRef(null);
+
   useEffect(() => {
     connect();
   }, []);
+
+  useEffect(() => {
+    // Scroll to the bottom when messages change
+    scrollToBottom();
+  }, [messages]);
 
   function connect() {
     stompClient.connect(
@@ -54,6 +61,10 @@ const ShowChat = () => {
     setMessage("");
   }
 
+  const scrollToBottom = () => {
+    messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+  };
+
   return (
     <div
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
@@ -62,16 +73,18 @@ const ShowChat = () => {
         elevation={3}
         style={{
           padding: "20px",
-          maxWidth: "600px",
+          maxWidth: "400px",
           width: "100%",
-          height: "40%",
+          height: "600px", // Increase the height here
           marginBottom: "20px",
         }}
       >
         <Typography variant="h4" gutterBottom>
           채팅방
         </Typography>
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <ul ref={messagesRef} style={{ overflowY: "auto", maxHeight: "500px" }}>
+          {" "}
+          {/* Adjust maxHeight here */}
           {messages.map((msg, index) => (
             <li key={index} style={{ marginBottom: "8px" }}>
               <Typography variant="body1" style={{ fontWeight: "bold" }}>
@@ -83,7 +96,7 @@ const ShowChat = () => {
       </Paper>
       <Paper
         elevation={3}
-        style={{ padding: "20px", maxWidth: "600px", width: "100%" }}
+        style={{ padding: "20px", maxWidth: "400px", width: "100%" }}
       >
         <div style={{ display: "flex" }}>
           <TextField
