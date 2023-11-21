@@ -51,11 +51,10 @@ const ShowVideoStreaming = () => {
 
   return (
     <div>
-      <div>베이스 페이지 입니다~</div>
-
-      <input type="file" name="file" ref={inputRef} onChange={onChangeFile} />
-      <input type="button" onClick={handleFormSubmit} />
-      <div id="result">{result}</div>
+      {/*<div>베이스 페이지 입니다~</div>*/}
+      {/*<input type="file" name="file" ref={inputRef} onChange={onChangeFile} />*/}
+      {/*<input type="button" onClick={handleFormSubmit} />*/}
+      {/*<div id="result">{result}</div>*/}
 
       <ReactPlayer
         url={[
@@ -63,8 +62,7 @@ const ShowVideoStreaming = () => {
           "https://www.youtube.com/watch?v=ZI0UO8aM9E8",
         ]}
         controls
-        width="50vw" // 화면 너비의 50%
-        height="50vw" // 높이를 자동으로 조절하여 비율을 유지
+        height="750px" // 높이를 자동으로 조절하여 비율을 유지
         playing={true}
         muted={true}
       />
