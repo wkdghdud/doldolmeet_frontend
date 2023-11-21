@@ -1,7 +1,11 @@
 import { useEffect, useRef } from "react";
-import { Publisher, Subscriber } from "openvidu-browser";
+import { StreamManager } from "openvidu-browser";
 
-const OpenViduVideoComponent = ({ streamManager }: Publisher | Subscriber) => {
+const OpenViduVideoComponent = ({
+  streamManager,
+}: {
+  streamManager: StreamManager;
+}) => {
   const videoRef = useRef(null);
 
   useEffect(() => {

@@ -1,7 +1,11 @@
-import { Publisher, Subscriber } from "openvidu-browser";
+import { StreamManager } from "openvidu-browser";
 import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 
-const UserVideoComponent = ({ streamManager }: Publisher | Subscriber) => {
+const UserVideoComponent = ({
+  streamManager,
+}: {
+  streamManager: StreamManager;
+}) => {
   const getNicknameTag = () => {
     // Gets the nickName of the user
     return JSON.parse(streamManager.stream.connection.data).clientData;
