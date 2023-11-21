@@ -8,7 +8,7 @@ import { fetchFanMeetings, useFanMeetings } from "@/hooks/useFanMeetings";
 import { useQuery } from "@tanstack/react-query";
 import ShowDialog from "@/components/ShowDialog";
 
-export default function Dashboard(props) {
+export default function Home(props) {
   const isFanMeeting = true; // TODO: 백엔드 연동해야 함
 
   const { data } = useQuery({
@@ -117,11 +117,12 @@ export default function Dashboard(props) {
           </GradientButton>
         </Stack>
       </Grid>
-      {data?.map((meeting, i) => (
-        <Grid key={i} item xs={3}>
-          <PostCard fanMeeting={meeting} index={1} />
-        </Grid>
-      ))}
+      {data &&
+        data?.map((meeting, i) => (
+          <Grid key={i} item xs={3}>
+            <PostCard fanMeeting={meeting} index={1} />
+          </Grid>
+        ))}
       <ShowDialog />
     </Grid>
   );
