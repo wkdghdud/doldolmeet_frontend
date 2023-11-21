@@ -6,6 +6,10 @@ import {
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import axios from "axios";
+import AuthContext from "@/components/AuthContext";
+import Header from "@/components/Header";
+import { Grid } from "@mui/material";
+import CustomThemeProvider from "@/components/ThemeProvider";
 
 const defaultQueryFn = async ({ queryKey }) => {
   const { data } = await axios.get(
@@ -28,11 +32,30 @@ export default function MyApp({ Component, pageProps }) {
 
   // provide the default query function to your app with defaultOptions
   return (
-    <QueryClientProvider client={queryClient}>
-      <HydrationBoundary state={pageProps.dehydratedState}>
-        <Component {...pageProps} />
-      </HydrationBoundary>
-      <ReactQueryDevtools initialIsOpen={true} />
-    </QueryClientProvider>
+    <AuthContext>
+      <CustomThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <HydrationBoundary state={pageProps.dehydratedState}>
+            <Header />
+            <Grid
+              container
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              maxWidth="xl"
+              sx={{
+                mx: "auto",
+                backgroundColor: "#F8F8F8",
+                paddingTop: 10,
+                minHeight: "98vh",
+              }}
+            >
+              <Component {...pageProps} />
+            </Grid>
+          </HydrationBoundary>
+          <ReactQueryDevtools initialIsOpen={true} />
+        </QueryClientProvider>
+      </CustomThemeProvider>
+    </AuthContext>
   );
 }

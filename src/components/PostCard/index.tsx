@@ -21,17 +21,24 @@ export interface Post {
   createdAt: string;
 }
 
+export interface FanMeeting {
+  id: number;
+  imgUrl: string;
+  title: string;
+  startTime: string;
+}
+
 interface Props {
-  post: Post;
+  fanMeeting: FanMeeting;
   index: number;
 }
-export default function PostCard({ post, index }: Props) {
-  const { cover, title, view, comment, share, author, createdAt } = post;
+export default function PostCard({ fanMeeting, index }: Props) {
+  const { id, imgUrl, title, startTime } = fanMeeting;
 
   const renderAvatar = (
     <Avatar
-      alt={author.name}
-      src={author.avatarUrl}
+      alt={id}
+      src={imgUrl}
       sx={{
         zIndex: 9,
         width: 32,
@@ -64,7 +71,7 @@ export default function PostCard({ post, index }: Props) {
     <Box
       component="img"
       alt={title}
-      src={cover}
+      src={imgUrl}
       sx={{
         top: 0,
         width: 1,
@@ -84,7 +91,7 @@ export default function PostCard({ post, index }: Props) {
         color: "text.disabled",
       }}
     >
-      {"05 Mar 2023"}
+      {startTime}
     </Typography>
   );
 
