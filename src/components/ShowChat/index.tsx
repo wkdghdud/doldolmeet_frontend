@@ -4,6 +4,7 @@ import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { Button, Paper, TextField, Typography } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import useJwtToken from "@/hooks/useJwtToken";
 
 const ShowChat = () => {
   const roomId = "460d7533-6db5-4486-b75c-89f28159cf6d";
@@ -14,6 +15,13 @@ const ShowChat = () => {
   const stompClient = Stomp.over(sock);
 
   const messagesRef = useRef(null);
+  const token = useJwtToken();
+  const [userId, setUserId] = useState("");
+
+  useEffect(() => {
+    token.then((res) => setUserId(res?.sub ?? ""));
+    setSender(userId);
+  }, [token]);
 
   useEffect(() => {
     connect();
@@ -99,13 +107,6 @@ const ShowChat = () => {
         style={{ padding: "20px", maxWidth: "400px", width: "100%" }}
       >
         <div style={{ display: "flex" }}>
-          <TextField
-            label="아이디"
-            variant="outlined"
-            value={sender}
-            onChange={(e) => setSender(e.target.value)}
-            style={{ marginRight: "10px" }}
-          />
           <TextField
             label="메시지 입력"
             variant="outlined"
