@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { TextField, Button } from "@mui/material";
-import axios from "axios";
-import { useSession } from "next-auth/react";
+import React, { useState } from "react";
+import { Button, Stack, TextField } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import { backend_api } from "@/utils/api";
 
 const Signup = () => {
-  const [email, setEmail] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSignup = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/signup", {
-        username: email,
+      const response = await backend_api.post("/signup", {
+        username: userName,
         password: password,
       });
       console.log(response);
@@ -22,14 +22,21 @@ const Signup = () => {
   };
 
   return (
-    <main>
+    <Stack
+      direction={"column"}
+      spacing={2}
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Typography variant={"h2"}>👋 회원가입 👋</Typography>
       <TextField
-        value={email}
+        value={userName}
         label="Email"
         required
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          setEmail(event.target.value);
+          setUserName(event.target.value);
         }}
+        sx={{ width: "20vw" }}
       />
       <TextField
         value={password}
@@ -39,11 +46,16 @@ const Signup = () => {
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setPassword(event.target.value);
         }}
+        sx={{ width: "20vw" }}
       />
-      <Button variant="contained" onClick={handleSignup}>
+      <Button
+        variant="contained"
+        onClick={handleSignup}
+        sx={{ width: "100%", padding: 1.5, borderRadius: 3 }}
+      >
         회원가입
       </Button>
-    </main>
+    </Stack>
   );
 };
 

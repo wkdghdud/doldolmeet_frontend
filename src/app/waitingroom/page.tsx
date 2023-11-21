@@ -1,10 +1,10 @@
 import { Box, Stack } from "@mui/material";
-import ShowChat from "@/components/ShowChat";
+// import ShowChat from "@/components/ShowChat";
 const waitingroom = () => {
   return (
     <>
       {/* Box 컴포넌트를 Grid 컴포넌트로 바꿔본다. */}
-      <ShowChat />
+      {/*<ShowChat />*/}
       <Box>
         <Stack
           direction="row"

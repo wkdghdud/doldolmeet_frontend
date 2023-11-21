@@ -1,5 +1,6 @@
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { backend_api } from "@/utils/api";
 
 const handler = NextAuth({
   providers: [
@@ -15,32 +16,40 @@ const handler = NextAuth({
         password: { label: "비밀번호", type: "password" },
       },
       async authorize(credentials, req) {
-        const res = await fetch("http://localhost:8080/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: credentials?.username,
-            password: credentials?.password,
-          }),
-        });
-        const user = await res.json();
+        try {
+          const response = await backend_api.post(
+            "/login",
+            {
+              username: credentials?.username,
+              password: credentials?.password,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            },
+          );
 
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null;
+          const user = response.data;
 
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
+          if (user && response.status === 200) {
+            user.data = response.headers.authorization;
+            return user;
+          }
+          // TODO: 로그인 실패 처리 필요
+          throw new Error("로그인에 실패했습니다.");
+        } catch (error) {
+          console.error("Error during login:", error);
         }
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      if (user) {
+        // @ts-ignore
+        token.access_token = user.access_token;
+      }
       return { ...token, ...user };
     },
 
@@ -52,6 +61,7 @@ const handler = NextAuth({
   pages: {
     signIn: "/login",
   },
+  session: { strategy: "jwt" },
 });
 
 export { handler as GET, handler as POST };
