@@ -3,6 +3,7 @@ import { OpenVidu } from "openvidu-browser";
 import React, { useEffect, useRef, useState } from "react";
 import UserVideoComponent from "@/components/UserVideoComponent";
 import { openvidu_api } from "@/utils/api";
+import Recording from "@/components/meeting/Recording";
 
 export default function App() {
   const [mySessionId, setMySessionId] = useState("SessionA");
@@ -372,6 +373,7 @@ export default function App() {
             />
             <button onClick={startRecording}>Start Recording</button>
             <button onClick={stopRecording}>Stop Recording</button>
+            <Recording></Recording>
             <input
               className="btn btn-large btn-success"
               type="button"

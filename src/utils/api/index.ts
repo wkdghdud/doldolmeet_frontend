@@ -7,6 +7,7 @@ const SPRING_URL =
 
 export const backend_api = axios.create({
   baseURL: SPRING_URL,
+  withCredentials: true,
 });
 
 export const OPENVIDU_URL =

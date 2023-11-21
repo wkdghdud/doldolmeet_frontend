@@ -342,8 +342,8 @@ const VideoCall = () => {
      * 한 번 커넥션을 획득한 클라이언트는 쭉 세션의 참여자로 인식된다.
      * */
 
-    const response = await axios.post(
-      APPLICATION_SERVER_URL + "api/sessions/" + sessionId + "/connections",
+    const response = await backend_api.post(
+      "/api/sessions/" + sessionId + "/connections",
       {},
       {
         headers: { "Content-Type": "application/json" },
