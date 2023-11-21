@@ -4,7 +4,7 @@ import { backend_api } from "@/utils/api";
 
 // TODO: react-query 샘플. 추후 삭제 필요.
 const fetchFanMeetings = async (option = "opened") => {
-  const response = await backend_api
+  const response = await backend_api()
     .get(`/fanMeetings?option=${option}`)
     .then((response: AxiosResponse) => response.data)
     .catch((e) => console.error(e));

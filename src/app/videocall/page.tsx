@@ -316,7 +316,7 @@ const VideoCall = () => {
    * 같은 세션에 연결된 사람끼리만 서로 연락할 수 있음.
    * */
   const createSession = async (sessionId) => {
-    const response = await backend_api.post(
+    const response = await backend_api().post(
       "/api/sessions",
       { customSessionId: sessionId },
       {

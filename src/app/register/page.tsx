@@ -11,7 +11,7 @@ const Signup = () => {
 
   const handleSignup = async () => {
     try {
-      const response = await backend_api.post("/signup", {
+      const response = await backend_api().post("/signup", {
         username: userName,
         password: password,
       });
