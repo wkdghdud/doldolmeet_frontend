@@ -1,7 +1,7 @@
 "use client";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import { useEffect, useRef, useState } from "react";
-import { Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import GradientButton from "@/components/GradientButton";
 import { Role } from "@/types";
 import { AxiosResponse } from "axios";
@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { OpenVidu, Session, StreamManager } from "openvidu-browser";
 import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 import { backend_api } from "@/utils/api";
+import { useSearchParams } from "next/navigation";
 
 interface Props {
   joinSession: (role: string) => void;
@@ -24,11 +25,10 @@ interface CreatedSessionInfo {
   waitSession: Session;
 }
 
-const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
+const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
   const token: Promise<JwtToken | null> = useJwtToken(); // TODO: role에 따른 구분 필요
   const [role, setRole] = useState<Role | undefined>();
   const videoRef = useRef(null);
-  const [fanMeetingId, setFanMeetingId] = useState<string | undefined>("3");
   const { data } = useSession();
 
   const [publisher, setPublisher] = useState<StreamManager | undefined>(
@@ -36,6 +36,9 @@ const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
   );
 
   const [connected, setConnected] = useState<boolean>(false);
+
+  const searchParams = useSearchParams();
+  const fanMeetingId = searchParams?.get("id");
 
   useEffect(() => {
     token.then((res) => {
@@ -77,6 +80,7 @@ const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
   const onClickEntrance = async () => {
     // OpneVidu 객체 생성
     const ov = new OpenVidu();
+    // TODO: url 수정 필요
     await backend_api()
       .get(`/fanMeetings/${fanMeetingId}/session`, {
         headers: {
@@ -134,10 +138,15 @@ const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
       });
   };
 
+  const getNextFan = () => {};
+
   return (
     <>
       {connected && publisher ? (
-        <OpenViduVideoComponent streamManager={publisher} />
+        <>
+          <OpenViduVideoComponent streamManager={publisher} />
+          <Button onClick={getNextFan}>다음 팬 들어오세요~</Button>
+        </>
       ) : (
         <Stack spacing={2} justifyContent="center" alignItems="center">
           <Typography variant={"h2"}>👩🏻‍💻 지금 대기실로 입장해주세요!</Typography>
@@ -159,4 +168,4 @@ const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
   );
 };
 
-export default VideoCallEntrance;
+export default IdolFanMeeting;

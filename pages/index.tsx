@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import ShowDialog from "@/components/ShowDialog";
 import { fetchTodayFanmeeting } from "@/hooks/useTodayFanmeeting";
 import { getSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function Home(props) {
   const { data } = useQuery({
@@ -18,7 +19,7 @@ export default function Home(props) {
   });
 
   const { data: todayMeeting } = useQuery({
-    queryKey: ["fanMeetings", "latest"],
+    queryKey: ["fanMeetings", "today"],
     queryFn: () => fetchTodayFanmeeting(),
     initialData: props.todayFanMeeting,
   });
@@ -68,7 +69,10 @@ export default function Home(props) {
             marginTop: 4,
           }}
         >
-          <a href="./waitingroom" style={{ width: "100%" }}>
+          <Link
+            href={`/waitingroom/${todayMeeting?.data?.id}`}
+            style={{ width: "100%" }}
+          >
             <Stack
               component="div"
               direction="row"
@@ -99,7 +103,7 @@ export default function Home(props) {
                 클릭하세요!
               </Typography>
             </Stack>
-          </a>
+          </Link>
         </Grid>
       )}
 

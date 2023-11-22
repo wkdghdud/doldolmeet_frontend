@@ -71,7 +71,7 @@ export default function ShowDialog() {
         <GradientButton onClick={() => setOpen(false)}>닫기</GradientButton>
         <GradientButton>
           <Link
-            href="/waitingroom"
+            href={`/waitingroom/${todayMeeting?.data?.id}`}
             style={{ textDecoration: "none", color: "inherit" }}
           >
             이동
