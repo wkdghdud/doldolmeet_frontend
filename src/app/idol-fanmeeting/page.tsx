@@ -8,8 +8,9 @@ import { AxiosResponse } from "axios";
 import { useSession } from "next-auth/react";
 import { OpenVidu, Session, StreamManager } from "openvidu-browser";
 import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
-import { backend_api } from "@/utils/api";
+import { backend_api, openvidu_api } from "@/utils/api";
 import { useSearchParams } from "next/navigation";
+import { NextFanInfo, useNextFan } from "@/hooks/useNextFan";
 
 interface Props {
   joinSession: (role: string) => void;
@@ -36,9 +37,13 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
   );
 
   const [connected, setConnected] = useState<boolean>(false);
+  const [currSessionId, setCurrSessionId] = useState<string>("");
+  const [waitingRoomSessionId, setWaitingRoomSessionId] = useState<string>("");
 
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("id");
+
+  const nextFan: NextFanInfo = useNextFan(fanMeetingId ?? "");
 
   useEffect(() => {
     token.then((res) => {
@@ -89,6 +94,9 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
       })
       .then((res: AxiosResponse<CreatedSessionInfo>) => {
         // const mySession: Session = res.data.data.teleSession as Session;
+        setCurrSessionId(res.data.data.teleRoomId);
+        setWaitingRoomSessionId(res.data.data.waitRoomId);
+
         const mySession = ov.initSession();
         console.log("🚀", res);
         console.log("🥳", mySession);
@@ -138,7 +146,35 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
       });
   };
 
-  const getNextFan = () => {};
+  const getNextFan = async () => {
+    console.log("🚀nextFan: ", nextFan);
+    console.log("🚀waitingRoomSessionId: ", waitingRoomSessionId);
+    console.log("🚀currSessionId: ", currSessionId);
+
+    await openvidu_api
+      .post(
+        "/openvidu/api/signal",
+        {
+          session: waitingRoomSessionId,
+          type: "signal:invite",
+          data: JSON.stringify({
+            fan_number: "fanNumber",
+            sessionId: currSessionId,
+          }),
+          to: [nextFan?.connectionId],
+        },
+        {
+          headers: {
+            Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => console.error(error));
+  };
 
   return (
     <>

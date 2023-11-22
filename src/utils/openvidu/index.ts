@@ -112,6 +112,12 @@ export const enterFanmeeting = async ({
     }
 
     const mySession = ov.initSession();
+
+    mySession.on("signal:invite", (event) => {
+      const token = event.data;
+      console.log("🚀 들어오세요~ ", token);
+    });
+
     await mySession.connect(token, {
       clientData: token, // TODO: userName으로 수정 필요
     });
