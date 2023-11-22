@@ -6,10 +6,10 @@ import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 import Typography from "@mui/material/Typography";
 
 interface Props {
-  fanStream: StreamManager;
+  fanStream: StreamManager | undefined;
 }
 const OneIdolWaitingRoom = ({ fanStream }: Props) => {
-  const videoRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const getMedia = async () => {

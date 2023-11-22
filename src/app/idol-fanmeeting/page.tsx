@@ -1,20 +1,24 @@
 "use client";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import { useEffect, useRef, useState } from "react";
-import { Box, Grid, Stack, Typography } from "@mui/material";
+import { Grid, Stack, Typography } from "@mui/material";
 import GradientButton from "@/components/GradientButton";
-import { Role } from "@/types";
 import { AxiosResponse } from "axios";
-import { useSession } from "next-auth/react";
-import { OpenVidu, Session, StreamManager } from "openvidu-browser";
+import { OpenVidu, StreamManager } from "openvidu-browser";
 import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 import { backend_api, openvidu_api } from "@/utils/api";
 import { useSearchParams } from "next/navigation";
 import { NextFanInfo, useNextFan } from "@/hooks/useNextFan";
+import { Role } from "@/types";
 
 interface Props {
   joinSession: (role: string) => void;
   requestJoin: () => void;
+}
+
+interface CreateSessionResponse {
+  message: string;
+  data: CreatedSessionInfo;
 }
 
 interface CreatedSessionInfo {
@@ -22,37 +26,41 @@ interface CreatedSessionInfo {
   waitRoomId: string;
   teleRoomId: string;
   token: string;
-  teleSession: Session;
-  waitSession: Session;
 }
 
-const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
-  const token: Promise<JwtToken | null> = useJwtToken(); // TODO: role에 따른 구분 필요
-  const [role, setRole] = useState<Role | undefined>();
-  const videoRef = useRef(null);
-  const { data } = useSession();
-
+const IdolFanMeeting = () => {
+  /* State */
   const [publisher, setPublisher] = useState<StreamManager | undefined>(
     undefined,
   );
-
   const [fanStream, setFanStream] = useState<StreamManager | undefined>();
-
   const [connected, setConnected] = useState<boolean>(false);
   const [currSessionId, setCurrSessionId] = useState<string>("");
   const [waitingRoomSessionId, setWaitingRoomSessionId] = useState<string>("");
+  const [currFanConnectionId, setCurrFanConnectionId] = useState<string>("");
+  const [idolUserName, setIdolUserName] = useState<string>("");
 
+  /* Query Param으로 넘어온 팬미팅 아이디 */
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("id");
 
-  const nextFan: NextFanInfo = useNextFan(fanMeetingId ?? "");
+  /* Video Ref */
+  const videoRef = useRef<HTMLVideoElement>(null);
 
+  // 현재 로그인된 유저의 세션 정보
+  const token = useJwtToken();
   useEffect(() => {
-    token.then((res) => {
-      setRole(res?.auth);
-    });
+    if (token) {
+      token.then((res: JwtToken | null) => {
+        setIdolUserName(res?.sub ?? "");
+      });
+    }
   }, [token]);
 
+  // 다음 팬의 정보
+  const nextFan: NextFanInfo = useNextFan(fanMeetingId ?? "");
+
+  // OpenVidu 세션 연결 전 보여줄 카메라 비디오
   useEffect(() => {
     const getMedia = async () => {
       try {
@@ -84,62 +92,47 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
     };
   }, []);
 
+  // 팬미팅 입장 버튼 클릭 시
   const onClickEntrance = async () => {
     // OpneVidu 객체 생성
     const ov = new OpenVidu();
-    // TODO: url 수정 필요
+
+    // 백엔드에 팬미팅 입장 요청
     await backend_api()
-      .get(`/fanMeetings/${fanMeetingId}/session`, {
-        headers: {
-          Authorization: data?.user?.data,
-        },
-      })
-      .then((res: AxiosResponse<CreatedSessionInfo>) => {
-        // const mySession: Session = res.data.data.teleSession as Session;
-        setCurrSessionId(res.data.data.teleRoomId);
-        setWaitingRoomSessionId(res.data.data.waitRoomId);
+      .get(`/fanMeetings/${fanMeetingId}/session`)
+      .then((res: AxiosResponse<CreateSessionResponse>) => {
+        setCurrSessionId(res?.data?.data?.teleRoomId);
+        setWaitingRoomSessionId(res?.data?.data?.waitRoomId);
 
         const mySession = ov.initSession();
-        console.log("🚀", res);
-        console.log("🥳", mySession);
 
         if (mySession) {
           mySession.on("streamCreated", (event) => {
-            console.log("👀 새로운 팬 힘차게 등장!", event.stream.connection);
+            console.log("👀 새로운 팬 입장", event.stream.connection);
             const subscriber = mySession.subscribe(event.stream, undefined);
-            setFanStream(subscriber);
+            // TODO: role 체크해서 팬이면 팬 스트림으로 설정
+            const clientData = JSON.parse(event.stream.connection.data);
+            if (clientData?.role === Role.FAN) {
+              setFanStream(subscriber);
+              setCurrFanConnectionId(event.stream.connection.connectionId);
+            }
+          });
+
+          mySession.on("streamDestroyed", (event) => {
+            console.log("👀 팬 퇴장");
+            setFanStream(undefined);
           });
 
           mySession
             .connect(res?.data?.data?.token, {
-              clientData: res?.data?.data?.token,
+              clientData: JSON.stringify({
+                role: Role.IDOL,
+                userName: idolUserName,
+              }),
             })
             .then(async () => {
-              const newPublisher = await ov.initPublisherAsync(undefined, {
-                // properties for the publisher
-                // audioSource: undefined, // The source of audio. If undefined default microphone
-                // videoSource: undefined, // The source of video. If undefined default webcam
-                // publishAudio: true, // Whether you want to start publishing with your audio unmuted or not
-                // publishVideo: true, // Whether you want to start publishing with your video enabled or not
-                // resolution: "640x480", // The resolution of your video
-                // frameRate: 30, // The frame rate of your video
-                // insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
-                // mirror: true, // Whether to mirror your local video or not TODO: 하트 가능하게 하려면 어떻게 해야 할지 확인 필요
-              });
-
+              const newPublisher = await ov.initPublisherAsync(undefined, {});
               mySession.publish(newPublisher);
-              const devices = await ov.getDevices();
-              const videoDevices = devices.filter(
-                (device) => device.kind === "videoinput",
-              );
-              const currentVideoDeviceId = newPublisher.stream
-                .getMediaStream()
-                .getVideoTracks()[0]
-                .getSettings().deviceId;
-              const currentVideoDevice = videoDevices.find(
-                (device) => device.deviceId === currentVideoDeviceId,
-              );
-
               setPublisher(newPublisher);
               setConnected(true);
             })
@@ -159,10 +152,20 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
     console.log("🚀waitingRoomSessionId: ", waitingRoomSessionId);
     console.log("🚀currSessionId: ", currSessionId);
 
-    await openvidu_api
-      .post(
-        "/openvidu/api/signal",
-        {
+    if (currFanConnectionId) {
+      // 팬 내보낸 다음 다음 팬에게 시그널 보내기
+      await evictFan().then(async () => {
+        await signalInvite();
+      });
+    } else {
+      await signalInvite();
+    }
+  };
+
+  const signalInvite = async () => {
+    if (nextFan?.connectionId) {
+      await openvidu_api
+        .post("/openvidu/api/signal", {
           session: waitingRoomSessionId,
           type: "signal:invite",
           // data: JSON.stringify({
@@ -171,18 +174,67 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
           // }),
           data: currSessionId,
           to: [nextFan?.connectionId],
-        },
-        {
-          headers: {
-            Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
-            "Content-Type": "application/json",
-          },
-        },
+        })
+        .then((response) => {
+          console.log(
+            "👋 팬에게 성공적으로 초대 시그널을 보냈습니다.",
+            response,
+          );
+        })
+        .catch((error) => console.error(error));
+    }
+  };
+
+  const signalEvict = async () => {
+    if (currFanConnectionId) {
+      await openvidu_api
+        .post("/openvidu/api/signal", {
+          session: currSessionId,
+          type: "signal:evict",
+          // data: JSON.stringify({
+          //   fan_number: "fanNumber",
+          //   sessionId: currSessionId,
+          // }),
+          data: currSessionId,
+          to: [currFanConnectionId],
+        })
+        .then((response) => {
+          console.log(
+            "👋 팬에게 성공적으로 종료 시그널을 보냈습니다.",
+            response,
+          );
+        })
+        .catch((error) => console.error(error));
+    }
+  };
+
+  const evictFan = async () => {
+    await signalEvict().then(async () => {
+      await forceDisconnect();
+    });
+  };
+
+  const forceDisconnect = async () => {
+    await openvidu_api
+      .delete(
+        "/openvidu/api/sessions/" +
+          currSessionId +
+          "/connection/" +
+          currFanConnectionId,
       )
-      .then((response) => {
-        console.log(response);
+      .then(async (response) => {
+        console.log("👋 팬을 성공적으로 내보냈습니다.", response);
+        await deleteFanInWaitingQueue();
       })
-      .catch((error) => console.error(error));
+      .catch((error) => console.error("팬 내보내기 에러 발생: ", error));
+  };
+
+  const deleteFanInWaitingQueue = async () => {
+    await backend_api()
+      .post(`/idolName/${idolUserName}/deleteFanParticipated`)
+      .then((res) => {
+        console.log("👋 팬을 성공적으로 대기열에서 삭제했습니다.", res);
+      });
   };
 
   return (

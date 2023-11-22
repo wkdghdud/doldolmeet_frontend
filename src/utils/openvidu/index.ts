@@ -89,7 +89,6 @@ export interface EnterFanMeetingReturn {
   teleRoomId: string;
   token: string;
   publisher: StreamManager | undefined;
-  currentVideoDevice: Device | undefined;
 }
 
 export const enterFanmeeting = async ({
