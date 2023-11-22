@@ -93,13 +93,17 @@ const ShowChat = () => {
         <ul ref={messagesRef} style={{ overflowY: "auto", maxHeight: "500px" }}>
           {" "}
           {/* Adjust maxHeight here */}
-          {messages.map((msg, index) => (
-            <li key={index} style={{ marginBottom: "8px" }}>
-              <Typography variant="body1" style={{ fontWeight: "bold" }}>
-                {msg.sender}: {msg.message}
-              </Typography>
-            </li>
-          ))}
+          {messages.map(
+            (msg, index) =>
+              msg.message &&
+              msg.message.trim() !== "" && (
+                <li key={index} style={{ marginBottom: "8px" }}>
+                  <Typography variant="body1" style={{ fontWeight: "bold" }}>
+                    {msg.sender}: {msg.message}
+                  </Typography>
+                </li>
+              ),
+          )}
         </ul>
       </Paper>
       <Paper
