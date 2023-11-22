@@ -28,8 +28,7 @@ export default function Header() {
           <GradientButton
             variant="contained"
             disableElevation
-            borderRadius={"30px"}
-            sx={{ px: 3, mr: 2 }} // Add margin to create space between 로그인 and 회원가입 buttons
+            sx={{ px: 3, mr: 2, borderRadius: 10 }} // Add margin to create space between 로그인 and 회원가입 buttons
             onClick={session?.user ? () => signOut() : () => signIn()}
           >
             {session?.user ? "로그아웃" : "로그인"}

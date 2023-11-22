@@ -10,9 +10,14 @@ const waitingroom = () => {
       justifyContent="space-between"
       alignItems="stretch" // This makes both items stretch to the full height of the container
       padding="30px"
+      spacing={3}
     >
-      <ShowVideoStreaming />
-      <ShowChat />
+      <Grid item xs={6}>
+        <ShowVideoStreaming />
+      </Grid>
+      <Grid item xs={6}>
+        <ShowChat />
+      </Grid>
     </Grid>
   );
 };

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -8,35 +8,76 @@ import {
   DialogTitle,
 } from "@mui/material";
 import Link from "next/link";
+import { useTodayFanmeeting } from "@/hooks/useTodayFanmeeting";
+import GradientButton from "@/components/GradientButton";
 
-const ShowDialog = () => {
-  const [openModal, setOpenModal] = useState(true);
+export interface TodayFanMeeting {
+  id: number;
+  imgUrl: string;
+  title: string;
+  startTime: string;
+}
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
-  };
+interface Props {
+  todayfanMeeting: TodayFanMeeting | null;
+  popupOpen: boolean;
+}
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
+export default function ShowDialog() {
+  const { data: todayMeeting } = useTodayFanmeeting();
+
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(todayMeeting !== null && todayMeeting !== undefined);
+  }, [todayMeeting]);
 
   return (
-    <Dialog open={openModal} onClose={handleCloseModal}>
-      <DialogTitle>투데이 팬미팅</DialogTitle>
-      <DialogContent>
-        <DialogContentText>아이돌: 정국</DialogContentText>
-        <DialogContentText>날짜: 11월 17일</DialogContentText>
+    <Dialog
+      open={open}
+      onClose={() => setOpen(false)}
+      PaperProps={{
+        style: {
+          width: "30%",
+          height: "55%",
+        },
+      }}
+    >
+      <DialogTitle style={{ textAlign: "center" }}>
+        {todayMeeting?.data?.title}
+      </DialogTitle>
+      <DialogContent
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <img
+          src={todayMeeting?.data?.imgUrl}
+          alt="이미지"
+          style={{ width: "300px", height: "200px" }}
+        ></img>
       </DialogContent>
-      <DialogActions>
-        <Button>
-          <Link href="/waitingroom" style={{ textDecoration: "none" }}>
+      <DialogTitle style={{ textAlign: "center" }}>
+        시작시간이 {todayMeeting?.data?.startTime} 입니다.
+      </DialogTitle>
+      <DialogContentText style={{ textAlign: "center" }}>
+        당신의 아이돌을 만나기 위해{" "}
+        <span style={{ color: "#ed6ea0" }}>이동</span>버튼을 눌러주세요.
+      </DialogContentText>
+      <DialogTitle style={{ textAlign: "center" }}></DialogTitle>
+      <DialogActions style={{ justifyContent: "space-between" }}>
+        <GradientButton onClick={() => setOpen(false)}>닫기</GradientButton>
+        <GradientButton>
+          <Link
+            href={`/waitingroom/${todayMeeting?.data?.id}`}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
             이동
           </Link>
-        </Button>
-        <Button onClick={handleCloseModal}>닫기</Button>
+        </GradientButton>
       </DialogActions>
     </Dialog>
   );
-};
-
-export default ShowDialog;
+}
