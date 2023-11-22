@@ -2,9 +2,11 @@
 
 import React, { ChangeEvent, useRef, useState } from "react";
 import { backend_api } from "@/utils/api";
+import GradientButton from "@/components/GradientButton";
+import { Button, Stack, TextField } from "@mui/material";
+import Typography from "@mui/material/Typography";
 
 const CreateFanMeeting = () => {
-  const [result, setResult] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploadFile, setUploadedFile] = useState<File>();
 
@@ -49,13 +51,11 @@ const CreateFanMeeting = () => {
   };
   const submit = async (s3FileName: string | null) => {
     try {
-      // 이미지를 업로드하고 URL을 받아온 경우에만 실행
-      // if (fanMeetingImgUrl) {
       // 팬미팅 정보를 저장
       const response = await backend_api().post("/fanMeetings", {
         fanMeetingName,
-        startTime: "2023-11-20T15:00:00",
-        endTime: "2023-12-01T10:00:00",
+        startTime: "2024-11-20T15:00:00",
+        endTime: "2024-12-01T10:00:00",
         capacity,
         teamName,
         fanMeetingImgUrl: s3FileName,
@@ -83,39 +83,77 @@ const CreateFanMeeting = () => {
     });
   };
 
+  const handleButtonClick = () => {
+    // Trigger file input click
+    if (inputRef.current) {
+      inputRef.current.click();
+    }
+  };
+
   return (
-    <div>
-      <div>파일 업로드 테스트 중입니다.</div>
-      <div>
-        <label>팬미팅 이름:</label>
-        <input
-          type="text"
-          value={fanMeetingName}
-          onChange={(e) => setFanMeetingName(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>수용 인원:</label>
-        <input
-          type="number"
-          value={capacity}
-          onChange={(e) => setCapacity(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>팀 이름:</label>
-        <input
-          type="text"
-          value={teamName}
-          onChange={(e) => setTeamName(e.target.value)}
-        />
-      </div>
-      <input type="file" name="file" ref={inputRef} onChange={onChangeFile} />
-      <input type="button" value="이미지 제출" onClick={handleFormSubmit} />
-      <div id="result">{result}</div>
-      <input type="button" value="팬미팅 생성" onClick={handleRegister} />
-    </div>
+    <Stack
+      direction={"column"}
+      spacing={2}
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Typography variant={"h2"}>🤡 팬미팅 생성 페이지 🤡</Typography>
+
+      <TextField
+        value={fanMeetingName}
+        label="Fan meeting name"
+        required
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          setFanMeetingName(event.target.value);
+        }}
+        sx={{ width: "20vw" }}
+      />
+
+      <TextField
+        value={teamName}
+        label="Team name"
+        required
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          setTeamName(event.target.value);
+        }}
+        sx={{ width: "20vw" }}
+      />
+      <TextField
+        value={capacity}
+        label="Capacity"
+        required
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          setCapacity(event.target.value);
+        }}
+        sx={{ width: "20vw" }}
+      />
+      {uploadFile ? (
+        <div>{uploadFile.name}</div>
+      ) : (
+        <div>선택된 파일이 없습니다.</div>
+      )}
+      <input
+        type="file"
+        name="file"
+        ref={inputRef}
+        onChange={onChangeFile}
+        style={{ display: "none" }}
+      />
+      <GradientButton
+        fullWidth={1}
+        sx={{ width: "20vw" }}
+        onClick={handleButtonClick}
+      >
+        Choose File
+      </GradientButton>
+      <GradientButton
+        fullWidth={1}
+        sx={{ width: "20vw" }}
+        onClick={handleRegister}
+      >
+        팬미팅 생성
+      </GradientButton>
+    </Stack>
   );
 };
-
 export default CreateFanMeeting;
