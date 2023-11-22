@@ -68,7 +68,9 @@ const CreateFanMeeting = () => {
         endTime: endDate?.toISOString() || "",
         capacity,
         teamName,
-        fanMeetingImgUrl: s3FileName,
+        fanMeetingImgUrl:
+          "https://s3.ap-northeast-2.amazonaws.com/doldolmeet.test/" +
+          s3FileName,
       });
 
       console.log("Fan Meeting Creation Response:", response);
