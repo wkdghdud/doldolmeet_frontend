@@ -4,23 +4,30 @@ import ForwardIcon from "@mui/icons-material/Forward";
 import GradientButton from "@/components/GradientButton";
 import PostCard from "@/components/PostCard";
 import { backend_api } from "@/utils/api";
-import { fetchFanMeetings, useFanMeetings } from "@/hooks/useFanMeetings";
+import { fetchFanMeetings } from "@/hooks/useFanMeetings";
 import { useQuery } from "@tanstack/react-query";
 import ShowDialog from "@/components/ShowDialog";
+import { fetchTodayFanmeeting } from "@/hooks/useTodayFanmeeting";
+import { getSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function Home(props) {
-  const isFanMeeting = true; // TODO: 백엔드 연동해야 함
-
   const { data } = useQuery({
     queryKey: ["fanMeetings", "opened"],
     queryFn: ({ queryKey }) => fetchFanMeetings(queryKey[1]),
     initialData: props.fanMeetings,
   });
 
+  const { data: todayMeeting } = useQuery({
+    queryKey: ["fanMeetings", "today"],
+    queryFn: () => fetchTodayFanmeeting(),
+    initialData: props.todayFanMeeting,
+  });
+
   const moveWaitingRoom = (e) => {
     e.preventDefault();
 
-    backend_api
+    backend_api()
       .post(
         "/chat/room",
         { name },
@@ -51,7 +58,7 @@ export default function Home(props) {
       <Grid item xs={12} sx={{ marginTop: 1 }}>
         <Banner />
       </Grid>
-      {isFanMeeting && (
+      {todayMeeting !== null && (
         <Grid
           item
           xs={12}
@@ -62,7 +69,10 @@ export default function Home(props) {
             marginTop: 4,
           }}
         >
-          <a href="./waitingroom" style={{ width: "100%" }}>
+          <Link
+            href={`/waitingroom/${todayMeeting?.data?.id}`}
+            style={{ width: "100%" }}
+          >
             <Stack
               component="div"
               direction="row"
@@ -89,11 +99,11 @@ export default function Home(props) {
                   transform: "translate(-50%, -50%)",
                 }}
               >
-                <span style={{ color: "#ed6ea0" }}>오늘 예정인 팬미팅 </span>{" "}
-                LIVE NOW
+                당신의 {todayMeeting?.data?.title} 놓치지 마세요! 지금 바로
+                클릭하세요!
               </Typography>
             </Stack>
-          </a>
+          </Link>
         </Grid>
       )}
 
@@ -129,11 +139,17 @@ export default function Home(props) {
 }
 
 export async function getServerSideProps() {
-  const fanMeetings = await fetchFanMeetings("opened");
+  const session = getSession();
 
+  const fanMeetings = await fetchFanMeetings("opened");
+  let todayFanMeeting = null;
+  if (session !== null) {
+    todayFanMeeting = await fetchTodayFanmeeting();
+  }
   return {
     props: {
       fanMeetings,
+      todayFanMeeting: todayFanMeeting ?? null,
     },
   };
 }

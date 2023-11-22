@@ -1,14 +1,16 @@
 "use client";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import { useEffect, useRef, useState } from "react";
-import { Stack, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import GradientButton from "@/components/GradientButton";
 import { Role } from "@/types";
 import { AxiosResponse } from "axios";
 import { useSession } from "next-auth/react";
 import { OpenVidu, Session, StreamManager } from "openvidu-browser";
 import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
-import { backend_api } from "@/utils/api";
+import { backend_api, openvidu_api } from "@/utils/api";
+import { useSearchParams } from "next/navigation";
+import { NextFanInfo, useNextFan } from "@/hooks/useNextFan";
 
 interface Props {
   joinSession: (role: string) => void;
@@ -24,18 +26,26 @@ interface CreatedSessionInfo {
   waitSession: Session;
 }
 
-const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
+const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
   const token: Promise<JwtToken | null> = useJwtToken(); // TODO: role에 따른 구분 필요
   const [role, setRole] = useState<Role | undefined>();
   const videoRef = useRef(null);
-  const [fanMeetingId, setFanMeetingId] = useState<string | undefined>("3");
   const { data } = useSession();
 
   const [publisher, setPublisher] = useState<StreamManager | undefined>(
     undefined,
   );
 
+  const [fanStream, setFanStream] = useState<StreamManager | undefined>();
+
   const [connected, setConnected] = useState<boolean>(false);
+  const [currSessionId, setCurrSessionId] = useState<string>("");
+  const [waitingRoomSessionId, setWaitingRoomSessionId] = useState<string>("");
+
+  const searchParams = useSearchParams();
+  const fanMeetingId = searchParams?.get("id");
+
+  const nextFan: NextFanInfo = useNextFan(fanMeetingId ?? "");
 
   useEffect(() => {
     token.then((res) => {
@@ -77,6 +87,7 @@ const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
   const onClickEntrance = async () => {
     // OpneVidu 객체 생성
     const ov = new OpenVidu();
+    // TODO: url 수정 필요
     await backend_api()
       .get(`/fanMeetings/${fanMeetingId}/session`, {
         headers: {
@@ -85,11 +96,20 @@ const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
       })
       .then((res: AxiosResponse<CreatedSessionInfo>) => {
         // const mySession: Session = res.data.data.teleSession as Session;
+        setCurrSessionId(res.data.data.teleRoomId);
+        setWaitingRoomSessionId(res.data.data.waitRoomId);
+
         const mySession = ov.initSession();
         console.log("🚀", res);
         console.log("🥳", mySession);
 
         if (mySession) {
+          mySession.on("streamCreated", (event) => {
+            console.log("👀 새로운 팬 힘차게 등장!", event.stream.connection);
+            const subscriber = mySession.subscribe(event.stream, undefined);
+            setFanStream(subscriber);
+          });
+
           mySession
             .connect(res?.data?.data?.token, {
               clientData: res?.data?.data?.token,
@@ -134,13 +154,113 @@ const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
       });
   };
 
+  const getNextFan = async () => {
+    console.log("🚀nextFan: ", nextFan);
+    console.log("🚀waitingRoomSessionId: ", waitingRoomSessionId);
+    console.log("🚀currSessionId: ", currSessionId);
+
+    await openvidu_api
+      .post(
+        "/openvidu/api/signal",
+        {
+          session: waitingRoomSessionId,
+          type: "signal:invite",
+          // data: JSON.stringify({
+          //   fan_number: "fanNumber",
+          //   sessionId: currSessionId,
+          // }),
+          data: currSessionId,
+          to: [nextFan?.connectionId],
+        },
+        {
+          headers: {
+            Authorization: "Basic " + btoa("OPENVIDUAPP:" + "MY_SECRET"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => console.error(error));
+  };
+
   return (
     <>
       {connected && publisher ? (
-        <OpenViduVideoComponent streamManager={publisher} />
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Grid item xs={6}>
+            <OpenViduVideoComponent streamManager={publisher} />
+          </Grid>
+          <Grid item xs={6} style={{ position: "relative" }}>
+            {fanStream ? (
+              <OpenViduVideoComponent streamManager={fanStream} />
+            ) : (
+              <>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    textAlign: "center",
+                    position: "absolute",
+                    top: "45%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 1,
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    fontSize: "2rem",
+                  }}
+                >
+                  곧 팬이 들어올 예정이에요.
+                </Typography>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    textAlign: "center",
+                    position: "absolute",
+                    top: "55%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 1,
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    fontSize: "2rem",
+                  }}
+                >
+                  조금만 기다려주세요 ☺️
+                </Typography>
+                <img
+                  src={"/fan.webp"}
+                  alt="조금만 기다려주세요"
+                  style={{
+                    maxWidth: "100%",
+                    height: "65vh",
+                    borderRadius: 20,
+                    objectFit: "cover",
+                    position: "relative",
+                    zIndex: 0,
+                  }}
+                />
+              </>
+            )}
+          </Grid>
+          <Grid item xs={12}>
+            <GradientButton onClick={getNextFan}>
+              다음 팬 초대하기
+            </GradientButton>
+          </Grid>
+        </Grid>
       ) : (
         <Stack spacing={2} justifyContent="center" alignItems="center">
-          <Typography variant={"h2"}>👩🏻‍💻 지금 대기실로 입장해주세요!</Typography>
+          <Typography variant={"h2"}>
+            👩🏻‍💻 나의 소중한 팬들을 만나러 가볼까요?
+          </Typography>
           <video autoPlay={true} ref={videoRef} style={{ borderRadius: 30 }} />
           <GradientButton
             onClick={onClickEntrance}
@@ -159,4 +279,4 @@ const VideoCallEntrance = ({ joinSession, requestJoin }: Props) => {
   );
 };
 
-export default VideoCallEntrance;
+export default IdolFanMeeting;
