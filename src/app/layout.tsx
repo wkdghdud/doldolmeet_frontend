@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "DOLDOLMEET",
-  description: "돌아가며 만나는 나의 아이돌, 돌돌밋 💜",
+  description: "돌아가며 만나는 나의 아이돌, 돌돌밋",
 };
 
 export default async function RootLayout({
