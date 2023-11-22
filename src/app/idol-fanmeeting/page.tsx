@@ -1,7 +1,7 @@
 "use client";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import { useEffect, useRef, useState } from "react";
-import { Button, Stack, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import GradientButton from "@/components/GradientButton";
 import { Role } from "@/types";
 import { AxiosResponse } from "axios";
@@ -35,6 +35,8 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
   const [publisher, setPublisher] = useState<StreamManager | undefined>(
     undefined,
   );
+
+  const [fanStream, setFanStream] = useState<StreamManager | undefined>();
 
   const [connected, setConnected] = useState<boolean>(false);
   const [currSessionId, setCurrSessionId] = useState<string>("");
@@ -102,6 +104,12 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
         console.log("🥳", mySession);
 
         if (mySession) {
+          mySession.on("streamCreated", (event) => {
+            console.log("👀 새로운 팬 힘차게 등장!", event.stream.connection);
+            const subscriber = mySession.subscribe(event.stream, undefined);
+            setFanStream(subscriber);
+          });
+
           mySession
             .connect(res?.data?.data?.token, {
               clientData: res?.data?.data?.token,
@@ -157,10 +165,11 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
         {
           session: waitingRoomSessionId,
           type: "signal:invite",
-          data: JSON.stringify({
-            fan_number: "fanNumber",
-            sessionId: currSessionId,
-          }),
+          // data: JSON.stringify({
+          //   fan_number: "fanNumber",
+          //   sessionId: currSessionId,
+          // }),
+          data: currSessionId,
           to: [nextFan?.connectionId],
         },
         {
@@ -179,13 +188,38 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
   return (
     <>
       {connected && publisher ? (
-        <>
-          <OpenViduVideoComponent streamManager={publisher} />
-          <Button onClick={getNextFan}>다음 팬 들어오세요~</Button>
-        </>
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Grid item xs={6}>
+            <OpenViduVideoComponent streamManager={publisher} />
+          </Grid>
+          <Grid item xs={6}>
+            {fanStream ? (
+              <OpenViduVideoComponent streamManager={fanStream} />
+            ) : (
+              <Box>
+                <Typography variant={"h5"}>
+                  곧 팬이 들어올 예정이에요.
+                </Typography>
+              </Box>
+            )}
+          </Grid>
+          <Grid item xs={12}>
+            <GradientButton onClick={getNextFan}>
+              다음 팬 초대하기
+            </GradientButton>
+          </Grid>
+        </Grid>
       ) : (
         <Stack spacing={2} justifyContent="center" alignItems="center">
-          <Typography variant={"h2"}>👩🏻‍💻 지금 대기실로 입장해주세요!</Typography>
+          <Typography variant={"h2"}>
+            👩🏻‍💻 나의 소중한 팬들을 만나러 가볼까요?
+          </Typography>
           <video autoPlay={true} ref={videoRef} style={{ borderRadius: 30 }} />
           <GradientButton
             onClick={onClickEntrance}

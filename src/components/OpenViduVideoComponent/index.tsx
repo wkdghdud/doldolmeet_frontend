@@ -14,7 +14,13 @@ const OpenViduVideoComponent = ({
     }
   }, [streamManager]);
 
-  return <video autoPlay={true} ref={videoRef} style={{ borderRadius: 20 }} />;
+  return (
+    <video
+      autoPlay={true}
+      ref={videoRef}
+      style={{ borderRadius: 20, width: "98%", margin: 10 }}
+    />
+  );
 };
 
 export default OpenViduVideoComponent;
