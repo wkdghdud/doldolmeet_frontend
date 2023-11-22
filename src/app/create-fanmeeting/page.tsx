@@ -6,10 +6,18 @@ import GradientButton from "@/components/GradientButton";
 import { Button, Stack, TextField } from "@mui/material";
 import Typography from "@mui/material/Typography";
 
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+
 const CreateFanMeeting = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploadFile, setUploadedFile] = useState<File>();
-
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [fanMeetingImgUrl, setFanMeetingImgUrl] = useState("");
   const [fanMeetingName, setFanMeetingName] = useState("");
   const [teamName, setTeamName] = useState("");
@@ -54,8 +62,10 @@ const CreateFanMeeting = () => {
       // 팬미팅 정보를 저장
       const response = await backend_api().post("/fanMeetings", {
         fanMeetingName,
-        startTime: "2024-11-20T15:00:00",
-        endTime: "2024-12-01T10:00:00",
+        // startTime: "2024-11-20T15:00:00",
+        // endTime: "2024-12-01T10:00:00",
+        startTime: startDate?.toISOString() || "",
+        endTime: endDate?.toISOString() || "",
         capacity,
         teamName,
         fanMeetingImgUrl: s3FileName,
@@ -68,6 +78,8 @@ const CreateFanMeeting = () => {
       setCapacity("");
       setTeamName("");
       setFanMeetingImgUrl("");
+      setStartDate(null);
+      setEndDate(null);
 
       alert("팬미팅이 성공적으로 생성되었습니다!");
       // }
@@ -125,6 +137,24 @@ const CreateFanMeeting = () => {
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setCapacity(event.target.value);
         }}
+        sx={{ width: "20vw" }}
+      />
+      <DatePicker
+        selected={startDate}
+        onChange={(date: Date | null) => setStartDate(date)}
+        showTimeSelect
+        dateFormat="Pp"
+        placeholderText="Start Date and Time"
+        sx={{ width: "20vw" }}
+      />
+
+      <DatePicker
+        label="Basic date picker"
+        selected={endDate}
+        onChange={(date: Date | null) => setEndDate(date)}
+        showTimeSelect
+        dateFormat="Pp"
+        placeholderText="End Date and Time"
         sx={{ width: "20vw" }}
       />
       {uploadFile ? (
