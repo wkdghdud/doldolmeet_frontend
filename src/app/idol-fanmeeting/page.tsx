@@ -198,15 +198,56 @@ const IdolFanMeeting = ({ joinSession, requestJoin }: Props) => {
           <Grid item xs={6}>
             <OpenViduVideoComponent streamManager={publisher} />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={6} style={{ position: "relative" }}>
             {fanStream ? (
               <OpenViduVideoComponent streamManager={fanStream} />
             ) : (
-              <Box>
-                <Typography variant={"h5"}>
+              <>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    textAlign: "center",
+                    position: "absolute",
+                    top: "45%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 1,
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    fontSize: "2rem",
+                  }}
+                >
                   곧 팬이 들어올 예정이에요.
                 </Typography>
-              </Box>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    textAlign: "center",
+                    position: "absolute",
+                    top: "55%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 1,
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    fontSize: "2rem",
+                  }}
+                >
+                  조금만 기다려주세요 ☺️
+                </Typography>
+                <img
+                  src={"/fan.webp"}
+                  alt="조금만 기다려주세요"
+                  style={{
+                    maxWidth: "100%",
+                    height: "65vh",
+                    borderRadius: 20,
+                    objectFit: "cover",
+                    position: "relative",
+                    zIndex: 0,
+                  }}
+                />
+              </>
             )}
           </Grid>
           <Grid item xs={12}>
