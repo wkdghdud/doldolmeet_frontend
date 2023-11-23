@@ -7,6 +7,8 @@ import Typography from "@mui/material/Typography";
 import GradientButton from "@/components/GradientButton";
 import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 import {
+  closeConnection,
+  closeSession,
   createOpenViduConnection,
   createOpenViduSession,
 } from "@/utils/openvidu";
@@ -91,7 +93,7 @@ const OneToOnePage = () => {
       }
       const { token } = connection;
       await mySession.connect(token, {
-        clientData: "카리나",
+        clientData: "Participant_" + Math.floor(Math.random() * 100),
       });
 
       await ov.getUserMedia({
@@ -171,10 +173,13 @@ const OneToOnePage = () => {
     console.log("🚀 내 커넥션 아이디: ", myConnection?.connectionId);
   };
 
+  // 세션을 나가면서 정리
   const leaveSession = async () => {
-    if (session) {
-      await session.disconnect();
-    }
+    // 세션 종료: 세션에 있는 모든 커넥션을 제거함
+    // if (session) {
+    //   await session.disconnect();
+    // }
+    await closeConnection(sessionName, myConnection?.connectionId);
 
     // state 초기화
     setIdolStream(undefined);
@@ -193,10 +198,6 @@ const OneToOnePage = () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [leaveSession]);
-
-  const closeSession = async () => {
-    await openvidu_api.delete(`/openvidu/api/sessions/${sessionName}`);
-  };
 
   /* Subscriber 삭제 */
   const deleteSubscriber = (streamManager) => {
@@ -226,7 +227,9 @@ const OneToOnePage = () => {
         />
         <GradientButton onClick={signalInvite}>초대하기</GradientButton>
         <GradientButton onClick={getConnectionInfo}>커넥션 정보</GradientButton>
-        <GradientButton onClick={closeSession}>세션 삭제</GradientButton>
+        <GradientButton onClick={async () => await closeSession(sessionName)}>
+          세션 삭제
+        </GradientButton>
       </Stack>
 
       <Grid
@@ -238,7 +241,12 @@ const OneToOnePage = () => {
       >
         <Grid item xs={6}>
           {idolStream ? (
-            <OpenViduVideoComponent streamManager={idolStream} />
+            <>
+              <Typography variant={"h4"}>
+                {idolStream.stream.connection.data}
+              </Typography>
+              <OpenViduVideoComponent streamManager={idolStream} />
+            </>
           ) : (
             <video
               autoPlay={true}
@@ -248,62 +256,63 @@ const OneToOnePage = () => {
           )}
         </Grid>
 
-        {subscribers.length > 0 ? (
-          <Grid xs={12}>
-            {subscribers.map((subscriber, i) => (
-              <Stack key={i} direction={"column"}>
-                <OpenViduVideoComponent streamManager={subscriber} />
-              </Stack>
-            ))}
-          </Grid>
-        ) : (
-          <Grid item xs={6} style={{ position: "relative" }}>
-            <Typography
-              variant="h4"
-              sx={{
-                textAlign: "center",
-                position: "absolute",
-                top: "45%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                zIndex: 1,
-                fontWeight: 700,
-                color: "#ffffff",
-                fontSize: "2rem",
-              }}
-            >
-              곧 팬이 들어올 예정이에요.
-            </Typography>
-            <Typography
-              variant="h4"
-              sx={{
-                textAlign: "center",
-                position: "absolute",
-                top: "55%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                zIndex: 1,
-                fontWeight: 700,
-                color: "#ffffff",
-                fontSize: "2rem",
-              }}
-            >
-              조금만 기다려주세요 ☺️
-            </Typography>
-            <img
-              src={"/fan.webp"}
-              alt="조금만 기다려주세요"
-              style={{
-                maxWidth: "100%",
-                height: "60vh",
-                borderRadius: 20,
-                objectFit: "cover",
-                position: "relative",
-                zIndex: 0,
-              }}
-            />
-          </Grid>
-        )}
+        <Grid item xs={6} style={{ position: "relative" }}>
+          {subscribers.length > 0 ? (
+            <>
+              <Typography variant={"h4"}>
+                {subscribers[0].stream.connection.data}
+              </Typography>
+              <OpenViduVideoComponent streamManager={subscribers[0]} />
+            </>
+          ) : (
+            <>
+              <Typography
+                variant="h4"
+                sx={{
+                  textAlign: "center",
+                  position: "absolute",
+                  top: "45%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  zIndex: 1,
+                  fontWeight: 700,
+                  color: "#ffffff",
+                  fontSize: "2rem",
+                }}
+              >
+                곧 팬이 들어올 예정이에요.
+              </Typography>
+              <Typography
+                variant="h4"
+                sx={{
+                  textAlign: "center",
+                  position: "absolute",
+                  top: "55%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  zIndex: 1,
+                  fontWeight: 700,
+                  color: "#ffffff",
+                  fontSize: "2rem",
+                }}
+              >
+                조금만 기다려주세요 ☺️
+              </Typography>
+              <img
+                src={"/fan.webp"}
+                alt="조금만 기다려주세요"
+                style={{
+                  maxWidth: "100%",
+                  height: "60vh",
+                  borderRadius: 20,
+                  objectFit: "cover",
+                  position: "relative",
+                  zIndex: 0,
+                }}
+              />
+            </>
+          )}
+        </Grid>
       </Grid>
     </Stack>
   );

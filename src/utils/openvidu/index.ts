@@ -215,3 +215,24 @@ export const createOpenViduConnection = async (sessionId) => {
   );
   return response.data; // return Connection object
 };
+
+export const closeSession = async (sessionName: string) => {
+  try {
+    await openvidu_api.delete(`/openvidu/api/sessions/${sessionName}`);
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const closeConnection = async (
+  sessionId: string,
+  connectionId: string,
+) => {
+  try {
+    await openvidu_api.delete(
+      `/openvidu/api/sessions/${sessionId}/connection/${connectionId}`,
+    );
+  } catch (e) {
+    console.error(e);
+  }
+};
