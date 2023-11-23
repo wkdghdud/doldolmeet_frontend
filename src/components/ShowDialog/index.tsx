@@ -86,7 +86,7 @@ export default function ShowDialog() {
             <GradientButton onClick={() => setOpen(false)}>닫기</GradientButton>
             <GradientButton>
               <Link
-                href={`/waitingroom/${todayMeeting?.data?.id}`}
+                href={`/waitingroom?id=${todayMeeting?.data?.id}`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 이동
@@ -123,7 +123,7 @@ export default function ShowDialog() {
             <GradientButton onClick={() => setOpen(false)}>닫기</GradientButton>
             <GradientButton>
               <Link
-                href={`/idol-fanmeeting/${todayMeeting?.data?.id}`}
+                href={`/idol-fanmeeting?id=${todayMeeting?.data?.id}`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 이동
