@@ -1,6 +1,6 @@
 import { Device, OpenVidu, Session, StreamManager } from "openvidu-browser";
 import { Role } from "@/types";
-import { backend_api } from "@/utils/api";
+import { backend_api, openvidu_api } from "@/utils/api";
 
 interface JoinSessionProps {
   token: string;
@@ -184,4 +184,34 @@ interface UpdateConnectionProps {
 }
 export const updateConnectionData = async (props: UpdateConnectionProps) => {
   await backend_api().post("/updateConnection", { ...props });
+};
+
+export const createOpenViduSession = async (sessionId) => {
+  try {
+    const response = await openvidu_api.post(
+      "/openvidu/api/sessions",
+      { customSessionId: sessionId },
+      {
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+    return response.data; // The sessionId
+  } catch (error) {
+    // 이미 생성된 세션이라면 세션 아이디를 그대로 리턴
+    if (error?.response?.status === 409) {
+      console.log("🚀 이미 생성된 세션입니다.", sessionId);
+      return sessionId;
+    }
+  }
+};
+
+export const createOpenViduConnection = async (sessionId) => {
+  const response = await openvidu_api.post(
+    "/openvidu/api/sessions/" + sessionId + "/connection",
+    {},
+    {
+      headers: { "Content-Type": "application/json" },
+    },
+  );
+  return response.data; // return Connection object
 };
