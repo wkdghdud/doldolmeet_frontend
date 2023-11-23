@@ -10,6 +10,7 @@ import { backend_api, openvidu_api } from "@/utils/api";
 import { useSearchParams } from "next/navigation";
 import { NextFanInfo, useNextFan } from "@/hooks/useNextFan";
 import { Role } from "@/types";
+import { updateConnectionData } from "@/utils/openvidu";
 
 interface Props {
   joinSession: (role: string) => void;
@@ -100,22 +101,23 @@ const IdolFanMeeting = () => {
     // 백엔드에 팬미팅 입장 요청
     await backend_api()
       .get(`/fanMeetings/${fanMeetingId}/session`)
-      .then((res: AxiosResponse<CreateSessionResponse>) => {
+      .then(async (res: AxiosResponse<CreateSessionResponse>) => {
         setCurrSessionId(res?.data?.data?.teleRoomId);
         setWaitingRoomSessionId(res?.data?.data?.waitRoomId);
 
         const mySession = ov.initSession();
 
         if (mySession) {
-          mySession.on("streamCreated", (event) => {
+          mySession.on("streamCreated", async (event) => {
             console.log("👀 새로운 팬 입장", event.stream.connection);
             const subscriber = mySession.subscribe(event.stream, undefined);
             // TODO: role 체크해서 팬이면 팬 스트림으로 설정
-            const clientData = JSON.parse(event.stream.connection.data);
-            if (clientData?.role === Role.FAN) {
-              setFanStream(subscriber);
-              setCurrFanConnectionId(event.stream.connection.connectionId);
-            }
+            // const clientData = JSON.parse(event.stream.connection.data);
+            // if (clientData?.role === Role.FAN) {
+            setFanStream(subscriber);
+            setCurrFanConnectionId(event.stream.connection.connectionId);
+            await deleteFanInWaitingQueue();
+            // }
           });
 
           mySession.on("streamDestroyed", (event) => {
@@ -152,14 +154,14 @@ const IdolFanMeeting = () => {
     console.log("🚀waitingRoomSessionId: ", waitingRoomSessionId);
     console.log("🚀currSessionId: ", currSessionId);
 
-    if (currFanConnectionId) {
-      // 팬 내보낸 다음 다음 팬에게 시그널 보내기
-      await evictFan().then(async () => {
-        await signalInvite();
-      });
-    } else {
-      await signalInvite();
-    }
+    // if (currFanConnectionId) {
+    //   // 팬 내보낸 다음 다음 팬에게 시그널 보내기
+    //   await evictFan().then(async () => {
+    //     await signalInvite();
+    //   });
+    // } else {
+    await signalInvite();
+    // }
   };
 
   const signalInvite = async () => {
@@ -224,7 +226,6 @@ const IdolFanMeeting = () => {
       )
       .then(async (response) => {
         console.log("👋 팬을 성공적으로 내보냈습니다.", response);
-        await deleteFanInWaitingQueue();
       })
       .catch((error) => console.error("팬 내보내기 에러 발생: ", error));
   };

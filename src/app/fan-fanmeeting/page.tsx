@@ -1,12 +1,16 @@
 "use client";
 import OneIdolWaitingRoom from "@/app/one-idol-waitingroom/page";
 import { useEffect, useState } from "react";
-import { EnterFanMeetingProps, EnterFanMeetingReturn } from "@/utils/openvidu";
+import {
+  EnterFanMeetingProps,
+  EnterFanMeetingReturn,
+  updateConnectionData,
+} from "@/utils/openvidu";
 import TwoPersonMeetingPage from "@/app/two-person-meeting/page";
 import useJwtToken from "@/hooks/useJwtToken";
 import { Role } from "@/types";
 import { OpenVidu, Session, StreamManager } from "openvidu-browser";
-import { useCurrentRoomId } from "@/hooks/useCurrentRoomId";
+import { fetchCurrentRoomId } from "@/hooks/useCurrentRoomId";
 import { useSearchParams } from "next/navigation";
 import { backend_api } from "@/utils/api";
 import InviteDialog from "@/components/InviteDialog";
@@ -28,7 +32,7 @@ const FanFanmeetingPage = () => {
   const [isWaitingRoom, setIsWaitingRoom] = useState<boolean>(false);
 
   /* 현재 로그인된 팬의 세션 아이디를 받아옴 */
-  const { sessionId } = useCurrentRoomId(fanMeetingId ?? "");
+  // const { sessionId } = useCurrentRoomId(fanMeetingId ?? "");
   const [nextSessionId, setNextSessionId] = useState<string>("");
 
   /* username 받아오기 */
@@ -37,119 +41,48 @@ const FanFanmeetingPage = () => {
     jwtToken.then((res) => setUserName(res?.sub ?? ""));
   }, [jwtToken]);
 
-  useEffect(() => {
-    async function enterNewSession() {
-      if (fanMeetingId) {
-        await enterFanmeeting({
-          fanMeetingId: fanMeetingId,
-        }).then((res) => {
-          if (res?.publisher) {
-            setFanStream(res?.publisher);
-          }
-        });
-      }
-    }
-
-    enterNewSession();
-  }, []);
+  // useEffect(() => {
+  //   async function init() {
+  //     await fetchCurrentRoomId(fanMeetingId ?? "").then((res) => {
+  //       console.log("🚀 현재 방 아이디: ", res?.roomId);
+  //       setNextSessionId(res?.roomId);
+  //     });
+  //   }
+  //
+  //   init();
+  // }, []);
 
   useEffect(() => {
-    async function enterNewSession() {
-      if (fanMeetingId) {
-        await enterFanmeeting({
-          fanMeetingId: fanMeetingId,
-        }).then((res) => {
-          if (res?.publisher) {
-            setFanStream(res?.publisher);
-          }
-        });
+    async function enterNewSession(isWaitingRoom: boolean) {
+      if (isWaitingRoom) {
+        // 현재 대기실에 있다면 아이돌과의 영상통화방으로 이동
+        await goToIdolSession();
+      } else {
+        await goToWaitingRoom();
       }
     }
 
-    enterNewSession();
-  }, [sessionId]);
+    setIsWaitingRoom(!isWaitingRoom);
+    enterNewSession(isWaitingRoom);
+  }, [nextSessionId]);
 
-  const enterFanmeeting = async ({
-    fanMeetingId,
-  }: EnterFanMeetingProps): Promise<EnterFanMeetingReturn | null> => {
-    console.log("💜 enter fan meeting 실행!", fanMeetingId);
-
-    try {
-      // OpenVidu 객체 생성
-      const ov = new OpenVidu();
-
-      const sessionResponse = await backend_api().get(
-        `/fanMeetings/${fanMeetingId}/session`,
-      );
-      const token = sessionResponse?.data?.data?.token;
-
-      if (!token) {
-        console.error("Token not available");
-        return null;
-      }
-
-      const mySession = ov.initSession();
-
-      mySession.on("streamCreated", (event) => {
-        console.log("👀 아이돌 등장!", event.stream.connection);
-        const subscriber = mySession.subscribe(event.stream, undefined);
-        const clientData = JSON.parse(event.stream.connection.data);
-        if (clientData?.role === Role.IDOL) {
-          setIdolStream(subscriber);
-        }
-      });
-
-      mySession.on("signal:invite", (event) => {
-        const nextSessionId = event.data;
-        console.log("🚀 들어오세요~ ", nextSessionId);
-        if (nextSessionId) {
-          setNextSessionId(nextSessionId);
-          setPopupOpen(true);
-        }
-      });
-
-      await mySession.connect(token, {
-        clientData: JSON.stringify({
-          role: Role.FAN,
-          userName: userName,
-        }),
-      });
-
-      console.log("💜 커넥션 성공!", token);
-
-      const newPublisher = await ov.initPublisherAsync(undefined, {});
-
-      mySession.publish(newPublisher);
-
-      const response: EnterFanMeetingReturn = {
-        publisher: newPublisher,
-        ...sessionResponse.data.data,
-      };
-
-      return response;
-    } catch (error) {
-      console.error("Error in enterFanmeeting:", error);
-      return null;
-    }
-  };
-
-  const goToIdolSession = async (sessionId: string) => {
-    console.log("💜 아이돌이 있는 세션으로 이동!", sessionId);
+  const goToIdolSession = async () => {
+    console.log("💜 아이돌이 있는 세션으로 이동!");
     try {
       // OpenVidu 객체 생성
       const ov = new OpenVidu();
 
       const mySession = ov.initSession();
 
-      const token = await createToken(sessionId);
+      const token = await createToken();
 
       mySession.on("streamCreated", (event) => {
         console.log("👀 아이돌 등장!", event.stream.connection);
         const subscriber = mySession.subscribe(event.stream, undefined);
-        const clientData = JSON.parse(event.stream.connection.data);
-        if (clientData?.role === Role.IDOL) {
-          setIdolStream(subscriber);
-        }
+        // const clientData = JSON.parse(event.stream.connection.data);
+        // if (clientData?.role === Role.IDOL) {
+        setIdolStream(subscriber);
+        // }
       });
 
       mySession.on("signal:invite", (event) => {
@@ -174,29 +107,42 @@ const FanFanmeetingPage = () => {
       setSession(mySession);
       setFanStream(newPublisher);
       setIsWaitingRoom(false);
+
+      // 영상통화방에 들어온 팬을 저장하는 API
+      await saveFanTeleing();
+
+      // Connection 데이터를 업데이트하는 API 호출
+      await updateConnectionData({
+        connectionId: mySession?.connection?.connectionId ?? "",
+        connectionToken: token,
+        fanMeetingId: fanMeetingId ?? "",
+        username: userName ?? "",
+        roomId: nextSessionId,
+        type: "TELE",
+      });
     } catch (error) {
       console.error("Error in enterFanmeeting:", error);
       return null;
     }
   };
 
-  const goToWaitingRoom = async (sessionId: string) => {
-    console.log("💜 다음 아이돌의 대기실로 이동!", sessionId);
+  const goToWaitingRoom = async () => {
+    console.log("💜 다음 아이돌의 대기실로 이동!", nextSessionId);
     try {
       // OpenVidu 객체 생성
       const ov = new OpenVidu();
 
       const mySession = ov.initSession();
 
-      const token = await createToken(sessionId);
+      const token = await createToken();
 
       mySession.on("streamCreated", (event) => {
         console.log("👀 아이돌 등장!", event.stream.connection);
         const subscriber = mySession.subscribe(event.stream, undefined);
-        const clientData = JSON.parse(event.stream.connection.data);
-        if (clientData?.role === Role.IDOL) {
-          setIdolStream(subscriber);
-        }
+        // const clientData = JSON.parse(event.stream.connection.data);
+        // if (clientData?.role === Role.IDOL) {
+        setIdolStream(subscriber);
+        // }
       });
 
       mySession.on("signal:invite", (event) => {
@@ -227,6 +173,19 @@ const FanFanmeetingPage = () => {
       setSession(mySession);
       setFanStream(newPublisher);
       setIsWaitingRoom(true);
+
+      // 대기방에 들어온 팬을 저장하는 API
+      await saveFanWaitingApi();
+
+      // Connection 데이터를 업데이트하는 API 호출
+      await updateConnectionData({
+        connectionId: mySession?.connection?.connectionId ?? "",
+        connectionToken: token,
+        fanMeetingId: fanMeetingId ?? "",
+        username: userName ?? "",
+        roomId: nextSessionId,
+        type: "WAIT",
+      });
     } catch (error) {
       console.error("Error in enterFanmeeting:", error);
       return null;
@@ -244,15 +203,97 @@ const FanFanmeetingPage = () => {
       });
   };
 
-  const createToken = async (sessionId) => {
+  const createToken = async () => {
     const response = await backend_api().post(
-      "/api/sessions/" + sessionId + "/connections",
+      "/api/sessions/" + nextSessionId + "/connections",
       {},
       {
         headers: { "Content-Type": "application/json" },
       },
     );
     return response.data; // The token
+  };
+
+  // 대기방에 들어온 팬을 저장하는 API
+  const saveFanWaitingApi = async () => {
+    await backend_api().post(
+      `username/${userName}/waitRoomId/${nextSessionId}/fanMeetingId/${fanMeetingId}/saveFanWaiting`,
+    );
+  };
+
+  // 영상통화방에 들어온 팬을 저장하는 API
+  const saveFanTeleing = async () => {
+    await backend_api().post(
+      `username/${userName}/teleRoomId/${nextSessionId}/fanMeetingId/${fanMeetingId}/saveFanTeleing`,
+    );
+  };
+
+  /* 입장할 때 전체 대기실 OpenVidu 세션에 연결 */
+  useEffect(() => {
+    async function enterTotalWaitingRoom() {
+      if (fanMeetingId) {
+        await enterWaitingRoom({
+          fanMeetingId: fanMeetingId,
+        }).then((res) => {
+          console.log("🚀 총 대기실 입장!", res);
+        });
+      }
+    }
+
+    enterTotalWaitingRoom();
+  }, []);
+
+  const enterWaitingRoom = async ({
+    fanMeetingId,
+  }: EnterFanMeetingProps): Promise<EnterFanMeetingReturn | null> => {
+    console.log("💜 enterWaitingRoom 실행!", fanMeetingId);
+
+    try {
+      // OpenVidu 객체 생성
+      const ov = new OpenVidu();
+
+      const sessionResponse = await backend_api().get(
+        `/fanMeetings/${fanMeetingId}/session`,
+      );
+      const token = sessionResponse?.data?.data?.token;
+
+      if (!token) {
+        console.error("Token not available");
+        return null;
+      }
+
+      const mySession = ov.initSession();
+
+      mySession.on("signal:invite", (event) => {
+        const nextSessionId = event.data;
+        console.log("🚀 팬미팅하러 들어오세요~ ", nextSessionId);
+        if (nextSessionId) {
+          setNextSessionId(nextSessionId);
+          setPopupOpen(true);
+        }
+      });
+
+      await mySession.connect(token, {
+        clientData: JSON.stringify({
+          role: Role.FAN,
+          userName: userName,
+        }),
+      });
+
+      const newPublisher = await ov.initPublisherAsync(undefined, {});
+
+      mySession.publish(newPublisher);
+
+      const response: EnterFanMeetingReturn = {
+        publisher: newPublisher,
+        ...sessionResponse.data.data,
+      };
+
+      return response;
+    } catch (error) {
+      console.error("Error in enterFanmeeting:", error);
+      return null;
+    }
   };
 
   return (
@@ -268,7 +309,7 @@ const FanFanmeetingPage = () => {
         open={popupOpen}
         handleClose={() => setPopupOpen(false)}
         handleEnter={() => {
-          goToIdolSession(nextSessionId);
+          goToIdolSession();
           setPopupOpen(false);
         }}
       />

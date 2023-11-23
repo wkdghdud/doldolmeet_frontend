@@ -19,7 +19,7 @@ const OpenViduVideoComponent = ({
     <video
       autoPlay={true}
       ref={videoRef}
-      style={{ borderRadius: 20, width: "98%", margin: 10 }}
+      style={{ borderRadius: 20, height: "65vh" }}
     />
   );
 };

@@ -156,3 +156,32 @@ export const enterFanmeeting = async ({
     return null;
   }
 };
+
+/*
+    @PostMapping("updateConnection")
+    public ResponseEntity<Message> updateConnection(@RequestBody ConnUpdateRequestDto requestDto, HttpServletRequest request) throws OpenViduJavaClientException, OpenViduHttpException {
+        return openviduService.updateConnection(requestDto, request);
+    }
+
+    public class ConnUpdateRequestDto {
+    private String connectionId;
+    private String connectionToken;
+    private Long fanMeetingId;
+    private String username;
+    private String roomId;
+    private String type;
+}
+
+ */
+
+interface UpdateConnectionProps {
+  connectionId: string;
+  connectionToken: string;
+  fanMeetingId: string;
+  username: string;
+  roomId: string;
+  type: string;
+}
+export const updateConnectionData = async (props: UpdateConnectionProps) => {
+  await backend_api().post("/updateConnection", { ...props });
+};
