@@ -5,13 +5,14 @@ import Stomp from "stompjs";
 import { Button, Paper, TextField, Typography } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import useJwtToken from "@/hooks/useJwtToken";
+import { WS_STOMP_URL } from "@/utils/api";
 
 const ShowChat = () => {
   const roomId = "460d7533-6db5-4486-b75c-89f28159cf6d";
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [sender, setSender] = useState<string | null>("");
-  const sock = new SockJS("https://api.doldolmeet.shop/ws-stomp", null, {
+  const sock = new SockJS(WS_STOMP_URL, null, {
     transports: ["websocket"],
     withCredentials: true,
   });
