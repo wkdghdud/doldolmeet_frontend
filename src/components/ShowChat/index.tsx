@@ -12,69 +12,98 @@ const ShowChat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [sender, setSender] = useState<string | null>("");
-  const sock = new SockJS(WS_STOMP_URL, null, {
-    transports: ["websocket"],
-    withCredentials: true,
-  });
-  const stompClient = Stomp.over(sock);
+  const [sock, setSock] = useState(null);
+  const [stompClient, setStompClient] = useState(null);
 
   const messagesRef = useRef(null);
   const token = useJwtToken();
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    token.then((res) => setUserId(res?.sub ?? ""));
-    setSender(userId);
+    setSock(
+      new SockJS(WS_STOMP_URL, null, {
+        transports: ["websocket"],
+        withCredentials: true,
+      }),
+    );
+  }, []);
+
+  useEffect(() => {
+    if (sock) {
+      setStompClient(Stomp.over(sock));
+    }
+  }, [sock]);
+
+  useEffect(() => {
+    token.then((res) => {
+      setUserId(res?.sub ?? "");
+      setSender(res?.sub ?? "");
+    });
   }, [token]);
 
   useEffect(() => {
     connect();
-  }, []);
+
+    return () => {
+      if (stompClient) {
+        stompClient.disconnect();
+      }
+    };
+  }, [stompClient]);
 
   useEffect(() => {
-    // Scroll to the bottom when messages change
     scrollToBottom();
   }, [messages]);
 
-  function connect() {
-    stompClient.connect(
-      {},
-      function (frame) {
-        stompClient.subscribe(`/sub/chat/room/${roomId}`, function (message) {
-          const receivedMessage = JSON.parse(message.body);
-          setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-          console.log(messages);
-        });
+  const connect = () => {
+    if (stompClient) {
+      stompClient.connect(
+        {},
+        function (frame) {
+          stompClient.subscribe(`/sub/chat/room/${roomId}`, function (message) {
+            const receivedMessage = JSON.parse(message.body);
+            setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+            console.log(messages);
+          });
 
-        stompClient.send(
-          "/pub/chat/message",
-          {},
-          JSON.stringify({ type: "ENTER", roomId: roomId, sender: sender }),
-        );
-      },
-      function (error) {
-        console.log("Error: " + error);
-      },
-    );
-  }
+          stompClient.send(
+            "/pub/chat/message",
+            {},
+            JSON.stringify({ type: "ENTER", roomId: roomId, sender: sender }),
+          );
+        },
+        function (error) {
+          console.log("Error: " + error);
+        },
+      );
+    }
+  };
 
-  function sendMessage(e) {
+  const sendMessage = (e) => {
     e.preventDefault();
-    stompClient.send(
-      "/pub/chat/message",
-      {},
-      JSON.stringify({
-        type: "TALK",
-        roomId: roomId,
-        sender: sender,
-        message: message,
-      }),
-    );
-    setMessage("");
-  }
+    if (stompClient && message && message.trim() !== "") {
+      stompClient.send(
+        "/pub/chat/message",
+        {},
+        JSON.stringify({
+          type: "TALK",
+          roomId: roomId,
+          sender: sender,
+          message: message,
+        }),
+      );
+      setMessage("");
+    }
+  };
 
   const scrollToBottom = () => {
     messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+  };
+
+  const handleEnter = (event) => {
+    if (event.keyCode === 13) {
+      sendMessage(event);
+    }
   };
 
   return (
@@ -120,6 +149,7 @@ const ShowChat = () => {
             variant="outlined"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleEnter}
             style={{ flex: 1 }}
           />
           <Button
