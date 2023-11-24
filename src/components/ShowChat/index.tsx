@@ -96,6 +96,26 @@ const ShowChat = () => {
     }
   };
 
+  const createMarkup = (text) => {
+    // 텍스트 내에서 유튜브 영상 링크를 찾아서 <iframe> 태그로 감싸기
+    const youtubeRegex =
+      /(https?:\/\/(?:www\.)?youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+    const replacedText = text.replace(
+      youtubeRegex,
+      '<iframe width="100%" height="auto" src="https://www.youtube.com/embed/$2" frameborder="0" allowfullscreen></iframe>',
+    );
+
+    // 이미지 링크도 처리
+    const imageRegex = /(https?:\/\/[^\s]+\.(?:png|jpg|gif|jpeg))/g;
+    const finalText = replacedText.replace(
+      imageRegex,
+      '<img src="$1" alt="Image" style="max-width: 100%; height: auto;">',
+    );
+
+    // dangerouslySetInnerHTML에 넘겨주기 위해 __html 속성 사용
+    return { __html: finalText };
+  };
+
   const scrollToBottom = () => {
     messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
   };
@@ -130,11 +150,13 @@ const ShowChat = () => {
             (msg, index) =>
               msg.message &&
               msg.message.trim() !== "" && (
-                <li key={index} style={{ marginBottom: "8px" }}>
-                  <Typography variant="body1" style={{ fontWeight: "bold" }}>
-                    {msg.sender}: {msg.message}
-                  </Typography>
-                </li>
+                <li
+                  key={index}
+                  style={{ marginBottom: "8px" }}
+                  dangerouslySetInnerHTML={createMarkup(
+                    `${msg.sender}: ${msg.message}`,
+                  )}
+                />
               ),
           )}
         </ul>
