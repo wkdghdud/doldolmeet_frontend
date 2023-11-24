@@ -7,32 +7,46 @@ import SendIcon from "@mui/icons-material/Send";
 import useJwtToken from "@/hooks/useJwtToken";
 import { WS_STOMP_URL } from "@/utils/api";
 
-const ShowChat = () => {
-  const roomId = "460d7533-6db5-4486-b75c-89f28159cf6d";
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
+  const [message, setMessage] = useState<any>("");
+  const [messages, setMessages] = useState<any[]>([]);
   const [sender, setSender] = useState<string | null>("");
-  const [sock, setSock] = useState(null);
-  const [stompClient, setStompClient] = useState(null);
+  const [sock, setSock] = useState<any>(null);
+  const [stompClient, setStompClient] = useState<any>(null);
 
-  const messagesRef = useRef(null);
+  const messagesRef = useRef<HTMLUListElement | null>(null);
   const token = useJwtToken();
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    setSock(
-      new SockJS(WS_STOMP_URL, null, {
-        transports: ["websocket"],
-        withCredentials: true,
-      }),
-    );
-  }, []);
+    const initWebSocket = () => {
+      const sock = new SockJS(WS_STOMP_URL);
+      const stompClient = Stomp.over(sock);
+      setStompClient(stompClient);
 
-  useEffect(() => {
-    if (sock) {
-      setStompClient(Stomp.over(sock));
+      stompClient.connect({}, (frame) => {
+        // Subscribe
+        stompClient.subscribe(`/sub/chat/room/${roomId}`, (message) => {
+          const receivedMessage = JSON.parse(message.body);
+          setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+        });
+        // Send
+        stompClient.send(
+          "/pub/chat/message",
+          {},
+          JSON.stringify({ type: "ENTER", roomId: roomId, sender: sender }),
+        );
+      });
+
+      return () => {
+        stompClient.disconnect();
+      };
+    };
+
+    if (roomId) {
+      initWebSocket();
     }
-  }, [sock]);
+  }, [roomId]);
 
   useEffect(() => {
     token.then((res) => {
@@ -42,42 +56,8 @@ const ShowChat = () => {
   }, [token]);
 
   useEffect(() => {
-    connect();
-
-    return () => {
-      if (stompClient) {
-        stompClient.disconnect();
-      }
-    };
-  }, [stompClient]);
-
-  useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const connect = () => {
-    if (stompClient) {
-      stompClient.connect(
-        {},
-        function (frame) {
-          stompClient.subscribe(`/sub/chat/room/${roomId}`, function (message) {
-            const receivedMessage = JSON.parse(message.body);
-            setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-            console.log(messages);
-          });
-
-          stompClient.send(
-            "/pub/chat/message",
-            {},
-            JSON.stringify({ type: "ENTER", roomId: roomId, sender: sender }),
-          );
-        },
-        function (error) {
-          console.log("Error: " + error);
-        },
-      );
-    }
-  };
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -97,7 +77,9 @@ const ShowChat = () => {
   };
 
   const scrollToBottom = () => {
-    messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
   };
 
   const handleEnter = (event) => {
