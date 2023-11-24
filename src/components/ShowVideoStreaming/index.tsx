@@ -1,8 +1,8 @@
 "use client";
-
 import React, { useState, useEffect, useRef, ChangeEvent } from "react";
 import axios from "axios";
-import ReactPlayer from "react-player";
+import dynamic from "next/dynamic";
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
 const ShowVideoStreaming = () => {
   const [videoDirectory, setVideoDirectory] = useState("");
@@ -51,11 +51,6 @@ const ShowVideoStreaming = () => {
 
   return (
     <div>
-      {/*<div>베이스 페이지 입니다~</div>*/}
-      {/*<input type="file" name="file" ref={inputRef} onChange={onChangeFile} />*/}
-      {/*<input type="button" onClick={handleFormSubmit} />*/}
-      {/*<div id="result">{result}</div>*/}
-
       <ReactPlayer
         url={[
           "https://www.youtube.com/watch?v=AXV-g4tZdFQ",
