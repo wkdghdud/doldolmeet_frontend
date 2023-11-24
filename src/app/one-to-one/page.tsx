@@ -12,6 +12,9 @@ import {
   createOpenViduConnection,
   createOpenViduSession,
 } from "@/utils/openvidu";
+import ShowChat from "@/components/ShowChat";
+import { Role } from "@/types";
+import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 
 const OneToOnePage = () => {
   /* Video Ref */
@@ -29,6 +32,15 @@ const OneToOnePage = () => {
 
   /* OpenVidu Connection */
   const [myConnection, setMyConnection] = useState<Connection | undefined>();
+
+  /* role */
+  const token: Promise<JwtToken | null> = useJwtToken(); // TODO: role에 따른 구분 필요
+  const [role, setRole] = useState<Role | undefined>();
+  useEffect(() => {
+    token.then((res) => {
+      setRole(res?.auth);
+    });
+  }, [token]);
 
   // OpenVidu 세션 연결 전 보여줄 카메라 비디오
   useEffect(() => {
@@ -93,7 +105,7 @@ const OneToOnePage = () => {
       }
       const { token } = connection;
       await mySession.connect(token, {
-        clientData: "Participant_" + Math.floor(Math.random() * 100),
+        clientData: JSON.stringify({ role: role }),
       });
 
       await ov.getUserMedia({
@@ -239,7 +251,7 @@ const OneToOnePage = () => {
         justifyContent="center"
         alignItems="center"
       >
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           {idolStream ? (
             <>
               <Typography variant={"h4"}>
@@ -256,7 +268,7 @@ const OneToOnePage = () => {
           )}
         </Grid>
 
-        <Grid item xs={6} style={{ position: "relative" }}>
+        <Grid item xs={4} style={{ position: "relative" }}>
           {subscribers.length > 0 ? (
             <>
               <Typography variant={"h4"}>
@@ -312,6 +324,9 @@ const OneToOnePage = () => {
               />
             </>
           )}
+        </Grid>
+        <Grid item xs={4}>
+          <ShowChat />
         </Grid>
       </Grid>
     </Stack>
