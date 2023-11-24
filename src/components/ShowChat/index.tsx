@@ -13,10 +13,10 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [sender, setSender] = useState<string | null>("");
   const [sock, setSock] = useState<any>(null);
   const [stompClient, setStompClient] = useState<any>(null);
-
   const messagesRef = useRef<HTMLUListElement | null>(null);
   const token = useJwtToken();
   const [userId, setUserId] = useState("");
+  const imageRegex = /(https?:\/\/[^\s]+\.(?:png|jpg|gif|jpeg))/g;
 
   useEffect(() => {
     const initWebSocket = () => {
@@ -76,26 +76,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
     }
   };
 
-  const createMarkup = (text) => {
-    // 텍스트 내에서 유튜브 영상 링크를 찾아서 <iframe> 태그로 감싸기
-    const youtubeRegex =
-      /(https?:\/\/(?:www\.)?youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
-    const replacedText = text.replace(
-      youtubeRegex,
-      '<iframe width="100%" height="auto" src="https://www.youtube.com/embed/$2" frameborder="0" allowfullscreen></iframe>',
-    );
-
-    // 이미지 링크도 처리
-    const imageRegex = /(https?:\/\/[^\s]+\.(?:png|jpg|gif|jpeg))/g;
-    const finalText = replacedText.replace(
-      imageRegex,
-      '<img src="$1" alt="Image" style="max-width: 100%; height: auto;">',
-    );
-
-    // dangerouslySetInnerHTML에 넘겨주기 위해 __html 속성 사용
-    return { __html: finalText };
-  };
-
   const scrollToBottom = () => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
@@ -126,21 +106,71 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           채팅방
         </Typography>
         <ul ref={messagesRef} style={{ overflowY: "auto", maxHeight: "500px" }}>
-          {" "}
-          {/* Adjust maxHeight here */}
-          {messages.map(
-            (msg, index) =>
-              msg.message &&
-              msg.message.trim() !== "" && (
-                <li
-                  key={index}
-                  style={{ marginBottom: "8px" }}
-                  dangerouslySetInnerHTML={createMarkup(
-                    `${msg.sender}: ${msg.message}`,
-                  )}
-                />
-              ),
-          )}
+          {messages.map((msg, index) => {
+            if (msg.message && msg.message.trim() !== "") {
+              if (msg.type === "TALK") {
+                const youtubeRegex =
+                  /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+                const match = msg.message.match(youtubeRegex);
+
+                if (match) {
+                  const videoId = match[1];
+                  const youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}`;
+
+                  return (
+                    <li key={index} style={{ marginBottom: "8px" }}>
+                      <Typography
+                        variant="body1"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        {msg.sender}:
+                      </Typography>
+                      <iframe
+                        title={`YouTube Video ${index}`}
+                        width="300"
+                        height="200"
+                        src={youtubeEmbedUrl}
+                        frameBorder="0"
+                        allowFullScreen
+                      ></iframe>
+                    </li>
+                  );
+                } else if (msg.message.match(imageRegex)) {
+                  const finalText = msg.message.replace(
+                    imageRegex,
+                    '<img src="$1" alt="Image" style="max-width: 100%; height: auto;">',
+                  );
+                  return (
+                    <li key={index} style={{ marginBottom: "8px" }}>
+                      <Typography
+                        variant="body1"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        {msg.sender}:
+                      </Typography>
+                      <img
+                        src={msg.message}
+                        alt="Image"
+                        style={{ maxWidth: "100%", height: "auto" }}
+                      />
+                    </li>
+                  );
+                }
+              }
+
+              // YouTube 링크를 포함하지 않은 모든 메시지를 표시하도록 수정
+              return (
+                <li key={index} style={{ marginBottom: "8px" }}>
+                  <Typography variant="body1" style={{ fontWeight: "bold" }}>
+                    {msg.sender}: {msg.message}
+                  </Typography>
+                </li>
+              );
+            }
+
+            // 메시지가 없는 경우 아무것도 반환하지 않도록 설정
+            return null;
+          })}
         </ul>
       </Paper>
       <Paper
