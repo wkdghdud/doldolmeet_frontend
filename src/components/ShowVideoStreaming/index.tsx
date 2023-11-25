@@ -53,8 +53,8 @@ const ShowVideoStreaming = () => {
     <div>
       <ReactPlayer
         url={[
-          "https://www.youtube.com/watch?v=AXV-g4tZdFQ",
-          "https://www.youtube.com/watch?v=ZI0UO8aM9E8",
+          "https://www.youtube.com/watch?v=D8VEhcPeSlc",
+          "https://www.youtube.com/watch?v=rRzxEiBLQCA",
         ]}
         controls
         height="750px" // 높이를 자동으로 조절하여 비율을 유지
