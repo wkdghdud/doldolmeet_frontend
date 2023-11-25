@@ -1,14 +1,7 @@
 "use client";
 import { Button, styled } from "@mui/material";
 
-interface Props {
-  borderRadius: string | number;
-}
-
-const GradientButton = styled(Button, {
-  shouldForwardProp: (prop) => prop !== "borderRadius",
-})<Props>(({ theme, borderRadius }) => ({
-  borderRadius: borderRadius,
+const GradientButton = styled(Button)(({ theme }) => ({
   color: "#FFFFFF",
   backgroundImage: "linear-gradient(to right, #ed6ea0, #ec8c69)",
   fontWeight: 700,

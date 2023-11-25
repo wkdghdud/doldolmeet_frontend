@@ -1,3 +1,4 @@
+"use client";
 import Banner from "@/components/Banner";
 import { Grid, Stack, Typography } from "@mui/material";
 import ForwardIcon from "@mui/icons-material/Forward";
@@ -8,19 +9,17 @@ import { fetchFanMeetings } from "@/hooks/useFanMeetings";
 import { useQuery } from "@tanstack/react-query";
 import ShowDialog from "@/components/ShowDialog";
 import { fetchTodayFanmeeting } from "@/hooks/useTodayFanmeeting";
-import { getSession } from "next-auth/react";
+import Link from "next/link";
 
-export default function Home(props) {
+export default function Home() {
   const { data } = useQuery({
     queryKey: ["fanMeetings", "opened"],
     queryFn: ({ queryKey }) => fetchFanMeetings(queryKey[1]),
-    initialData: props.fanMeetings,
   });
 
   const { data: todayMeeting } = useQuery({
-    queryKey: ["fanMeetings", "latest"],
+    queryKey: ["fanMeetings", "today"],
     queryFn: () => fetchTodayFanmeeting(),
-    initialData: props.todayFanMeeting,
   });
 
   const moveWaitingRoom = (e) => {
@@ -68,7 +67,10 @@ export default function Home(props) {
             marginTop: 4,
           }}
         >
-          <a href="./waitingroom" style={{ width: "100%" }}>
+          <Link
+            href={`/waitingroom?id=${todayMeeting?.data?.id}`}
+            style={{ width: "100%" }}
+          >
             <Stack
               component="div"
               direction="row"
@@ -99,7 +101,7 @@ export default function Home(props) {
                 클릭하세요!
               </Typography>
             </Stack>
-          </a>
+          </Link>
         </Grid>
       )}
 
@@ -117,7 +119,7 @@ export default function Home(props) {
           <GradientButton
             variant="contained"
             endIcon={<ForwardIcon />}
-            borderRadius={"10px"}
+            sx={{ borderRadius: "10px" }}
           >
             전체보기
           </GradientButton>
@@ -132,20 +134,4 @@ export default function Home(props) {
       <ShowDialog />
     </Grid>
   );
-}
-
-export async function getServerSideProps() {
-  const session = getSession();
-
-  const fanMeetings = await fetchFanMeetings("opened");
-  let todayFanMeeting = null;
-  if (session !== null) {
-    todayFanMeeting = await fetchTodayFanmeeting();
-  }
-  return {
-    props: {
-      fanMeetings,
-      todayFanMeeting: todayFanMeeting ?? null,
-    },
-  };
 }

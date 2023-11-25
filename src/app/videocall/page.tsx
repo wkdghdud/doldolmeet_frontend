@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { OpenVidu } from "openvidu-browser";
 import axios from "axios";
 import VideoCallEntrance from "@/components/meeting/VideoCallEntrance";
-import MeetingRoom from "@/components/meeting/MeetingRoom";
 import Timer from "@/components/Timer";
 import { useAtom } from "jotai/react";
 import { currSessionIdAtom, currSessionIdxAtom, sessionIdsAtom } from "@/atom";
@@ -386,15 +385,15 @@ const VideoCall = () => {
       ) : (
         <>
           <Timer exitValue={3} handleTimeout={() => handleTimeout(role)} />
-          <MeetingRoom
-            joinSession={joinSession}
-            leaveSession={leaveSession}
-            toggleDevice={toggleDevice}
-            // idol={idolStream}
-            // fan={fanStream}
-            publisher={publisher}
-            subscribers={subscribers}
-          />
+          {/*<MeetingRoom*/}
+          {/*  joinSession={joinSession}*/}
+          {/*  leaveSession={leaveSession}*/}
+          {/*  toggleDevice={toggleDevice}*/}
+          {/*  // idol={idolStream}*/}
+          {/*  // fan={fanStream}*/}
+          {/*  publisher={publisher}*/}
+          {/*  subscribers={subscribers}*/}
+          {/*/>*/}
           <Button onClick={requestWaiting}>대기 요청하기</Button>
           <Button onClick={requestWaiting}>참여시키기</Button>
           {waiters &&

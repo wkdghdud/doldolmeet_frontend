@@ -1,132 +1,167 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { Button, Paper, TextField, Typography } from "@mui/material";
+import { IconButton, TextField } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import useJwtToken from "@/hooks/useJwtToken";
+import { WS_STOMP_URL } from "@/utils/api";
+import ChatBalloon from "@/components/chat/ChatBalloon";
+import { Box } from "@mui/system";
 
-const ShowChat = () => {
-  const roomId = "460d7533-6db5-4486-b75c-89f28159cf6d";
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
+  const [message, setMessage] = useState<any>("");
+  const [messages, setMessages] = useState<any[]>([]);
   const [sender, setSender] = useState<string | null>("");
-  const sock = new SockJS("https://api.doldolmeet.shop/ws-stomp", null, {
-    transports: ["websocket"],
-    withCredentials: true,
-  });
-  const stompClient = Stomp.over(sock);
+  const [sock, setSock] = useState<any>(null);
+  const [stompClient, setStompClient] = useState<any>(null);
 
-  const messagesRef = useRef(null);
-
-  useEffect(() => {
-    connect();
-  }, []);
+  const messagesRef = useRef<HTMLElement | null>(null);
+  const token = useJwtToken();
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    // Scroll to the bottom when messages change
-    scrollToBottom();
-  }, [messages]);
+    const initWebSocket = () => {
+      const sock = new SockJS(WS_STOMP_URL);
+      const stompClient = Stomp.over(sock);
+      setStompClient(stompClient);
 
-  function connect() {
-    stompClient.connect(
-      {},
-      function (frame) {
-        stompClient.subscribe(`/sub/chat/room/${roomId}`, function (message) {
+      stompClient.connect({}, (frame) => {
+        // Subscribe
+        stompClient.subscribe(`/sub/chat/room/${roomId}`, (message) => {
           const receivedMessage = JSON.parse(message.body);
           setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-          console.log(messages);
         });
-
+        // Send
         stompClient.send(
           "/pub/chat/message",
           {},
           JSON.stringify({ type: "ENTER", roomId: roomId, sender: sender }),
         );
-      },
-      function (error) {
-        console.log("Error: " + error);
-      },
-    );
-  }
+      });
 
-  function sendMessage(e) {
+      return () => {
+        stompClient.disconnect();
+      };
+    };
+
+    if (roomId) {
+      initWebSocket();
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    token.then((res) => {
+      setUserId(res?.sub ?? "");
+      setSender(res?.sub ?? "");
+    });
+  }, [token]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const sendMessage = (e) => {
     e.preventDefault();
-    stompClient.send(
-      "/pub/chat/message",
-      {},
-      JSON.stringify({
-        type: "TALK",
-        roomId: roomId,
-        sender: sender,
-        message: message,
-      }),
-    );
-    setMessage("");
-  }
+    if (stompClient && message && message.trim() !== "") {
+      stompClient.send(
+        "/pub/chat/message",
+        {},
+        JSON.stringify({
+          type: "TALK",
+          roomId: roomId,
+          sender: sender,
+          message: message,
+        }),
+      );
+      setMessage("");
+    }
+  };
 
   const scrollToBottom = () => {
-    messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
+  };
+
+  const handleEnter = (event) => {
+    if (event.keyCode === 13) {
+      sendMessage(event);
+    }
   };
 
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        maxWidth: "500px",
+        height: "100%",
+        backgroundColor: "#ffffff",
+        borderRadius: 2,
+      }}
     >
-      <Paper
-        elevation={3}
-        style={{
-          padding: "20px",
-          maxWidth: "400px",
-          width: "100%",
-          height: "65vh", // Increase the height here
-          marginBottom: "20px",
+      <Box
+        ref={messagesRef}
+        sx={{
+          width: "auto",
+          height: "85%",
+          overflowY: "auto",
+          padding: 2,
         }}
       >
-        <Typography variant="h4" gutterBottom>
-          채팅방
-        </Typography>
-        <ul ref={messagesRef} style={{ overflowY: "auto", maxHeight: "500px" }}>
-          {" "}
-          {/* Adjust maxHeight here */}
-          {messages.map((msg, index) => (
-            <li key={index} style={{ marginBottom: "8px" }}>
-              <Typography variant="body1" style={{ fontWeight: "bold" }}>
-                {msg.sender}: {msg.message}
-              </Typography>
-            </li>
-          ))}
-        </ul>
-      </Paper>
-      <Paper
-        elevation={3}
-        style={{ padding: "20px", maxWidth: "400px", width: "100%" }}
-      >
-        <div style={{ display: "flex" }}>
-          <TextField
-            label="아이디"
-            variant="outlined"
-            value={sender}
-            onChange={(e) => setSender(e.target.value)}
-            style={{ marginRight: "10px" }}
-          />
-          <TextField
-            label="메시지 입력"
-            variant="outlined"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            style={{ flex: 1 }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            endIcon={<SendIcon />}
-            onClick={sendMessage}
-          >
-            전송
-          </Button>
-        </div>
-      </Paper>
-    </div>
+        {messages.map(
+          (msg, index) =>
+            msg.message &&
+            msg.message.trim() !== "" && (
+              <ChatBalloon
+                key={index}
+                sender={msg.sender}
+                message={msg.message}
+              />
+            ),
+        )}
+      </Box>
+      <TextField
+        label="메시지 입력"
+        variant="outlined"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={handleEnter}
+        sx={{
+          width: "95%",
+          margin: "auto",
+          marginTop: 1,
+          marginBottom: 1,
+          "& label": {
+            color: "#bdbdbd",
+          },
+          "& label.Mui-focused": {
+            color: "#ff8fab",
+          },
+          // focused color for input with variant='outlined'
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: "#eeeeee",
+            },
+            "&:hover fieldset": {
+              borderColor: "#e0e0e0",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#ff8fab",
+            },
+          },
+        }}
+        InputProps={{
+          endAdornment: (
+            <IconButton color="primary" onClick={sendMessage}>
+              <SendIcon />
+            </IconButton>
+          ),
+        }}
+      />
+    </Box>
   );
 };
 

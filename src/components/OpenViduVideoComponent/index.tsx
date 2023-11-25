@@ -1,7 +1,12 @@
+"use client";
 import { useEffect, useRef } from "react";
-import { Publisher, Subscriber } from "openvidu-browser";
+import { Publisher, StreamManager } from "openvidu-browser";
 
-const OpenViduVideoComponent = ({ streamManager }: Publisher | Subscriber) => {
+const OpenViduVideoComponent = ({
+  streamManager,
+}: {
+  streamManager: StreamManager | Publisher;
+}) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -10,7 +15,18 @@ const OpenViduVideoComponent = ({ streamManager }: Publisher | Subscriber) => {
     }
   }, [streamManager]);
 
-  return <video autoPlay={true} ref={videoRef} style={{ borderRadius: 20 }} />;
+  return (
+    <video
+      autoPlay={true}
+      ref={videoRef}
+      style={{
+        borderRadius: 20,
+        maxWidth: "95%",
+        height: "70vh",
+        objectFit: "cover",
+      }}
+    />
+  );
 };
 
 export default OpenViduVideoComponent;

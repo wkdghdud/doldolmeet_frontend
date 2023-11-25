@@ -4,7 +4,7 @@ import { AxiosResponse } from "axios";
 
 const fetchTodayFanmeeting = async () => {
   const response = await backend_api()
-    .get(`/fanMeetings/latest`)
+    .get(`/fanMeetings/today`)
     .then((response: AxiosResponse) => {
       if (response.status === 404) {
         return null;
@@ -18,7 +18,7 @@ const fetchTodayFanmeeting = async () => {
 
 const useTodayFanmeeting = () => {
   return useQuery({
-    queryKey: ["fanMeetings", "latest"],
+    queryKey: ["fanMeetings", "today"],
     queryFn: () => fetchTodayFanmeeting(),
   });
 };
