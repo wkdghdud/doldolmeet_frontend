@@ -25,7 +25,7 @@ const WaitingRoom = () => {
         <Grid item xs={6}>
           <ShowVideoStreaming />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={6} sx={{ height: "85vh" }}>
           <ShowChat roomId={fanMeeting?.chatRoomId} />
         </Grid>
       </Grid>

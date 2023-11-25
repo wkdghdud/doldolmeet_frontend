@@ -236,3 +236,12 @@ export const closeConnection = async (
     console.error(e);
   }
 };
+
+export const getConnectionInfo = async () => {
+  try {
+    const response = await openvidu_api.get("/openvidu/api/sessions");
+    return response.data;
+  } catch (e) {
+    console.error(e);
+  }
+};

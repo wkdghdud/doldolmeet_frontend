@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { StreamManager } from "openvidu-browser";
+import { Publisher, StreamManager } from "openvidu-browser";
 
 const OpenViduVideoComponent = ({
   streamManager,
 }: {
-  streamManager: StreamManager;
+  streamManager: StreamManager | Publisher;
 }) => {
   const videoRef = useRef(null);
 
@@ -19,7 +19,12 @@ const OpenViduVideoComponent = ({
     <video
       autoPlay={true}
       ref={videoRef}
-      style={{ borderRadius: 20, height: "65vh" }}
+      style={{
+        borderRadius: 20,
+        maxWidth: "95%",
+        height: "70vh",
+        objectFit: "cover",
+      }}
     />
   );
 };
