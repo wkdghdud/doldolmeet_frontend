@@ -21,8 +21,14 @@ import DeviceControlButton from "@/components/meeting/DeviceControlButton";
 import MyVideoComponent from "@/components/meeting/MyVideoComponent";
 import WaitingFanImage from "@/components/meeting/WaitingFanImage";
 import { Box } from "@mui/system";
+import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
+import { useSearchParams } from "next/navigation";
 
 const OneToOnePage = () => {
+  /* Query Param으로 전달된 팬미팅 아이디 */
+  const searchParams = useSearchParams();
+  const fanMeetingId = searchParams?.get("id");
+
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();
 
@@ -40,7 +46,19 @@ const OneToOnePage = () => {
 
   /* Layout */
   const [fullScreen, setFullScreen] = useState<boolean>(false);
-  const [chatOpen, setChatOpen] = useState<boolean>(false);
+  const [chatOpen, setChatOpen] = useState<boolean>(true);
+
+  /* React Query FanToFanMeeting 조회 */
+  const [chatRoomId, setChatRoomId] = useState<string | undefined>();
+
+  useEffect(() => {
+    async function findFanToFanMeeting() {
+      const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
+      setChatRoomId(fanToFanMeeting?.chatRoomId);
+    }
+
+    findFanToFanMeeting();
+  }, []);
 
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
@@ -150,7 +168,7 @@ const OneToOnePage = () => {
   };
 
   return (
-    <Grid container alignItems={"flex-start"}>
+    <Grid container spacing={2}>
       <Grid
         item
         xs={fullScreen ? 12 : 8.5}
@@ -273,7 +291,23 @@ const OneToOnePage = () => {
               </Button>
             </Stack>
           </Box>
-          <ShowChat roomId={""} />
+          <div style={{ height: "70vh" }}>
+            {chatOpen ? (
+              <ShowChat roomId={chatRoomId} />
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "100%",
+                  maxWidth: "400px",
+                  height: "100%",
+                  backgroundColor: "#ffffff",
+                  borderRadius: 2,
+                }}
+              />
+            )}
+          </div>
         </Grid>
       )}
     </Grid>
