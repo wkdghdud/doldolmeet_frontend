@@ -18,4 +18,35 @@ const useFanMeetings = (option) => {
   });
 };
 
-export { fetchFanMeetings, useFanMeetings };
+interface FanToFanMeeting {
+  id: number;
+  fanId: number;
+  fanMeetingId: number;
+  fanMeetingApplyStatus: string;
+  orderNumber: number;
+  chatRoomId: string;
+}
+
+const fetchFanToFanMeeting = async (fanMeetingId): Promise<FanToFanMeeting> => {
+  const response = await backend_api()
+    .get(`/fanMeetings/${fanMeetingId}/fanToFanMeeting`)
+    .then((response: AxiosResponse) => response.data)
+    .catch((e) => console.error(e));
+  return response.data;
+};
+
+const useFanToFanMeeting = (fanMeetingId) => {
+  return useQuery({
+    queryKey: ["fanToFanMeeting", fanMeetingId],
+    queryFn: ({ queryKey }) => fetchFanToFanMeeting(queryKey[1]),
+  });
+};
+
+export {
+  fetchFanMeetings,
+  useFanMeetings,
+  fetchFanToFanMeeting,
+  useFanToFanMeeting,
+};
+
+export type { FanToFanMeeting };
