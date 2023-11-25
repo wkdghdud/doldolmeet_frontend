@@ -23,6 +23,7 @@ import WaitingFanImage from "@/components/meeting/WaitingFanImage";
 import { Box } from "@mui/system";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
 import { useSearchParams } from "next/navigation";
+import Capture from "@/components/Capture";
 
 const OneToOnePage = () => {
   /* Query Param으로 전달된 팬미팅 아이디 */
@@ -204,19 +205,26 @@ const OneToOnePage = () => {
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
+              <Capture />
             </Stack>
           </Grid>
-          <Grid item xs={6}>
-            <MyVideoComponent nickName={"카리나"} stream={idolStream} />
-          </Grid>
-          <Grid item xs={6} style={{ position: "relative" }}>
-            {subscribers.length > 0 ? (
-              <>
+          <Grid
+            item
+            id="video-container"
+            xs={12}
+            container
+            justifyContent="space-between"
+          >
+            <Grid item xs={6}>
+              <MyVideoComponent nickName={"카리나"} stream={idolStream} />
+            </Grid>
+            <Grid item xs={6} style={{ position: "relative" }}>
+              {subscribers.length > 0 ? (
                 <MyVideoComponent nickName={"마재화"} stream={subscribers[0]} />
-              </>
-            ) : (
-              <WaitingFanImage />
-            )}
+              ) : (
+                <WaitingFanImage />
+              )}
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
