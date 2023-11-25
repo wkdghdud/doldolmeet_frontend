@@ -7,9 +7,9 @@ const themes = () => {
     direction: "ltr",
     palette: {
       primary: {
-        main: "#FFAFCC",
+        main: "#ff8fab",
         light: "#ECF2FF",
-        dark: "#eca2bc",
+        dark: "#fb6f92",
         contrastText: "#ffffff",
       },
       secondary: {
