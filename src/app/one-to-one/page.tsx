@@ -6,7 +6,7 @@ import {
   Session,
   StreamManager,
 } from "openvidu-browser";
-import { Grid, Stack } from "@mui/material";
+import { Button, Grid, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
@@ -20,6 +20,7 @@ import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import DeviceControlButton from "@/components/meeting/DeviceControlButton";
 import MyVideoComponent from "@/components/meeting/MyVideoComponent";
 import WaitingFanImage from "@/components/meeting/WaitingFanImage";
+import { Box } from "@mui/system";
 
 const OneToOnePage = () => {
   /* OpenVidu */
@@ -39,6 +40,7 @@ const OneToOnePage = () => {
 
   /* Layout */
   const [fullScreen, setFullScreen] = useState<boolean>(false);
+  const [chatOpen, setChatOpen] = useState<boolean>(false);
 
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
@@ -169,7 +171,12 @@ const OneToOnePage = () => {
               direction={"row"}
               justifyContent="space-between"
               alignItems="center"
-              sx={{ backgroundColor: "transparent", px: 2, mb: 2 }}
+              sx={{
+                backgroundColor: "transparent",
+                px: 2,
+                mb: 2,
+                height: 60,
+              }}
             >
               <Typography variant={"h4"}>
                 {"💜 Aespa Drama 발매 기념 팬미팅"}
@@ -206,6 +213,66 @@ const OneToOnePage = () => {
             padding: 2,
           }}
         >
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{
+              width: "100%",
+              height: 60,
+              borderRadius: 1,
+              bgcolor: "#ffffff",
+              mb: 2,
+            }}
+          >
+            <Stack
+              direction={"row"}
+              justifyContent="space-around"
+              alignItems="center"
+              sx={{ width: "100%", height: "100%" }}
+            >
+              <Button
+                variant={chatOpen ? "contained" : "text"}
+                onClick={() => setChatOpen(true)}
+                sx={{
+                  width: "46%",
+                  height: "70%",
+                  backgroundColor: chatOpen ? "#ff8fab" : "#ffffff",
+                }}
+              >
+                <Typography
+                  variant={"button"}
+                  sx={{
+                    fontWeight: 700,
+                    color: chatOpen ? "#ffffff" : "#9e9e9e",
+                    letterSpacing: 3,
+                  }}
+                >
+                  채팅창
+                </Typography>
+              </Button>
+              <Button
+                variant={chatOpen ? "text" : "contained"}
+                onClick={() => setChatOpen(false)}
+                sx={{
+                  width: "46%",
+                  height: "70%",
+                  backgroundColor: chatOpen ? "#ffffff" : "#ff8fab",
+                }}
+              >
+                <Typography
+                  variant={"button"}
+                  sx={{
+                    fontWeight: 700,
+                    color: chatOpen ? "#9e9e9e" : "#ffffff",
+                    letterSpacing: 3,
+                  }}
+                >
+                  메모장
+                </Typography>
+              </Button>
+            </Stack>
+          </Box>
           <ShowChat roomId={""} />
         </Grid>
       )}
