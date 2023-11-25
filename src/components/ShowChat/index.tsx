@@ -110,7 +110,12 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
   return (
     <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        maxWidth: "90%",
+      }}
     >
       <Paper
         elevation={3}

@@ -1,40 +1,47 @@
 "use client";
-import { Connection, OpenVidu, Session, StreamManager } from "openvidu-browser";
-import { openvidu_api } from "@/utils/api";
-import { Grid, Stack, TextField } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import {
+  Connection,
+  OpenVidu,
+  Publisher,
+  Session,
+  StreamManager,
+} from "openvidu-browser";
+import { Grid, Stack } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
-import GradientButton from "@/components/GradientButton";
-import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 import {
   closeConnection,
-  closeSession,
   createOpenViduConnection,
   createOpenViduSession,
 } from "@/utils/openvidu";
 import ShowChat from "@/components/ShowChat";
 import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
+import DeviceControlButton from "@/components/meeting/DeviceControlButton";
+import MyVideoComponent from "@/components/meeting/MyVideoComponent";
+import WaitingFanImage from "@/components/meeting/WaitingFanImage";
 
 const OneToOnePage = () => {
-  /* Video Ref */
-  const videoRef = useRef<HTMLVideoElement>(null);
+  /* OpenVidu */
+  const [OV, setOV] = useState<OpenVidu | undefined>();
 
   /* OpenVidu Session Info*/
   const [session, setSession] = useState<Session | undefined>();
   const [sessionName, setSessionName] = useState<string>("test-idol-session-1");
-  const [fanNumber, setFanNumber] = useState<string>();
 
   /* OpenVidu Stream */
-  const [idolStream, setIdolStream] = useState<StreamManager>();
+  const [idolStream, setIdolStream] = useState<Publisher>();
   const [fanStream, setFanStream] = useState<StreamManager>();
   const [subscribers, setSubscribers] = useState<StreamManager[]>([]);
 
   /* OpenVidu Connection */
   const [myConnection, setMyConnection] = useState<Connection | undefined>();
 
-  /* role */
-  const token: Promise<JwtToken | null> = useJwtToken(); // TODO: role에 따른 구분 필요
+  /* Layout */
+  const [fullScreen, setFullScreen] = useState<boolean>(false);
+
+  /* Role */
+  const token: Promise<JwtToken | null> = useJwtToken();
   const [role, setRole] = useState<Role | undefined>();
   useEffect(() => {
     token.then((res) => {
@@ -42,55 +49,25 @@ const OneToOnePage = () => {
     });
   }, [token]);
 
-  // OpenVidu 세션 연결 전 보여줄 카메라 비디오
   useEffect(() => {
     async function init() {
       await joinSession();
     }
 
     init();
-
-    const getMedia = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-
-        // 미디어 스트림을 비디오 요소에 할당
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error("Error accessing media devices: ", error);
-      }
-    };
-
-    getMedia();
-
-    // 컴포넌트가 언마운트될 때 미디어 스트림 해제
-    return () => {
-      if (videoRef.current) {
-        const stream = videoRef.current.srcObject;
-        if (stream) {
-          const tracks = stream.getTracks();
-          tracks.forEach((track) => track.stop());
-        }
-      }
-    };
   }, []);
 
   const joinSession = async () => {
     try {
       // OpenVidu 객체 생성
       const ov = new OpenVidu();
+      setOV(ov);
 
       const mySession = ov.initSession();
 
       await createOpenViduSession(sessionName);
 
       mySession.on("streamCreated", (event) => {
-        console.log("👀 팬 등장!", event.stream.connection);
         const subscriber = mySession.subscribe(event.stream, undefined);
         setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
       });
@@ -112,8 +89,9 @@ const OneToOnePage = () => {
         audioSource: undefined,
         videoSource: undefined,
       });
-      var devices = await ov.getDevices();
-      var videoDevices = devices.filter(
+
+      const devices = await ov.getDevices();
+      const videoDevices = devices.filter(
         (device) => device.kind === "videoinput",
       );
 
@@ -135,63 +113,15 @@ const OneToOnePage = () => {
     }
   };
 
-  const signalInvite = async () => {
-    await openvidu_api
-      .post("/openvidu/api/signal", {
-        session: sessionName + "waiting_room",
-        type: "signal:invite",
-        // data: JSON.stringify({
-        //   fan_number: "fanNumber",
-        //   sessionId: currSessionId,
-        // }),
-        data: fanNumber,
-        // to: [inviteFan?.stream.connection.connectionId],
-      })
-      .then((response) => {
-        console.log("👋 팬에게 성공적으로 초대 시그널을 보냈습니다.", response);
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const createSession = async () => {
-    const response = await openvidu_api.post(
-      `/openvidu/api/sessions`,
-      { customSessionId: sessionName.toString() },
-      {
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-    return response.data;
-  };
-
-  const createToken = async () => {
-    const response = await openvidu_api.post(
-      `/openvidu/api/sessions/${sessionName}/connection`,
-      {},
-      {
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-
-    console.log("🚀 토큰 생성: ", response);
-    return response.data; // The token
-  };
-
-  const getConnectionInfo = async () => {
-    const info = await openvidu_api.get(
-      `/openvidu/api/sessions/${sessionName}/connection`,
-    );
-    console.log("🚀 커넥션 정보: ", info);
-    console.log("🚀 내 커넥션 아이디: ", myConnection?.connectionId);
-  };
-
   // 세션을 나가면서 정리
   const leaveSession = async () => {
     // 세션 종료: 세션에 있는 모든 커넥션을 제거함
     // if (session) {
     //   await session.disconnect();
     // }
-    await closeConnection(sessionName, myConnection?.connectionId);
+    if (myConnection?.connectionId) {
+      await closeConnection(sessionName, myConnection?.connectionId);
+    }
 
     // state 초기화
     setIdolStream(undefined);
@@ -218,118 +148,68 @@ const OneToOnePage = () => {
   };
 
   return (
-    <Stack
-      direction={"column"}
-      spacing={2}
-      justifyContent="center"
-      alignItems="center"
-    >
-      <Typography variant={"h2"}>
-        👋 아이돌 {sessionName}의 방입니다. 👋
-      </Typography>
-      <Stack
-        direction={"row"}
-        spacing={2}
-        justifyContent="center"
-        alignItems="center"
-      >
-        <TextField
-          value={fanNumber}
-          onChange={(e) => setFanNumber(e.target.value)}
-        />
-        <GradientButton onClick={signalInvite}>초대하기</GradientButton>
-        <GradientButton onClick={getConnectionInfo}>커넥션 정보</GradientButton>
-        <GradientButton onClick={async () => await closeSession(sessionName)}>
-          세션 삭제
-        </GradientButton>
-      </Stack>
-
+    <Grid container alignItems={"flex-start"}>
       <Grid
-        container
-        spacing={2}
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
+        item
+        xs={fullScreen ? 12 : 8.5}
+        sx={{
+          backgroundColor: "rgba(238,238,238,0.7)",
+          borderRadius: 5,
+          padding: 2,
+        }}
       >
-        <Grid item xs={4}>
-          {idolStream ? (
-            <>
+        <Grid
+          container
+          direction="row"
+          justifyContent="center"
+          alignItems={"flex-start"}
+        >
+          <Grid item xs={12}>
+            <Stack
+              direction={"row"}
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ backgroundColor: "transparent", px: 2, mb: 2 }}
+            >
               <Typography variant={"h4"}>
-                {idolStream.stream.connection.data}
+                {"💜 Aespa Drama 발매 기념 팬미팅"}
               </Typography>
-              <OpenViduVideoComponent streamManager={idolStream} />
-            </>
-          ) : (
-            <video
-              autoPlay={true}
-              ref={videoRef}
-              style={{ borderRadius: 30 }}
-            />
-          )}
-        </Grid>
-
-        <Grid item xs={4} style={{ position: "relative" }}>
-          {subscribers.length > 0 ? (
-            <>
-              <Typography variant={"h4"}>
-                {subscribers[0].stream.connection.data}
-              </Typography>
-              <OpenViduVideoComponent streamManager={subscribers[0]} />
-            </>
-          ) : (
-            <>
-              <Typography
-                variant="h4"
-                sx={{
-                  textAlign: "center",
-                  position: "absolute",
-                  top: "45%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  zIndex: 1,
-                  fontWeight: 700,
-                  color: "#ffffff",
-                  fontSize: "2rem",
-                }}
-              >
-                곧 팬이 들어올 예정이에요.
-              </Typography>
-              <Typography
-                variant="h4"
-                sx={{
-                  textAlign: "center",
-                  position: "absolute",
-                  top: "55%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  zIndex: 1,
-                  fontWeight: 700,
-                  color: "#ffffff",
-                  fontSize: "2rem",
-                }}
-              >
-                조금만 기다려주세요 ☺️
-              </Typography>
-              <img
-                src={"/fan.webp"}
-                alt="조금만 기다려주세요"
-                style={{
-                  maxWidth: "100%",
-                  height: "60vh",
-                  borderRadius: 20,
-                  objectFit: "cover",
-                  position: "relative",
-                  zIndex: 0,
-                }}
+              <DeviceControlButton
+                publisher={idolStream}
+                fullScreen={fullScreen}
+                toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
-            </>
-          )}
-        </Grid>
-        <Grid item xs={4}>
-          <ShowChat />
+            </Stack>
+          </Grid>
+          <Grid item xs={6}>
+            <MyVideoComponent nickName={"카리나"} stream={idolStream} />
+          </Grid>
+          <Grid item xs={6} style={{ position: "relative" }}>
+            {subscribers.length > 0 ? (
+              <>
+                <MyVideoComponent nickName={"마재화"} stream={subscribers[0]} />
+              </>
+            ) : (
+              <WaitingFanImage />
+            )}
+          </Grid>
         </Grid>
       </Grid>
-    </Stack>
+
+      {!fullScreen && (
+        <Grid
+          item
+          xs={3.5}
+          sx={{
+            backgroundColor: "rgba(238,238,238,0.7)",
+            borderRadius: 5,
+            padding: 2,
+          }}
+        >
+          <ShowChat roomId={""} />
+        </Grid>
+      )}
+    </Grid>
   );
 };
 
