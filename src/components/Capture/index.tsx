@@ -1,10 +1,8 @@
 import html2canvas from "html2canvas";
-import { useCallback } from "react";
 import { backend_api } from "@/utils/api";
 
 const Capture = () => {
   const onCapture = () => {
-    console.log("onCapture");
     const targetElement = document.getElementById("video-container");
     if (targetElement) {
       html2canvas(targetElement)
@@ -22,8 +20,6 @@ const Capture = () => {
   };
 
   const uploadImage = (imageDataUrl) => {
-    console.log("🎲🎲🎲🎲🎲🎲🎲", imageDataUrl);
-
     const blobImage = dataURLtoBlob(imageDataUrl);
     // Blob을 파일로 변환
     const imageFile = new File([blobImage], "image.png", { type: "image/png" });
@@ -55,16 +51,6 @@ const Capture = () => {
 
     return new Blob([u8arr], { type: mime });
   }
-
-  const onSavaAs = (uri, filename) => {
-    console.log("onSavaAs");
-    var link = document.createElement("a");
-    document.body.appendChild(link);
-    link.href = uri;
-    link.download = filename;
-    link.click();
-    document.body.removeChild(link);
-  };
 
   return (
     <div>
