@@ -1,14 +1,85 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { StreamManager } from "openvidu-browser";
+import { useEffect, useRef, useState } from "react";
+import { OpenVidu, StreamManager } from "openvidu-browser";
 import { Grid } from "@mui/material";
 import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 import Typography from "@mui/material/Typography";
+import { useSearchParams } from "next/navigation";
+import {
+  createOpenViduConnection,
+  createOpenViduSession,
+} from "@/utils/openvidu";
+import { Role, RoomType } from "@/types";
+import useJwtToken from "@/hooks/useJwtToken";
 
 interface Props {
   fanStream: StreamManager | undefined;
 }
 const OneIdolWaitingRoom = ({ fanStream }: Props) => {
+  const searchParams = useSearchParams();
+  const fanMeetingId = searchParams?.get("fanMeetingId");
+  const sessionId = searchParams?.get("sessionId");
+  const [role, setRole] = useState<Role>(Role.FAN);
+  const [userName, setUserName] = useState<string>("");
+  const token = useJwtToken();
+
+  useEffect(() => {
+    token.then((res) => {
+      if (res) {
+        setRole(res.auth);
+        setUserName(res.sub);
+      }
+    });
+  }, [token]);
+
+  useEffect(() => {
+    console.log("🤡 fanMeetingId", fanMeetingId);
+    console.log("🤡 sessionId", sessionId);
+    if (sessionId) {
+      joinSession(sessionId);
+    }
+  }, []);
+
+  const joinSession = async (sessionId: string) => {
+    try {
+      // OpenVidu 객체 생성
+      const ov = new OpenVidu();
+      // setOV(ov);
+
+      const mySession = ov.initSession();
+
+      await createOpenViduSession(sessionId);
+
+      mySession.on("streamCreated", (event) => {
+        const subscriber = mySession.subscribe(event.stream, undefined);
+        // setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
+      });
+
+      mySession.on("streamDestroyed", (event) => {
+        // deleteSubscriber(event.stream.streamManager);
+      });
+
+      const connection = await createOpenViduConnection(sessionId);
+      // if (connection) {
+      //   setMyConnection(connection);
+      // }
+      const { token } = connection;
+      await mySession.connect(token, {
+        clientData: JSON.stringify({
+          role: role,
+          fanMeetingId: fanMeetingId,
+          userName: userName,
+          type: RoomType.waitingRoom,
+        }),
+      });
+
+      // setSession(mySession);
+    } catch (error) {
+      console.error("Error in enterFanmeeting:", error);
+      return null;
+    }
+  };
+
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
