@@ -12,7 +12,6 @@ import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
   createOpenViduConnection,
-  createOpenViduSession,
 } from "@/utils/openvidu";
 import ShowChat from "@/components/ShowChat";
 import { Role } from "@/types";
@@ -28,14 +27,14 @@ import Capture from "@/components/Capture";
 const OneToOnePage = () => {
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
-  const fanMeetingId = searchParams?.get("id");
+  const fanMeetingId = searchParams?.get("fanMeetingId");
+  const sessionId = searchParams?.get("sessionId");
 
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();
 
   /* OpenVidu Session Info*/
   const [session, setSession] = useState<Session | undefined>();
-  const [sessionId, setSessionId] = useState<string>("");
 
   /* OpenVidu Stream */
   const [idolStream, setIdolStream] = useState<Publisher>();
@@ -64,9 +63,11 @@ const OneToOnePage = () => {
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
   const [role, setRole] = useState<Role | undefined>();
+  const [userName, setUserName] = useState<string>("");
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
+      setUserName(res?.sub ?? "");
     });
   }, [token]);
 
@@ -86,8 +87,6 @@ const OneToOnePage = () => {
 
       const mySession = ov.initSession();
 
-      await createOpenViduSession(sessionId);
-
       mySession.on("streamCreated", (event) => {
         const subscriber = mySession.subscribe(event.stream, undefined);
         setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
@@ -103,7 +102,12 @@ const OneToOnePage = () => {
       }
       const { token } = connection;
       await mySession.connect(token, {
-        clientData: JSON.stringify({ role: role }),
+        clientData: JSON.stringify({
+          role: role,
+          fanMeetingId: fanMeetingId,
+          userName: userName,
+          type: "idolRoom",
+        }),
       });
 
       await ov.getUserMedia({

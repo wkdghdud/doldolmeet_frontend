@@ -47,7 +47,7 @@ const fetchMainWaitRoom = async (fanMeetingId: string) => {
 
 const useMainWaitRoom = (fanMeetingId) => {
   return useQuery({
-    queryKey: ["fanMeeting", fanMeetingId],
+    queryKey: ["mainWaitRoom", fanMeetingId],
     queryFn: () => fetchMainWaitRoom(fanMeetingId),
   });
 };

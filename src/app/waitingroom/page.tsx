@@ -129,6 +129,12 @@ const WaitingRoom = () => {
       },
     );
 
+    eventSource.addEventListener("moveToIdolRoom", (e: MessageEvent) => {
+      console.log("🥹 moveToIdolRoom: ", JSON.parse(e.data));
+      setNextRoomId(JSON.parse(e.data).nextRoomId);
+      setPopupOpen(true);
+    });
+
     eventSource.onopen = () => {
       console.log("연결되었습니다.");
     };

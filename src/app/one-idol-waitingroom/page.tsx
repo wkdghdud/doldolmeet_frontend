@@ -1,26 +1,33 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { OpenVidu, StreamManager } from "openvidu-browser";
+import { Connection, OpenVidu, StreamManager } from "openvidu-browser";
 import { Grid } from "@mui/material";
 import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 import Typography from "@mui/material/Typography";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
+  closeOpenViduConnection,
   createOpenViduConnection,
-  createOpenViduSession,
 } from "@/utils/openvidu";
 import { Role, RoomType } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
+import InviteDialog from "@/components/InviteDialog";
 
 interface Props {
   fanStream: StreamManager | undefined;
 }
 const OneIdolWaitingRoom = ({ fanStream }: Props) => {
+  const router = useRouter();
+
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("fanMeetingId");
   const sessionId = searchParams?.get("sessionId");
   const [role, setRole] = useState<Role>(Role.FAN);
   const [userName, setUserName] = useState<string>("");
+  const [popupOpen, setPopupOpen] = useState<boolean>(false);
+  const [nextRoomId, setNextRoomId] = useState<string>("");
+  const [connection, setConnection] = useState<Connection | undefined>();
+
   const token = useJwtToken();
 
   useEffect(() => {
@@ -33,12 +40,14 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   }, [token]);
 
   useEffect(() => {
-    console.log("🤡 fanMeetingId", fanMeetingId);
-    console.log("🤡 sessionId", sessionId);
-    if (sessionId) {
-      joinSession(sessionId);
+    if (userName) {
+      fetchSSE().then((res) => {
+        if (res && sessionId) {
+          joinSession(sessionId);
+        }
+      });
     }
-  }, []);
+  }, [userName]);
 
   const joinSession = async (sessionId: string) => {
     try {
@@ -47,8 +56,6 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
       // setOV(ov);
 
       const mySession = ov.initSession();
-
-      await createOpenViduSession(sessionId);
 
       mySession.on("streamCreated", (event) => {
         const subscriber = mySession.subscribe(event.stream, undefined);
@@ -80,6 +87,62 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
     }
   };
 
+  const fetchSSE = async () => {
+    const eventSource = new EventSource(
+      `http://localhost:8080/fanMeetings/${fanMeetingId}/sse/${userName}`,
+    );
+    eventSource.addEventListener("connect", (e) => {
+      console.log("🥹 연결되었습니다.");
+    });
+
+    eventSource.addEventListener(
+      "moveToFirstIdolWaitRoom",
+      (e: MessageEvent) => {
+        console.log("🥹 moveToFirstIdolWaitRoom: ", JSON.parse(e.data));
+        setNextRoomId(JSON.parse(e.data).nextRoomId);
+        setPopupOpen(true);
+      },
+    );
+
+    eventSource.addEventListener("moveToIdolRoom", (e: MessageEvent) => {
+      console.log("🥹 moveToIdolRoom: ", JSON.parse(e.data));
+      setNextRoomId(JSON.parse(e.data).nextRoomId);
+      setPopupOpen(true);
+    });
+
+    eventSource.onopen = () => {
+      console.log("연결되었습니다.");
+    };
+
+    eventSource.onmessage = async (e) => {
+      const res = await e.data;
+      // const parsedData = JSON.parse(res);
+      console.log("데이터가 도착했습니다.");
+      // console.log(parsedData);
+      joinSession("waitingRoom"); //
+      // alert(res)
+      // 받아오는 data로 할 일
+      // eventSource.close();
+    };
+
+    eventSource.onerror = (e) => {
+      // 종료 또는 에러 발생 시 할 일
+      console.log("error");
+      console.log(e);
+      eventSource.close();
+
+      if (e.error) {
+        // 에러 발생 시 할 일
+      }
+
+      if (e.target.readyState === EventSource.CLOSED) {
+        // 종료 시 할 일
+      }
+    };
+
+    return true;
+  };
+
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -101,6 +164,19 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
 
     getMedia();
   }, []);
+
+  const joinNextRoom = async () => {
+    await leaveWaitingRoom();
+    router.push(
+      `/one-to-one?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}`,
+    );
+  };
+
+  const leaveWaitingRoom = async () => {
+    if (sessionId && connection?.connectionId) {
+      await closeOpenViduConnection(sessionId, connection.connectionId);
+    }
+  };
 
   return (
     <Grid container spacing={2}>
@@ -161,6 +237,11 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
           />
         )}
       </Grid>
+      <InviteDialog
+        open={popupOpen}
+        handleClose={() => setPopupOpen(false)}
+        handleEnter={joinNextRoom}
+      />
     </Grid>
   );
 };
