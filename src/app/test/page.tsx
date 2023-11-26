@@ -5,6 +5,7 @@ import MyVideoComponent from "@/components/meeting/MyVideoComponent";
 import { openvidu_api } from "@/utils/api";
 import Recording from "@/components/meeting/Recording";
 
+import html2canvas from "html2canvas";
 export default function App() {
   const [mySessionId, setMySessionId] = useState("SessionA");
   const [myUserName, setMyUserName] = useState(
@@ -18,6 +19,31 @@ export default function App() {
   const [forceRecordingId, setForceRecordingId] = useState("");
 
   const OV = useRef(new OpenVidu());
+  const onCapture = () => {
+    console.log("onCapture");
+    const targetElement = document.getElementById("video-container");
+    if (targetElement) {
+      html2canvas(targetElement)
+        .then((canvas) => {
+          onSavaAs(canvas.toDataURL("image/png"), "image-download.png");
+        })
+        .catch((error) => {
+          console.error("html2canvas error:", error);
+        });
+    } else {
+      console.error("Target element not found");
+    }
+  };
+
+  const onSavaAs = (uri, filename) => {
+    console.log("onSavaAs");
+    var link = document.createElement("a");
+    document.body.appendChild(link);
+    link.href = uri;
+    link.download = filename;
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleChangeSessionId = (e) => {
     setMySessionId(e.target.value);
@@ -371,9 +397,10 @@ export default function App() {
               onClick={leaveSession}
               value="Leave session"
             />
-            <button onClick={startRecording}>Start Recording</button>
-            <button onClick={stopRecording}>Stop Recording</button>
-            <Recording></Recording>
+            {/*<button onClick={startRecording}>Start Recording</button>*/}
+            {/*<button onClick={stopRecording}>Stop Recording</button>*/}
+            {/*<Recording></Recording>*/}
+            <button onClick={onCapture}>캡쳐</button>
             <input
               className="btn btn-large btn-success"
               type="button"
