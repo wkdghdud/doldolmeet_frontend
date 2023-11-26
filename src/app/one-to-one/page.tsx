@@ -10,7 +10,7 @@ import { Button, Grid, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
-  closeConnection,
+  closeOpenViduConnection,
   createOpenViduConnection,
   createOpenViduSession,
 } from "@/utils/openvidu";
@@ -34,7 +34,7 @@ const OneToOnePage = () => {
 
   /* OpenVidu Session Info*/
   const [session, setSession] = useState<Session | undefined>();
-  const [sessionName, setSessionName] = useState<string>("test-idol-session-1");
+  const [sessionId, setSessionId] = useState<string>("");
 
   /* OpenVidu Stream */
   const [idolStream, setIdolStream] = useState<Publisher>();
@@ -85,7 +85,7 @@ const OneToOnePage = () => {
 
       const mySession = ov.initSession();
 
-      await createOpenViduSession(sessionName);
+      await createOpenViduSession(sessionId);
 
       mySession.on("streamCreated", (event) => {
         const subscriber = mySession.subscribe(event.stream, undefined);
@@ -96,7 +96,7 @@ const OneToOnePage = () => {
         deleteSubscriber(event.stream.streamManager);
       });
 
-      const connection = await createOpenViduConnection(sessionName);
+      const connection = await createOpenViduConnection(sessionId);
       if (connection) {
         setMyConnection(connection);
       }
@@ -140,7 +140,7 @@ const OneToOnePage = () => {
     //   await session.disconnect();
     // }
     if (myConnection?.connectionId) {
-      await closeConnection(sessionName, myConnection?.connectionId);
+      await closeOpenViduConnection(sessionId, myConnection?.connectionId);
     }
 
     // state 초기화
