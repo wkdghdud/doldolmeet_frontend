@@ -216,7 +216,7 @@ export const createOpenViduConnection = async (sessionId) => {
   return response.data; // return Connection object
 };
 
-export const closeSession = async (sessionName: string) => {
+export const closeOpenViduSession = async (sessionName: string) => {
   try {
     await openvidu_api.delete(`/openvidu/api/sessions/${sessionName}`);
   } catch (e) {
@@ -224,7 +224,7 @@ export const closeSession = async (sessionName: string) => {
   }
 };
 
-export const closeConnection = async (
+export const closeOpenViduConnection = async (
   sessionId: string,
   connectionId: string,
 ) => {
@@ -237,9 +237,11 @@ export const closeConnection = async (
   }
 };
 
-export const getConnectionInfo = async () => {
+export const getConnectionInfo = async (sessionId: string) => {
   try {
-    const response = await openvidu_api.get("/openvidu/api/sessions");
+    const response = await openvidu_api.get(
+      `/openvidu/api/sessions/${sessionId}/connection`,
+    );
     return response.data;
   } catch (e) {
     console.error(e);

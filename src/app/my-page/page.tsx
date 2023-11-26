@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { backend_api } from "@/utils/api";
-import Link from "next/link";
-import { Grid, Tab, Tabs } from "@mui/material";
+import { Button, Grid, Tab, Tabs } from "@mui/material";
 
 const MyPage = () => {
   const [fanmeetings, setFanMeetings] = useState([]);
@@ -49,6 +48,38 @@ const MyPage = () => {
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
+  };
+
+  const imgDownLoad = () => {
+    const fileName = "0f09cb8c-f8b0-44fd-911a-46dc0a7f0d2e.png";
+
+    // Axios를 사용하여 파일 다운로드 요청
+    backend_api()
+      .get(`s3/file/download?fileName=${fileName}`, {
+        responseType: "blob", // 파일 다운로드를 위해 responseType을 'blob'으로 설정
+      })
+      .then((response) => {
+        // 파일 다운로드를 위해 Blob 형식으로 받은 응답을 처리
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const url = window.URL.createObjectURL(blob);
+
+        // 생성된 URL을 사용하여 다운로드 링크 생성
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+
+        // 링크 클릭하여 파일 다운로드
+        document.body.appendChild(link);
+        link.click();
+
+        // 필요 없는 링크 제거
+        document.body.removeChild(link);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   return (
@@ -146,7 +177,8 @@ const MyPage = () => {
                     <td>{parseISODate(fanmeeting.startTime).date}</td>
                     <td>{parseISODate(fanmeeting.startTime).time}</td>
                     <td>
-                      <Link href={""}>추억보관함</Link>
+                      {/*<Link href={""}>추억보관함</Link>*/}
+                      <Button onClick={imgDownLoad}>추억보관함</Button>
                     </td>
                   </tr>
                 ))}

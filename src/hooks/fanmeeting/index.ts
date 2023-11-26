@@ -31,4 +31,49 @@ const useFanMeeting = (fanMeetingId) => {
   });
 };
 
-export { fetchFanMeeting, useFanMeeting };
+interface MainWaitRoom {
+  roomId: string;
+}
+
+const fetchMainWaitRoom = async (fanMeetingId: string) => {
+  const response = await backend_api()
+    .get(`/fanMeetings/${fanMeetingId}/mainWaitRoom`)
+    .then(
+      (response: AxiosResponse<BackendResponse<MainWaitRoom>>) => response.data,
+    )
+    .catch((e) => console.error(e));
+  return response?.data?.roomId;
+};
+
+const useMainWaitRoom = (fanMeetingId) => {
+  return useQuery({
+    queryKey: ["mainWaitRoom", fanMeetingId],
+    queryFn: () => fetchMainWaitRoom(fanMeetingId),
+  });
+};
+
+const fetchAllRoomIdsByAdmin = async (
+  fanMeetingId: string,
+): Promise<string[]> => {
+  const response = await backend_api()
+    .get(`/fanMeetings/${fanMeetingId}/roomsId`)
+    .then((response: AxiosResponse<BackendResponse<string[]>>) => response.data)
+    .catch((e) => console.error(e));
+  return response?.data ?? [];
+};
+
+const updateFanMeetingRoomCreated = async (fanMeetingId: string) => {
+  await backend_api()
+    .post(`/fanMeetings/${fanMeetingId}/roomCreated`)
+    .then((response: AxiosResponse<BackendResponse<string[]>>) => response.data)
+    .catch((e) => console.error(e));
+};
+
+export {
+  fetchFanMeeting,
+  useFanMeeting,
+  fetchMainWaitRoom,
+  useMainWaitRoom,
+  fetchAllRoomIdsByAdmin,
+  updateFanMeetingRoomCreated,
+};

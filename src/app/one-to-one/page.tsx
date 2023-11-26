@@ -10,9 +10,8 @@ import { Button, Grid, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
-  closeConnection,
+  closeOpenViduConnection,
   createOpenViduConnection,
-  createOpenViduSession,
 } from "@/utils/openvidu";
 import ShowChat from "@/components/ShowChat";
 import { Role } from "@/types";
@@ -28,14 +27,14 @@ import Capture from "@/components/Capture";
 const OneToOnePage = () => {
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
-  const fanMeetingId = searchParams?.get("id");
+  const fanMeetingId = searchParams?.get("fanMeetingId");
+  const sessionId = searchParams?.get("sessionId");
 
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();
 
   /* OpenVidu Session Info*/
   const [session, setSession] = useState<Session | undefined>();
-  const [sessionName, setSessionName] = useState<string>("test-idol-session-1");
 
   /* OpenVidu Stream */
   const [idolStream, setIdolStream] = useState<Publisher>();
@@ -64,9 +63,11 @@ const OneToOnePage = () => {
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
   const [role, setRole] = useState<Role | undefined>();
+  const [userName, setUserName] = useState<string>("");
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
+      setUserName(res?.sub ?? "");
     });
   }, [token]);
 
@@ -86,8 +87,6 @@ const OneToOnePage = () => {
 
       const mySession = ov.initSession();
 
-      await createOpenViduSession(sessionName);
-
       mySession.on("streamCreated", (event) => {
         const subscriber = mySession.subscribe(event.stream, undefined);
         setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
@@ -97,13 +96,18 @@ const OneToOnePage = () => {
         deleteSubscriber(event.stream.streamManager);
       });
 
-      const connection = await createOpenViduConnection(sessionName);
+      const connection = await createOpenViduConnection(sessionId);
       if (connection) {
         setMyConnection(connection);
       }
       const { token } = connection;
       await mySession.connect(token, {
-        clientData: JSON.stringify({ role: role }),
+        clientData: JSON.stringify({
+          role: role,
+          fanMeetingId: fanMeetingId,
+          userName: userName,
+          type: "idolRoom",
+        }),
       });
 
       await ov.getUserMedia({
@@ -141,7 +145,7 @@ const OneToOnePage = () => {
     //   await session.disconnect();
     // }
     if (myConnection?.connectionId) {
-      await closeConnection(sessionName, myConnection?.connectionId);
+      await closeOpenViduConnection(sessionId, myConnection?.connectionId);
     }
 
     // state 초기화
