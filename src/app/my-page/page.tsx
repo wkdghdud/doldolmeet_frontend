@@ -3,12 +3,30 @@
 import React, { useEffect, useState } from "react";
 import { backend_api } from "@/utils/api";
 import { Button, Grid, Tab, Tabs } from "@mui/material";
+import { useRouter } from "next/navigation";
+import useJwtToken from "@/hooks/useJwtToken";
 
 const MyPage = () => {
   const [fanmeetings, setFanMeetings] = useState([]);
   const [selectedTab, setSelectedTab] = useState(0); // 현재 선택된 탭의 인덱스
+  const [userName, setUserName] = useState<string>("");
+
+  const router = useRouter();
+  const token = useJwtToken();
 
   useEffect(() => {
+    setFanMeeting();
+  }, []);
+
+  useEffect(() => {
+    token.then((res) => {
+      if (res) {
+        setUserName(res.sub);
+      }
+    });
+  }, [token]);
+
+  const setFanMeeting = () => {
     backend_api()
       .get("/fanMeetings", {
         params: {
@@ -22,10 +40,10 @@ const MyPage = () => {
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  };
 
   const parseISODate = (isoDate) => {
-    const dateObject = new Date(isoDate);
+    const dateObject = new Date(...isoDate);
 
     if (!isNaN(dateObject.getTime())) {
       const formattedDate = dateObject.toLocaleDateString();
@@ -50,36 +68,9 @@ const MyPage = () => {
     setSelectedTab(newValue);
   };
 
-  const imgDownLoad = () => {
-    const fileName = "0f09cb8c-f8b0-44fd-911a-46dc0a7f0d2e.png";
-
-    // Axios를 사용하여 파일 다운로드 요청
-    backend_api()
-      .get(`s3/file/download?fileName=${fileName}`, {
-        responseType: "blob", // 파일 다운로드를 위해 responseType을 'blob'으로 설정
-      })
-      .then((response) => {
-        // 파일 다운로드를 위해 Blob 형식으로 받은 응답을 처리
-        const blob = new Blob([response.data], {
-          type: response.headers["content-type"],
-        });
-        const url = window.URL.createObjectURL(blob);
-
-        // 생성된 URL을 사용하여 다운로드 링크 생성
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-
-        // 링크 클릭하여 파일 다운로드
-        document.body.appendChild(link);
-        link.click();
-
-        // 필요 없는 링크 제거
-        document.body.removeChild(link);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  const joinMemoryRoom = async (info) => {
+    const fanMeetingId = info.id;
+    await router.push(`/my-page/${userName}/${fanMeetingId}`);
   };
 
   return (
@@ -178,7 +169,9 @@ const MyPage = () => {
                     <td>{parseISODate(fanmeeting.startTime).time}</td>
                     <td>
                       {/*<Link href={""}>추억보관함</Link>*/}
-                      <Button onClick={imgDownLoad}>추억보관함</Button>
+                      <Button onClick={() => joinMemoryRoom(fanmeeting)}>
+                        추억보관함
+                      </Button>
                     </td>
                   </tr>
                 ))}
