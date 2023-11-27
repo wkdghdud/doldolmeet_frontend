@@ -37,7 +37,7 @@ export const backend_api = () => {
 export const OPENVIDU_URL =
   process.env.NODE_ENV === "production"
     ? "https://demos.openvidu.io"
-    : "http://localhost:4443";
+    : "https://43.200.245.189:443";
 
 export const OPENVIDU_SECRET =
   process.env.NODE_ENV === "production" ? "MY_SECRET" : "MY_SECRET";
