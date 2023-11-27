@@ -76,8 +76,10 @@ const OneToOnePage = () => {
       await joinSession();
     }
 
-    init();
-  }, []);
+    if (role && userName !== "") {
+      init();
+    }
+  }, [role, userName]);
 
   const joinSession = async () => {
     try {
