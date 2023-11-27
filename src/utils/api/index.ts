@@ -36,7 +36,7 @@ export const backend_api = () => {
 
 export const OPENVIDU_URL =
   process.env.NODE_ENV === "production"
-    ? "https://43.200.245.189:443"
+    ? "https://youngeui-in-jungle.store"
     : "https://43.200.245.189:443";
 
 export const OPENVIDU_SECRET =
