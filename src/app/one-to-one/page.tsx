@@ -21,10 +21,13 @@ import MyVideoComponent from "@/components/meeting/MyVideoComponent";
 import WaitingFanImage from "@/components/meeting/WaitingFanImage";
 import { Box } from "@mui/system";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Capture from "@/components/Capture";
+import InviteDialog from "@/components/InviteDialog";
 
 const OneToOnePage = () => {
+  const router = useRouter();
+
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("fanMeetingId");
@@ -51,6 +54,10 @@ const OneToOnePage = () => {
   /* React Query FanToFanMeeting 조회 */
   const [chatRoomId, setChatRoomId] = useState<string | undefined>();
 
+  /* 다음 아이돌의 대기실로 넘어가기 위해 필요한 state */
+  const [popupOpen, setPopupOpen] = useState<boolean>(false);
+  const [nextRoomId, setNextRoomId] = useState<string>("");
+
   useEffect(() => {
     async function findFanToFanMeeting() {
       const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
@@ -73,6 +80,9 @@ const OneToOnePage = () => {
 
   useEffect(() => {
     async function init() {
+      if (role === Role.FAN) {
+        await fetchSSE();
+      }
       await joinSession();
     }
 
@@ -140,6 +150,39 @@ const OneToOnePage = () => {
     }
   };
 
+  const fetchSSE = async () => {
+    const eventSource = new EventSource(
+      `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
+    );
+
+    eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
+      console.log("🥹 moveToWaitRoom: ", JSON.parse(e.data));
+      setNextRoomId(JSON.parse(e.data).nextRoomId);
+      setPopupOpen(true);
+    });
+
+    eventSource.onopen = () => {
+      console.log("📣 SSE 연결되었습니다.");
+    };
+
+    eventSource.onerror = (e) => {
+      // 종료 또는 에러 발생 시 할 일
+      console.log("error");
+      console.log(e);
+      eventSource.close();
+
+      if (e.error) {
+        // 에러 발생 시 할 일
+      }
+
+      if (e.target.readyState === EventSource.CLOSED) {
+        // 종료 시 할 일
+      }
+    };
+
+    return true;
+  };
+
   // 세션을 나가면서 정리
   const leaveSession = async () => {
     // 세션 종료: 세션에 있는 모든 커넥션을 제거함
@@ -172,6 +215,23 @@ const OneToOnePage = () => {
   const deleteSubscriber = (streamManager) => {
     let newSubscribers = subscribers.filter((sub) => sub !== streamManager);
     setSubscribers(newSubscribers);
+  };
+
+  const joinNextRoom = async () => {
+    await leaveWaitingRoom();
+    if (nextRoomId === "END") {
+      router.push(`/end-fanmeeting?fanMeetingId=${fanMeetingId}`);
+    } else {
+      router.push(
+        `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}`,
+      );
+    }
+  };
+
+  const leaveWaitingRoom = async () => {
+    if (sessionId && myConnection?.connectionId) {
+      await closeOpenViduConnection(sessionId, myConnection.connectionId);
+    }
   };
 
   return (
@@ -324,6 +384,11 @@ const OneToOnePage = () => {
           </div>
         </Grid>
       )}
+      <InviteDialog
+        open={popupOpen}
+        handleClose={() => setPopupOpen(false)}
+        handleEnter={joinNextRoom}
+      />
     </Grid>
   );
 };
