@@ -1,7 +1,11 @@
 import html2canvas from "html2canvas";
 import { backend_api } from "@/utils/api";
+import { useSearchParams } from "next/navigation";
 
 const Capture = () => {
+  const searchParams = useSearchParams();
+  const fanMeetingId = searchParams?.get("id");
+
   const onCapture = () => {
     const targetElement = document.getElementById("video-container");
     if (targetElement) {
@@ -25,17 +29,20 @@ const Capture = () => {
     const imageFile = new File([blobImage], "image.png", { type: "image/png" });
 
     const formData = new FormData();
-    formData.append("multipartFile", imageFile);
-    backend_api()
-      .post("/s3/file", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then((response) => {
-        console.log("Image uploaded successfully:", formData);
-      })
-      .catch((error) => {
-        console.error("Image upload failed:", error);
-      });
+    formData.append("file", imageFile);
+
+    if (fanMeetingId) {
+      backend_api()
+        .post(`/captures/upload/${fanMeetingId}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((response) => {
+          console.log("Image uploaded successfully:", response.data);
+        })
+        .catch((error) => {
+          console.error("Image upload failed:", error);
+        });
+    }
   };
 
   function dataURLtoBlob(dataURL) {
