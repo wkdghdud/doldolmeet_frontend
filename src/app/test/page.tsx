@@ -71,7 +71,7 @@ export default function App() {
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
-          // recordingLayout: "CUSTOM",
+          recordingLayout: "CUSTOM",
           // customLayout: "mySimpleLayout",
           // resolution: "1280x720",
           // frameRate: 25,
