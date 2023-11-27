@@ -40,7 +40,7 @@ export const OPENVIDU_URL =
     : "https://43.200.245.189:443";
 
 export const OPENVIDU_SECRET =
-  process.env.NODE_ENV === "production" ? "1234" : "MY_SECRET";
+  process.env.NODE_ENV === "production" ? "MY_SECRET" : "MY_SECRET";
 
 export const openvidu_api = axios.create({
   baseURL: OPENVIDU_URL,
