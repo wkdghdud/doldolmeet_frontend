@@ -89,7 +89,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
 
   const fetchSSE = async () => {
     const eventSource = new EventSource(
-      `http://localhost:8080/fanMeetings/${fanMeetingId}/sse/${userName}`,
+      `http://43.201.87.133:8080/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 연결되었습니다.");

@@ -6,7 +6,7 @@ import { ThemeProvider } from "@mui/material";
 import themes from "@/components/theme/DefaultColors";
 
 const defaultQueryFn = async ({ queryKey }) => {
-  const { data } = await axios.get(`http://localhost:8080/${queryKey[0]}`);
+  const { data } = await axios.get(`http://43.201.87.133:8080/${queryKey[0]}`);
   return data;
 };
 const Providers = ({ children }: React.PropsWithChildren) => {
