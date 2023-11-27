@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Connection, OpenVidu, StreamManager } from "openvidu-browser";
 import { Grid } from "@mui/material";
-import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
 import Typography from "@mui/material/Typography";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -12,6 +11,7 @@ import {
 import { Role, RoomType } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
 import InviteDialog from "@/components/InviteDialog";
+import OpenViduVideoView from "@/components/meeting/OpenViduVideoView";
 
 interface Props {
   fanStream: StreamManager | undefined;
@@ -228,7 +228,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
       </Grid>
       <Grid item xs={6}>
         {fanStream ? (
-          <OpenViduVideoComponent streamManager={fanStream} />
+          <OpenViduVideoView name={"팬"} streamManager={fanStream} />
         ) : (
           <video
             autoPlay={true}

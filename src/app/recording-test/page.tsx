@@ -1,8 +1,8 @@
 "use client";
 import { OpenVidu } from "openvidu-browser";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import MyVideoComponent from "@/components/meeting/MyVideoComponent";
 import { backend_api } from "@/utils/api";
+import MyStreamView from "@/components/meeting/MyStreamView";
 
 export default function App() {
   const [mySessionId, setMySessionId] = useState("SessionA");
@@ -285,10 +285,7 @@ export default function App() {
 
           {mainStreamManager !== undefined ? (
             <div id="main-video" className="col-md-6">
-              <MyVideoComponent
-                nickName={"카리나"}
-                stream={mainStreamManager}
-              />
+              <MyStreamView name={"카리나"} stream={mainStreamManager} />
             </div>
           ) : null}
           <div id="video-container" className="col-md-6">
@@ -297,7 +294,7 @@ export default function App() {
                 className="stream-container col-md-6 col-xs-6"
                 onClick={() => handleMainVideoStream(publisher)}
               >
-                <MyVideoComponent nickName={"마재화"} stream={publisher} />
+                <MyStreamView name={"마재화"} stream={publisher} />
               </div>
             ) : null}
             {subscribers.map((sub, i) => (
@@ -307,7 +304,7 @@ export default function App() {
                 onClick={() => handleMainVideoStream(sub)}
               >
                 <span>{sub.id}</span>
-                <MyVideoComponent stream={sub} />
+                <MyStreamView name={"홍길동"} stream={sub} />
               </div>
             ))}
           </div>

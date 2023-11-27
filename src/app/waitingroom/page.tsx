@@ -55,21 +55,10 @@ const WaitingRoom = () => {
   }, [token]);
 
   useEffect(() => {
-    console.log("😍", role);
-    console.log("😍", userName);
-  }, [role, userName]);
-
-  useEffect(() => {
-    if (waitRoomId) {
+    if (waitRoomId && role && userName) {
       joinSession(waitRoomId);
     }
-  }, []);
-
-  useEffect(() => {
-    if (waitRoomId) {
-      joinSession(waitRoomId);
-    }
-  }, [waitRoomId]);
+  }, [waitRoomId, role, userName]);
 
   const joinSession = async (sessionId: string) => {
     try {
@@ -79,17 +68,6 @@ const WaitingRoom = () => {
 
       const mySession = ov.initSession();
 
-      await createOpenViduSession(sessionId);
-
-      mySession.on("streamCreated", (event) => {
-        const subscriber = mySession.subscribe(event.stream, undefined);
-        // setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
-      });
-
-      mySession.on("streamDestroyed", (event) => {
-        // deleteSubscriber(event.stream.streamManager);
-      });
-
       const connection = await createOpenViduConnection(sessionId);
       if (connection) {
         setConnection(connection);
@@ -97,9 +75,9 @@ const WaitingRoom = () => {
       const { token } = connection;
       await mySession.connect(token, {
         clientData: JSON.stringify({
-          role: role, // TODO: auth로 변경
+          role: role,
           fanMeetingId: fanMeetingId,
-          userName: userName, // TODO: userName으로 변경
+          userName: userName,
           type: "waitingRoom",
         }),
       });
@@ -112,18 +90,17 @@ const WaitingRoom = () => {
   };
 
   const fetchSSE = () => {
-    console.log("🤡 fetchSSE");
     const eventSource = new EventSource(
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
-    eventSource.addEventListener("connect", (e) => {
-      console.log("🥹 연결되었습니다.");
-    });
 
     eventSource.addEventListener(
       "moveToFirstIdolWaitRoom",
       (e: MessageEvent) => {
-        console.log("🥹 moveToFirstIdolWaitRoom: ", JSON.parse(e.data));
+        console.log(
+          "😎 첫 번째 아이돌과의 영상통화방으로 이동하세요! ",
+          JSON.parse(e.data),
+        );
         setNextRoomId(JSON.parse(e.data).nextRoomId);
         setPopupOpen(true);
       },
@@ -134,21 +111,6 @@ const WaitingRoom = () => {
       setNextRoomId(JSON.parse(e.data).nextRoomId);
       setPopupOpen(true);
     });
-
-    eventSource.onopen = () => {
-      console.log("연결되었습니다.");
-    };
-
-    eventSource.onmessage = async (e) => {
-      const res = await e.data;
-      // const parsedData = JSON.parse(res);
-      console.log("데이터가 도착했습니다.");
-      // console.log(parsedData);
-      joinSession("waitingRoom"); //
-      // alert(res)
-      // 받아오는 data로 할 일
-      // eventSource.close();
-    };
 
     eventSource.onerror = (e) => {
       // 종료 또는 에러 발생 시 할 일
@@ -166,7 +128,6 @@ const WaitingRoom = () => {
     };
   };
 
-  // TODO: 창을 끌 때 connection을 끊어야 함
   const leaveWaitingRoom = async () => {
     if (waitRoomId && connection?.connectionId) {
       await closeOpenViduConnection(waitRoomId, connection.connectionId);

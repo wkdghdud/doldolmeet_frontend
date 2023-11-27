@@ -17,13 +17,13 @@ import ShowChat from "@/components/ShowChat";
 import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import DeviceControlButton from "@/components/meeting/DeviceControlButton";
-import MyVideoComponent from "@/components/meeting/MyVideoComponent";
-import WaitingFanImage from "@/components/meeting/WaitingFanImage";
 import { Box } from "@mui/system";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
 import { useRouter, useSearchParams } from "next/navigation";
 import Capture from "@/components/Capture";
 import InviteDialog from "@/components/InviteDialog";
+import MyStreamView from "@/components/meeting/MyStreamView";
+import PartnerStreamView from "@/components/meeting/PartnerStreamView";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -40,9 +40,16 @@ const OneToOnePage = () => {
   const [session, setSession] = useState<Session | undefined>();
 
   /* OpenVidu Stream */
-  const [idolStream, setIdolStream] = useState<Publisher>();
-  const [fanStream, setFanStream] = useState<StreamManager>();
-  const [subscribers, setSubscribers] = useState<StreamManager[]>([]);
+  const [myStream, setMyStream] = useState<Publisher | undefined>();
+  const [partnerStream, setPartnerStream] = useState<
+    StreamManager | undefined
+  >();
+
+  /* TODO: 닉네임 */
+  const [myNickName, setMyNickName] = useState<string | undefined>(undefined);
+  const [partnerNickName, setPartnerNickName] = useState<string | undefined>(
+    undefined,
+  );
 
   /* OpenVidu Connection */
   const [myConnection, setMyConnection] = useState<Connection | undefined>();
@@ -101,11 +108,11 @@ const OneToOnePage = () => {
 
       mySession.on("streamCreated", (event) => {
         const subscriber = mySession.subscribe(event.stream, undefined);
-        setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
+        setPartnerStream(subscriber);
       });
 
       mySession.on("streamDestroyed", (event) => {
-        deleteSubscriber(event.stream.streamManager);
+        setPartnerStream(undefined);
       });
 
       const connection = await createOpenViduConnection(sessionId);
@@ -143,7 +150,7 @@ const OneToOnePage = () => {
       });
       mySession.publish(newPublisher);
       setSession(mySession);
-      setIdolStream(newPublisher);
+      setMyStream(newPublisher);
     } catch (error) {
       console.error("Error in enterFanmeeting:", error);
       return null;
@@ -185,18 +192,13 @@ const OneToOnePage = () => {
 
   // 세션을 나가면서 정리
   const leaveSession = async () => {
-    // 세션 종료: 세션에 있는 모든 커넥션을 제거함
-    // if (session) {
-    //   await session.disconnect();
-    // }
-    if (myConnection?.connectionId) {
+    if (sessionId && myConnection?.connectionId) {
       await closeOpenViduConnection(sessionId, myConnection?.connectionId);
     }
 
     // state 초기화
-    setIdolStream(undefined);
-    setFanStream(undefined);
-    setSubscribers([]);
+    setMyStream(undefined);
+    setPartnerStream(undefined);
     setMyConnection(undefined);
   };
 
@@ -210,12 +212,6 @@ const OneToOnePage = () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [leaveSession]);
-
-  /* Subscriber 삭제 */
-  const deleteSubscriber = (streamManager) => {
-    let newSubscribers = subscribers.filter((sub) => sub !== streamManager);
-    setSubscribers(newSubscribers);
-  };
 
   const joinNextRoom = async () => {
     await leaveWaitingRoom();
@@ -267,7 +263,7 @@ const OneToOnePage = () => {
                 {"💜 Aespa Drama 발매 기념 팬미팅"}
               </Typography>
               <DeviceControlButton
-                publisher={idolStream}
+                publisher={myStream}
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
@@ -282,13 +278,31 @@ const OneToOnePage = () => {
             justifyContent="space-between"
           >
             <Grid item xs={6}>
-              <MyVideoComponent nickName={"카리나"} stream={idolStream} />
-            </Grid>
-            <Grid item xs={6} style={{ position: "relative" }}>
-              {subscribers.length > 0 ? (
-                <MyVideoComponent nickName={"마재화"} stream={subscribers[0]} />
+              {role === Role.IDOL ? (
+                <MyStreamView
+                  name={`😎 ${myNickName ?? "아이돌"}`}
+                  stream={myStream}
+                />
               ) : (
-                <WaitingFanImage />
+                <PartnerStreamView
+                  name={`😎 ${partnerNickName ?? "아이돌"}`}
+                  stream={partnerStream}
+                  partnerRole={Role.IDOL}
+                />
+              )}
+            </Grid>
+            <Grid item xs={6}>
+              {role === Role.FAN ? (
+                <MyStreamView
+                  name={`😍 ${myNickName ?? "팬"}`}
+                  stream={myStream}
+                />
+              ) : (
+                <PartnerStreamView
+                  name={`😍 ${partnerNickName ?? "팬"}`}
+                  stream={partnerStream}
+                  partnerRole={Role.FAN}
+                />
               )}
             </Grid>
           </Grid>

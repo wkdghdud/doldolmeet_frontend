@@ -1,15 +1,11 @@
-import { Publisher, StreamManager } from "openvidu-browser";
-import OpenViduVideoComponent from "@/components/OpenViduVideoComponent";
-import { Typography } from "@mui/material";
 import React, { useEffect, useRef } from "react";
+import { Typography } from "@mui/material";
 
-const MyVideoComponent = ({
-  nickName,
-  stream,
-}: {
-  nickName: string;
-  stream: StreamManager | Publisher | undefined;
-}) => {
+interface Props {
+  name: string | undefined;
+}
+
+const LocalCameraView = ({ name }: Props) => {
   /* Video Ref */
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -51,39 +47,37 @@ const MyVideoComponent = ({
         position: "relative",
       }}
     >
-      <Typography
-        variant="h5"
-        sx={{
-          position: "absolute",
-          top: 25,
-          left: 20,
-          color: "white",
-          zIndex: 300,
-          backgroundColor: "rgba(117,117,117,0.7)",
-          py: 0.5,
-          px: 1,
-          borderRadius: 1,
-        }}
-      >
-        {nickName}
-      </Typography>
-      {stream !== undefined ? (
-        <OpenViduVideoComponent streamManager={stream} />
-      ) : (
-        <video
-          autoPlay={true}
-          ref={videoRef}
-          style={{
-            borderRadius: 20,
-            maxWidth: "95%",
-            height: "70vh",
-            objectFit: "cover",
-            transform: "rotateY(180deg)",
+      {name && (
+        <Typography
+          variant="h5"
+          sx={{
+            position: "absolute",
+            top: 25,
+            left: 20,
+            color: "white",
+            zIndex: 300,
+            backgroundColor: "rgba(117,117,117,0.7)",
+            py: 0.5,
+            px: 1,
+            borderRadius: 1,
           }}
-        />
+        >
+          {name}
+        </Typography>
       )}
+      <video
+        autoPlay={true}
+        ref={videoRef}
+        style={{
+          borderRadius: 20,
+          maxWidth: "95%",
+          height: "70vh",
+          objectFit: "cover",
+          transform: "rotateY(180deg)",
+        }}
+      />
     </div>
   );
 };
 
-export default MyVideoComponent;
+export default LocalCameraView;
