@@ -70,8 +70,8 @@ export default function App() {
           name: "room-" + mySessionId + "_memberId-" + myUserName,
           hasAudio: true,
           hasVideo: true,
-          outputMode: "INDIVIDUAL",
-          // recordingLayout: "CUSTOM",
+          outputMode: "COMPOSED",
+          recordingLayout: "CUSTOM",
           // customLayout: "mySimpleLayout",
           // resolution: "1280x720",
           // frameRate: 25,
@@ -397,8 +397,8 @@ export default function App() {
               onClick={leaveSession}
               value="Leave session"
             />
-            {/*<button onClick={startRecording}>Start Recording</button>*/}
-            {/*<button onClick={stopRecording}>Stop Recording</button>*/}
+            <button onClick={startRecording}>Start Recording</button>
+            <button onClick={stopRecording}>Stop Recording</button>
             {/*<Recording></Recording>*/}
             <button onClick={onCapture}>캡쳐</button>
             <input
