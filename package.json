@@ -57,5 +57,11 @@
       "prettier --write",
       "eslint --fix"
     ]
+  },
+  "eslintConfig": {
+    "ignorePatterns": ["node_modules/", ".next/"]
+  },
+  "compilerOptions": {
+    "skipLibCheck": true
   }
 }
