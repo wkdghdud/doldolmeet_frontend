@@ -8,16 +8,32 @@ import { backend_api } from "@/utils/api";
 const Signup = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [nickname, setNickname] = useState("");
 
   const handleSignup = async () => {
+    if (userName === "" || password === "" || nickname === "") {
+      alert("필수값을 모두 입력해주세요.");
+      return;
+    }
+
     try {
       const response = await backend_api().post("/signup", {
         username: userName,
         password: password,
+        nickname: nickname,
       });
-      console.log(response);
+
+      if (response.status !== 200) {
+        alert("회원가입에 실패했습니다.");
+      }
     } catch (error) {
-      console.error(error);
+      alert("회원가입에 실패했습니다.");
+    }
+  };
+
+  const handleEnter = (event) => {
+    if (event.keyCode === 13) {
+      handleSignup();
     }
   };
 
@@ -31,7 +47,7 @@ const Signup = () => {
       <Typography variant={"h2"}>👋 회원가입 👋</Typography>
       <TextField
         value={userName}
-        label="Email"
+        label="아이디"
         required
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setUserName(event.target.value);
@@ -40,12 +56,23 @@ const Signup = () => {
       />
       <TextField
         value={password}
-        label="Password"
+        label="비밀번호"
         type="password"
         required
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setPassword(event.target.value);
         }}
+        sx={{ width: "20vw" }}
+      />
+      <TextField
+        value={nickname}
+        label="닉네임"
+        type="text"
+        required
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          setNickname(event.target.value);
+        }}
+        onKeyDown={handleEnter}
         sx={{ width: "20vw" }}
       />
       <Button

@@ -40,7 +40,7 @@ function Login() {
       <Typography variant={"h2"}>👋 로그인 👋</Typography>
       <TextField
         value={userName}
-        label="Email"
+        label="아이디"
         required
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setUserName(event.target.value);
@@ -49,7 +49,7 @@ function Login() {
       />
       <TextField
         value={password}
-        label="Password"
+        label="비밀번호"
         type="password"
         required
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
