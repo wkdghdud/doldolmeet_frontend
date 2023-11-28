@@ -213,6 +213,13 @@ const OneToOnePage = () => {
       setPopupOpen(true);
     });
 
+    eventSource.addEventListener("endNotice", (e: MessageEvent) => {
+      console.log("🥹 곧 종료 됩니다. ", JSON.parse(e.data));
+
+      // TODO: 박종호 작업 필요.
+      alert("🥹 곧 종료 됩니다. ");
+    });
+
     eventSource.onopen = () => {
       console.log("📣 SSE 연결되었습니다.");
     };
