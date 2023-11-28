@@ -20,8 +20,8 @@ import DeviceControlButton from "@/components/meeting/DeviceControlButton";
 import { Box } from "@mui/system";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
 import { useRouter, useSearchParams } from "next/navigation";
-import Capture from "@/components/Capture";
 import InviteDialog from "@/components/InviteDialog";
+import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
 
@@ -262,12 +262,12 @@ const OneToOnePage = () => {
               <Typography variant={"h4"}>
                 {"💜 Aespa Drama 발매 기념 팬미팅"}
               </Typography>
+              <LinearTimerBar />
               <DeviceControlButton
                 publisher={myStream}
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
-              <Capture />
             </Stack>
           </Grid>
           <Grid
