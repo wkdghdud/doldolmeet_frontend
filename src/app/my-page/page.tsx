@@ -30,7 +30,7 @@ const MyPage = () => {
     backend_api()
       .get("/fanMeetings", {
         params: {
-          option: "opened",
+          option: "all",
         },
       })
       .then((response) => {
@@ -43,7 +43,7 @@ const MyPage = () => {
   };
 
   const parseISODate = (isoDate) => {
-    const dateObject = new Date(...isoDate);
+    const dateObject = new Date(isoDate);
 
     if (!isNaN(dateObject.getTime())) {
       const formattedDate = dateObject.toLocaleDateString();
@@ -131,6 +131,7 @@ const MyPage = () => {
                 <tr>
                   <th>State</th>
                   <th>Title</th>
+                  <th>Team Name</th>
                   <th>Date</th>
                   <th>Time</th>
                 </tr>
@@ -140,6 +141,7 @@ const MyPage = () => {
                   <tr key={idx}>
                     <td>all</td>
                     <td>{fanmeeting.title}</td>
+                    <td>{fanmeeting.teamName}</td>
                     <td>{parseISODate(fanmeeting.startTime).date}</td>
                     <td>{parseISODate(fanmeeting.startTime).time}</td>
                   </tr>
@@ -155,6 +157,7 @@ const MyPage = () => {
                 <tr>
                   <th>State</th>
                   <th>Title</th>
+                  <th>Team Name</th>
                   <th>Date</th>
                   <th>Time</th>
                   <th>Move</th>
@@ -165,6 +168,7 @@ const MyPage = () => {
                   <tr key={idx}>
                     <td>all</td>
                     <td>{fanmeeting.title}</td>
+                    <td>{fanmeeting.teamName}</td>
                     <td>{parseISODate(fanmeeting.startTime).date}</td>
                     <td>{parseISODate(fanmeeting.startTime).time}</td>
                     <td>
