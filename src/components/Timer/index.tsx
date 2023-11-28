@@ -13,7 +13,7 @@ const EndAlertBar = ({ open, handleClose }: Props) => {
       autoHideDuration={3000}
       onClose={handleClose}
       anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      sx={{ marginTop: "2.5%", marginRight: "9%", width: "20%" }}
+      sx={{ marginTop: "2.5%", marginRight: "10%", width: "20%" }}
     >
       <Alert
         icon={<NotificationsActiveIcon fontSize="inherit" />}
