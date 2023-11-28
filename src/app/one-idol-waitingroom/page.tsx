@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Connection, OpenVidu, StreamManager } from "openvidu-browser";
-import { Grid } from "@mui/material";
+import { Stack } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -10,8 +10,7 @@ import {
 } from "@/utils/openvidu";
 import { Role, RoomType } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
-import InviteDialog from "@/components/InviteDialog";
-import OpenViduVideoView from "@/components/meeting/OpenViduVideoView";
+import JoinIdolRoomDialog from "@/components/InviteDialog/JoinIdolRoomDialog";
 
 interface Props {
   fanStream: StreamManager | undefined;
@@ -179,70 +178,19 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={6} style={{ position: "relative" }}>
-        <Typography
-          variant="h4"
-          sx={{
-            textAlign: "center",
-            position: "absolute",
-            top: "45%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 1,
-            fontWeight: 700,
-            color: "#ffffff",
-            fontSize: "2rem",
-          }}
-        >
-          곧 통화가 연결될 예정이에요.
+    <>
+      <Stack spacing={2} justifyContent="center" alignItems="center">
+        <Typography variant={"h2"}>
+          통화가 연결될 때까지 조금만 기다려주세요 ☺️
         </Typography>
-        <Typography
-          variant="h4"
-          sx={{
-            textAlign: "center",
-            position: "absolute",
-            top: "55%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 1,
-            fontWeight: 700,
-            color: "#ffffff",
-            fontSize: "2rem",
-          }}
-        >
-          조금만 기다려주세요 ☺️
-        </Typography>
-        <img
-          src={"/hi.gif"}
-          alt="조금만 기다려주세요"
-          style={{
-            maxWidth: "100%",
-            height: "65vh",
-            borderRadius: 20,
-            objectFit: "cover",
-            position: "relative",
-            zIndex: 0,
-          }}
-        />
-      </Grid>
-      <Grid item xs={6}>
-        {fanStream ? (
-          <OpenViduVideoView name={"팬"} streamManager={fanStream} />
-        ) : (
-          <video
-            autoPlay={true}
-            ref={videoRef}
-            style={{ borderRadius: 20, height: "65vh" }}
-          />
-        )}
-      </Grid>
-      <InviteDialog
+        <video autoPlay={true} ref={videoRef} style={{ borderRadius: 30 }} />
+      </Stack>
+      <JoinIdolRoomDialog
         open={popupOpen}
         handleClose={() => setPopupOpen(false)}
         handleEnter={joinNextRoom}
       />
-    </Grid>
+    </>
   );
 };
 

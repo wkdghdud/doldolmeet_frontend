@@ -18,7 +18,6 @@ import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import DeviceControlButton from "@/components/meeting/DeviceControlButton";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
 import { useRouter, useSearchParams } from "next/navigation";
-import InviteDialog from "@/components/InviteDialog";
 import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
@@ -220,7 +219,7 @@ const OneToOnePage = () => {
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
       console.log("🥹 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
-      setPopupOpen(true);
+      joinNextRoom();
     });
 
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
@@ -384,11 +383,6 @@ const OneToOnePage = () => {
           <ChatAndMemo chatRoomId={chatRoomId} height={"75vh"} />
         </Grid>
       )}
-      <InviteDialog
-        open={popupOpen}
-        handleClose={() => setPopupOpen(false)}
-        handleEnter={joinNextRoom}
-      />
       <EndAlertBar
         open={alertBarOpen}
         handleClose={() => setAlertBarOpen(false)}

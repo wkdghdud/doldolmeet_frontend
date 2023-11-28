@@ -14,6 +14,7 @@ import useJwtToken from "@/hooks/useJwtToken";
 import InviteDialog from "@/components/InviteDialog";
 import ChatAndMemo from "@/components/ChatAndMemo";
 import Typography from "@mui/material/Typography";
+import StartFanMeetingDialog from "@/components/InviteDialog/StartFanMeetingDialog";
 
 interface NextRoomEvent {
   nextRoomId: string;
@@ -214,7 +215,7 @@ const WaitingRoom = () => {
           <ChatAndMemo chatRoomId={fanMeeting?.chatRoomId} height={"70vh"} />
         </Grid>
       </Grid>
-      <InviteDialog
+      <StartFanMeetingDialog
         open={popupOpen}
         handleClose={() => setPopupOpen(false)}
         handleEnter={joinNextRoom}
