@@ -10,16 +10,24 @@ function Login() {
   const [password, setPassword] = useState("");
 
   const handleSubmit = async () => {
-    signIn("Credentials", {
-      username: userName,
-      password: password,
-      redirect: true,
-      callbackUrl: "/",
-    }).then((response) => {
-      if (response?.error) {
-        alert("로그인에 실패했습니다.");
-      }
-    });
+    if (userName !== "" && password !== "") {
+      signIn("Credentials", {
+        username: userName,
+        password: password,
+        redirect: true,
+        callbackUrl: "/",
+      }).then((response) => {
+        if (response?.error) {
+          alert("로그인에 실패했습니다.");
+        }
+      });
+    }
+  };
+
+  const handleEnter = (event) => {
+    if (event.keyCode === 13) {
+      handleSubmit();
+    }
   };
 
   return (
@@ -47,6 +55,7 @@ function Login() {
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setPassword(event.target.value);
         }}
+        onKeyDown={handleEnter}
         sx={{ width: "20vw" }}
       />
       <Button
