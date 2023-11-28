@@ -7,6 +7,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import { Publisher } from "openvidu-browser";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import Capture from "@/components/Capture";
 
 interface Props {
   publisher: Publisher | undefined;
@@ -51,6 +52,7 @@ const DeviceControlButton = ({
           <VideocamOffIcon sx={{ color: "#bdbdbd" }} />
         )}
       </ToggleButton>
+      <Capture />
       <ToggleButton
         value="underlined"
         aria-label="underlined"

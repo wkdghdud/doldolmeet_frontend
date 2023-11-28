@@ -1,6 +1,8 @@
 import html2canvas from "html2canvas";
 import { backend_api } from "@/utils/api";
 import { useSearchParams } from "next/navigation";
+import { ToggleButton } from "@mui/material";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 
 const Capture = () => {
   const searchParams = useSearchParams();
@@ -60,9 +62,13 @@ const Capture = () => {
   }
 
   return (
-    <div>
-      <button onClick={onCapture}>Capture</button>
-    </div>
+    <ToggleButton
+      value="underlined"
+      aria-label="underlined"
+      onClick={onCapture}
+    >
+      <CameraAltIcon sx={{ color: "#FFAFCC" }} />
+    </ToggleButton>
   );
 };
 

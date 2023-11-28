@@ -18,11 +18,13 @@ import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import DeviceControlButton from "@/components/meeting/DeviceControlButton";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
 import { useRouter, useSearchParams } from "next/navigation";
-import Capture from "@/components/Capture";
 import InviteDialog from "@/components/InviteDialog";
+import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
 import ChatAndMemo from "@/components/ChatAndMemo";
+import EndAlertBar from "@/components/Timer";
+import { backend_api, SPRING_URL } from "@/utils/api";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -58,6 +60,12 @@ const OneToOnePage = () => {
 
   /* React Query FanToFanMeeting 조회 */
   const [chatRoomId, setChatRoomId] = useState<string | undefined>();
+
+  /* 팬미팅 종료 임박 Alert */
+  const [alertBarOpen, setAlertBarOpen] = useState<boolean>(false);
+
+  /* 녹화를 위한 recordingid */
+  const [forceRecordingId, setForceRecordingId] = useState("");
 
   /* 다음 아이돌의 대기실로 넘어가기 위해 필요한 state */
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
@@ -96,6 +104,49 @@ const OneToOnePage = () => {
     }
   }, [role, userName]);
 
+  const startRecording = () => {
+    backend_api()
+      .post(
+        SPRING_URL + "/recording-java/api/recording/start",
+
+        {
+          session: sessionId,
+          name:
+            "fanmeetingId:" +
+            fanMeetingId +
+            "room:" +
+            sessionId +
+            "fan:" +
+            myNickName +
+            "idol:" +
+            partnerNickName,
+          hasAudio: true,
+          hasVideo: true,
+          outputMode: "COMPOSED",
+        },
+      )
+      .then((response) => {
+        console.log(response.data);
+        setForceRecordingId(response.data.id);
+      })
+      .catch((error) => {
+        console.error("Start recording WRONG:", error);
+      });
+  };
+
+  const stopRecording = () => {
+    backend_api()
+      .post(SPRING_URL + "/recording-java/api/recording/stop", {
+        recording: forceRecordingId,
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Stop recording WRONG:", error);
+      });
+  };
+
   const joinSession = async () => {
     try {
       // OpenVidu 객체 생성
@@ -118,14 +169,20 @@ const OneToOnePage = () => {
         setMyConnection(connection);
       }
       const { token } = connection;
-      await mySession.connect(token, {
-        clientData: JSON.stringify({
-          role: role,
-          fanMeetingId: fanMeetingId,
-          userName: userName,
-          type: "idolRoom",
-        }),
-      });
+      await mySession
+        .connect(token, {
+          clientData: JSON.stringify({
+            role: role,
+            fanMeetingId: fanMeetingId,
+            userName: userName,
+            type: "idolRoom",
+          }),
+        })
+        .then(() => {
+          if (role === Role.FAN) {
+            startRecording();
+          }
+        });
 
       await ov.getUserMedia({
         audioSource: undefined,
@@ -166,6 +223,11 @@ const OneToOnePage = () => {
       setPopupOpen(true);
     });
 
+    eventSource.addEventListener("endNotice", (e: MessageEvent) => {
+      console.log("🥹 통화가 곧 종료 됩니다.", JSON.parse(e.data));
+      setAlertBarOpen(true);
+    });
+
     eventSource.onopen = () => {
       console.log("📣 SSE 연결되었습니다.");
     };
@@ -198,6 +260,7 @@ const OneToOnePage = () => {
     setMyStream(undefined);
     setPartnerStream(undefined);
     setMyConnection(undefined);
+    stopRecording();
   };
 
   useEffect(() => {
@@ -260,12 +323,13 @@ const OneToOnePage = () => {
               <Typography variant={"h4"}>
                 {"💜 Aespa Drama 발매 기념 팬미팅"}
               </Typography>
+              <LinearTimerBar />
               <DeviceControlButton
                 publisher={myStream}
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
-              <Capture />
+              <button onClick={stopRecording}>Stop Recording</button>
             </Stack>
           </Grid>
           <Grid
@@ -324,6 +388,10 @@ const OneToOnePage = () => {
         open={popupOpen}
         handleClose={() => setPopupOpen(false)}
         handleEnter={joinNextRoom}
+      />
+      <EndAlertBar
+        open={alertBarOpen}
+        handleClose={() => setAlertBarOpen(false)}
       />
     </Grid>
   );
