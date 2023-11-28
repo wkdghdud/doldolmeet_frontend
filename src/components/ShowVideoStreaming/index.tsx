@@ -50,18 +50,17 @@ const ShowVideoStreaming = () => {
   };
 
   return (
-    <div>
-      <ReactPlayer
-        url={[
-          "https://www.youtube.com/watch?v=D8VEhcPeSlc",
-          "https://www.youtube.com/watch?v=rRzxEiBLQCA",
-        ]}
-        controls
-        height="750px" // 높이를 자동으로 조절하여 비율을 유지
-        playing={true}
-        muted={true}
-      />
-    </div>
+    <ReactPlayer
+      url={[
+        "https://www.youtube.com/watch?v=D8VEhcPeSlc",
+        "https://www.youtube.com/watch?v=rRzxEiBLQCA",
+      ]}
+      controls
+      width="100%"
+      height="50vh"
+      playing={true}
+      muted={true}
+    />
   );
 };
 

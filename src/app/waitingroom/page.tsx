@@ -1,20 +1,19 @@
 "use client";
-import { Grid, Tab, Tabs } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFanMeeting, useMainWaitRoom } from "@/hooks/fanmeeting";
-import Memo from "@/components/Mymemo";
-import { useEffect, useState } from "react";
-import ShowChat from "@/components/ShowChat";
+import React, { useEffect, useState } from "react";
 import ShowVideoStreaming from "@/components/ShowVideoStreaming";
 import { Connection, OpenVidu } from "openvidu-browser";
 import {
   closeOpenViduConnection,
   createOpenViduConnection,
-  createOpenViduSession,
 } from "@/utils/openvidu";
 import { Role } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
 import InviteDialog from "@/components/InviteDialog";
+import ChatAndMemo from "@/components/ChatAndMemo";
+import Typography from "@mui/material/Typography";
 
 interface NextRoomEvent {
   nextRoomId: string;
@@ -149,10 +148,6 @@ const WaitingRoom = () => {
 
   return (
     <>
-      <Tabs value={tabValue} onChange={handleChange}>
-        <Tab label="채팅" />
-        <Tab label="메모" />
-      </Tabs>
       <Grid
         container
         direction="row"
@@ -161,19 +156,62 @@ const WaitingRoom = () => {
         padding="30px"
         spacing={3}
       >
-        <Grid item xs={6}>
-          <ShowVideoStreaming />
+        <Grid item xs={8} sx={{ width: "100%", height: "70%" }}>
+          <Stack
+            direction={"column"}
+            justifyContent="center"
+            alignItems="flex-start"
+            sx={{ width: "100%" }}
+            spacing={1}
+          >
+            <div
+              style={{
+                width: "100%",
+                height: "40%",
+              }}
+            >
+              <ShowVideoStreaming />
+            </div>
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "30%",
+              }}
+            >
+              <Typography
+                variant="h3"
+                sx={{
+                  textAlign: "center",
+                  position: "absolute",
+                  top: "35%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  zIndex: 1,
+                  fontWeight: 700,
+                  color: "#212121",
+                  marginBottom: 10,
+                }}
+              >
+                🙋‍♀️ 나의 순서 53번 | 👋 현재 52번째 팬까지 입장
+              </Typography>
+              <img
+                src={"/waiting_dino.gif"}
+                alt="조금만 기다려주세요"
+                style={{
+                  height: "30vh",
+                  width: "100%",
+                  borderRadius: 20,
+                  objectFit: "cover",
+                  position: "relative",
+                  zIndex: 0,
+                }}
+              />
+            </div>
+          </Stack>
         </Grid>
-        <Grid item xs={6} sx={{ height: "85vh" }}>
-          {/*<ShowChat roomId={fanMeeting?.chatRoomId} />*/}
-          <Grid item xs={6}>
-            <div style={{ display: tabValue === 0 ? "block" : "none" }}>
-              <ShowChat roomId={fanMeeting?.chatRoomId} />
-            </div>
-            <div style={{ display: tabValue === 1 ? "block" : "none" }}>
-              <Memo />
-            </div>
-          </Grid>
+        <Grid item xs={4} sx={{ height: "70%" }}>
+          <ChatAndMemo chatRoomId={fanMeeting?.chatRoomId} height={"70vh"} />
         </Grid>
       </Grid>
       <InviteDialog
