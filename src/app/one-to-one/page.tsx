@@ -24,6 +24,7 @@ import InviteDialog from "@/components/InviteDialog";
 import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
+import { backend_api, SPRING_URL } from "@/utils/api";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -60,6 +61,9 @@ const OneToOnePage = () => {
 
   /* React Query FanToFanMeeting 조회 */
   const [chatRoomId, setChatRoomId] = useState<string | undefined>();
+
+  /* 녹화를 위한 recordingid */
+  const [forceRecordingId, setForceRecordingId] = useState("");
 
   /* 다음 아이돌의 대기실로 넘어가기 위해 필요한 state */
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
@@ -98,6 +102,28 @@ const OneToOnePage = () => {
     }
   }, [role, userName]);
 
+  const startRecording = () => {
+    backend_api()
+      .post(
+        SPRING_URL + "/recording-java/api/recording/start",
+
+        {
+          session: sessionId,
+          // name: "room-" + mySessionId + "_memberId-" + myUserName,
+          hasAudio: true,
+          hasVideo: true,
+          outputMode: "COMPOSED",
+        },
+      )
+      .then((response) => {
+        console.log(response.data);
+        setForceRecordingId(response.data.id);
+      })
+      .catch((error) => {
+        console.error("Start recording WRONG:", error);
+      });
+  };
+
   const joinSession = async () => {
     try {
       // OpenVidu 객체 생성
@@ -120,14 +146,20 @@ const OneToOnePage = () => {
         setMyConnection(connection);
       }
       const { token } = connection;
-      await mySession.connect(token, {
-        clientData: JSON.stringify({
-          role: role,
-          fanMeetingId: fanMeetingId,
-          userName: userName,
-          type: "idolRoom",
-        }),
-      });
+      await mySession
+        .connect(token, {
+          clientData: JSON.stringify({
+            role: role,
+            fanMeetingId: fanMeetingId,
+            userName: userName,
+            type: "idolRoom",
+          }),
+        })
+        .then(() => {
+          if (role === Role.FAN) {
+            startRecording();
+          }
+        });
 
       await ov.getUserMedia({
         audioSource: undefined,
