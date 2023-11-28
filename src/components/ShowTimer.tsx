@@ -4,7 +4,7 @@ import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 
 const LinearTimerBar = () => {
-  const [seconds, setSeconds] = useState(12);
+  const [seconds, setSeconds] = useState(30);
 
   useEffect(() => {
     const intervalId = setInterval(() => {

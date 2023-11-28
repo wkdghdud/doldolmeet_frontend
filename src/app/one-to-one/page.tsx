@@ -24,6 +24,7 @@ import InviteDialog from "@/components/InviteDialog";
 import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
+import EndAlertBar from "@/components/Timer";
 import { backend_api, SPRING_URL } from "@/utils/api";
 
 const OneToOnePage = () => {
@@ -61,6 +62,9 @@ const OneToOnePage = () => {
 
   /* React Query FanToFanMeeting 조회 */
   const [chatRoomId, setChatRoomId] = useState<string | undefined>();
+
+  /* 팬미팅 종료 임박 Alert */
+  const [alertBarOpen, setAlertBarOpen] = useState<boolean>(false);
 
   /* 녹화를 위한 recordingid */
   const [forceRecordingId, setForceRecordingId] = useState("");
@@ -217,7 +221,8 @@ const OneToOnePage = () => {
       console.log("🥹 곧 종료 됩니다. ", JSON.parse(e.data));
 
       // TODO: 박종호 작업 필요.
-      alert("🥹 곧 종료 됩니다. ");
+      // alert("🥹 곧 종료 됩니다. ");
+      setAlertBarOpen(true);
     });
 
     eventSource.onopen = () => {
@@ -456,6 +461,10 @@ const OneToOnePage = () => {
         open={popupOpen}
         handleClose={() => setPopupOpen(false)}
         handleEnter={joinNextRoom}
+      />
+      <EndAlertBar
+        open={alertBarOpen}
+        handleClose={() => setAlertBarOpen(false)}
       />
     </Grid>
   );
