@@ -109,6 +109,10 @@ const OneToOnePage = () => {
 
         {
           session: sessionId,
+          fanMeetingId: fanMeetingId,
+          fan: userName,
+          idol: partnerNickName,
+
           // name: "room-" + mySessionId + "_memberId-" + myUserName,
           hasAudio: true,
           hasVideo: true,
