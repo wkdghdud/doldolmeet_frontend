@@ -1,13 +1,56 @@
 "use client";
-import { useState, useEffect, ChangeEvent } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { backend_api } from "@/utils/api";
-import { AxiosResponse } from "axios"; // 이 부분을 사용하려는 API 파일로 변경해야 합니다.
+import { AxiosResponse } from "axios";
+import { Stack } from "@mui/system";
+import { IconButton, styled, TextField } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface MemoItem {
   id: number;
   contents: string;
   createdAt: string;
 }
+
+const PostIt = styled(TextField)(() => ({
+  width: "90%",
+  margin: "5px auto",
+  backgroundColor: "#fff6fa",
+  borderRadius: 2,
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: "transparent",
+    },
+    "&:hover fieldset": {
+      borderColor: "transparent",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "transparent",
+    },
+  },
+}));
+
+const PostItInput = styled(TextField)(() => ({
+  width: "90%",
+  margin: "auto",
+  marginBottom: 15,
+  backgroundColor: "#f5f5f5",
+  borderRadius: 2,
+  // focused color for input with variant='outlined'
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: "transparent",
+    },
+    "&:hover fieldset": {
+      borderColor: "#ff8fab",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#ff8fab",
+    },
+  },
+}));
 
 const Memo = () => {
   const [memoList, setMemoList] = useState<MemoItem[]>([]);
@@ -133,65 +176,113 @@ const Memo = () => {
     }
   };
 
+  const handleEnter = (event) => {
+    if (event.keyCode === 13) {
+      handleSaveMemo();
+    }
+  };
+
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    <Stack
+      direction="column"
+      justifyContent="space-between"
+      alignItems="center"
+      sx={{
+        width: "100%",
+        maxWidth: "500px",
+        height: "100%",
+        backgroundColor: "#ffffff",
+        borderRadius: 2,
+      }}
     >
-      <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-        <h1>간단한 메모장</h1>
-        <textarea
-          rows={10}
-          cols={50}
-          value={memoText}
-          onChange={handleInputChange}
-          placeholder="메모를 입력하세요..."
-          style={{ marginBottom: "10px" }}
-        />
-        <br />
-        <button onClick={handleSaveMemo}>저장</button>
-        <div>
-          {mymemo.length > 0 &&
-            mymemo.map((memomo) => (
-              <div
-                key={memomo.id}
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "10px",
-                  marginBottom: "10px",
-                }}
-              >
-                {editingMemo.id === memomo.id ? ( // 수정 중인 메모 아이템인 경우 input 표시
-                  <div>
-                    <input
-                      type="text"
-                      value={editingMemo.contents}
-                      onChange={(event) =>
-                        setEditingMemo({
-                          ...editingMemo,
-                          contents: event.target.value,
-                        })
-                      }
-                    />
-                    <button onClick={handleUpdateMemo}>저장</button>
-                  </div>
-                ) : (
-                  <div>
-                    <p>{memomo.contents}</p>
-                    <button
-                      onClick={() => handleEditMemo(memomo.id, memomo.contents)}
-                    >
-                      수정
-                    </button>
-                    <button onClick={(event) => handleDeleteMemo(memomo.id)}>
-                      삭제
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-        </div>
+      <div style={{ width: "100%", marginTop: 10 }}>
+        {mymemo.length > 0 &&
+          mymemo.map((memomo) => (
+            <div
+              key={memomo.id}
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              {editingMemo.id === memomo.id ? (
+                <PostItInput
+                  key={memomo.id}
+                  multiline
+                  rows={4}
+                  value={editingMemo.contents}
+                  onChange={(event) =>
+                    setEditingMemo({
+                      ...editingMemo,
+                      contents: event.target.value,
+                    })
+                  }
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton
+                        color="primary"
+                        onClick={handleUpdateMemo}
+                        sx={{ position: "absolute", top: "60%", right: "3%" }}
+                      >
+                        <SaveIcon />
+                      </IconButton>
+                    ),
+                  }}
+                />
+              ) : (
+                <PostIt
+                  multiline
+                  rows={4}
+                  value={memomo.contents}
+                  InputProps={{
+                    readOnly: true,
+                    endAdornment: (
+                      <Stack direction={"row"}>
+                        <IconButton
+                          color="primary"
+                          onClick={() =>
+                            handleEditMemo(memomo.id, memomo.contents)
+                          }
+                          sx={{
+                            position: "absolute",
+                            top: "60%",
+                            right: "12%",
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleDeleteMemo(memomo.id)}
+                          sx={{ position: "absolute", top: "60%", right: "3%" }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Stack>
+                    ),
+                  }}
+                />
+              )}
+            </div>
+          ))}
       </div>
-    </div>
+      <PostItInput
+        multiline
+        placeholder={"메모를 입력하세요."}
+        rows={4}
+        value={memoText}
+        onChange={handleInputChange}
+        onKeyDown={handleEnter}
+        InputProps={{
+          endAdornment: (
+            <IconButton
+              color="primary"
+              onClick={handleSaveMemo}
+              sx={{ position: "absolute", top: "60%", right: "3%" }}
+            >
+              <SaveIcon />
+            </IconButton>
+          ),
+        }}
+      />
+    </Stack>
   );
 };
 
