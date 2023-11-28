@@ -6,24 +6,23 @@ import {
   Session,
   StreamManager,
 } from "openvidu-browser";
-import { Button, Grid, Stack } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
   createOpenViduConnection,
 } from "@/utils/openvidu";
-import ShowChat from "@/components/ShowChat";
 import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import DeviceControlButton from "@/components/meeting/DeviceControlButton";
-import { Box } from "@mui/system";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
 import { useRouter, useSearchParams } from "next/navigation";
 import Capture from "@/components/Capture";
 import InviteDialog from "@/components/InviteDialog";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
+import ChatAndMemo from "@/components/ChatAndMemo";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -56,7 +55,6 @@ const OneToOnePage = () => {
 
   /* Layout */
   const [fullScreen, setFullScreen] = useState<boolean>(false);
-  const [chatOpen, setChatOpen] = useState<boolean>(true);
 
   /* React Query FanToFanMeeting 조회 */
   const [chatRoomId, setChatRoomId] = useState<string | undefined>();
@@ -319,83 +317,7 @@ const OneToOnePage = () => {
             padding: 2,
           }}
         >
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            sx={{
-              width: "100%",
-              height: 60,
-              borderRadius: 1,
-              bgcolor: "#ffffff",
-              mb: 2,
-            }}
-          >
-            <Stack
-              direction={"row"}
-              justifyContent="space-around"
-              alignItems="center"
-              sx={{ width: "100%", height: "100%" }}
-            >
-              <Button
-                variant={chatOpen ? "contained" : "text"}
-                onClick={() => setChatOpen(true)}
-                sx={{
-                  width: "46%",
-                  height: "70%",
-                  backgroundColor: chatOpen ? "#ff8fab" : "#ffffff",
-                }}
-              >
-                <Typography
-                  variant={"button"}
-                  sx={{
-                    fontWeight: 700,
-                    color: chatOpen ? "#ffffff" : "#9e9e9e",
-                    letterSpacing: 3,
-                  }}
-                >
-                  채팅창
-                </Typography>
-              </Button>
-              <Button
-                variant={chatOpen ? "text" : "contained"}
-                onClick={() => setChatOpen(false)}
-                sx={{
-                  width: "46%",
-                  height: "70%",
-                  backgroundColor: chatOpen ? "#ffffff" : "#ff8fab",
-                }}
-              >
-                <Typography
-                  variant={"button"}
-                  sx={{
-                    fontWeight: 700,
-                    color: chatOpen ? "#9e9e9e" : "#ffffff",
-                    letterSpacing: 3,
-                  }}
-                >
-                  메모장
-                </Typography>
-              </Button>
-            </Stack>
-          </Box>
-          <div style={{ height: "70vh" }}>
-            {chatOpen ? (
-              <ShowChat roomId={chatRoomId} />
-            ) : (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%",
-                  maxWidth: "400px",
-                  height: "100%",
-                  backgroundColor: "#ffffff",
-                  borderRadius: 2,
-                }}
-              />
-            )}
-          </div>
+          <ChatAndMemo chatRoomId={chatRoomId} height={"75vh"} />
         </Grid>
       )}
       <InviteDialog
