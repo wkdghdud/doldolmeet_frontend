@@ -110,15 +110,11 @@ const OneToOnePage = () => {
 
         {
           session: sessionId,
-          name:
-            "fanmeetingId:" +
-            fanMeetingId +
-            "room:" +
-            sessionId +
-            "fan:" +
-            myNickName +
-            "idol:" +
-            partnerNickName,
+          fanMeetingId: fanMeetingId,
+          fan: userName,
+          idol: partnerNickName,
+
+          // name: "room-" + mySessionId + "_memberId-" + myUserName,
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
@@ -276,7 +272,7 @@ const OneToOnePage = () => {
   const joinNextRoom = async () => {
     await leaveWaitingRoom();
     if (nextRoomId === "END") {
-      router.push(`/end-fanmeeting?fanMeetingId=${fanMeetingId}`);
+      router.push(`/end-fanmeeting/${userName}/${fanMeetingId}}`);
     } else {
       router.push(
         `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}`,

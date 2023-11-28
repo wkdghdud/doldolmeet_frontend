@@ -14,6 +14,7 @@ import {
   fetchAllRoomIdsByAdmin,
   updateFanMeetingRoomCreated,
 } from "@/hooks/fanmeeting";
+import { backend_api } from "@/utils/api";
 
 const AdminInitFanMeetingPage = () => {
   // const [OV, setOV] = useState<OpenVidu | undefined>();
@@ -101,10 +102,21 @@ const AdminInitFanMeetingPage = () => {
     });
   };
 
+  const startFanMeeting = () => {
+    backend_api()
+      .post(`/fanMeetings/${fanMeetingId}/start`)
+      .then((res) => {
+        console.log(res);
+      });
+  };
+
   return (
     <div>
       <h1>Admin Init Fan Meeting Page</h1>
       <Button variant={"contained"} onClick={joinMultipleSession}>
+        팬미팅 생성하기
+      </Button>
+      <Button variant={"contained"} onClick={startFanMeeting}>
         팬미팅 시작하기
       </Button>
       <Button variant={"contained"} onClick={endFanMeeting}>
