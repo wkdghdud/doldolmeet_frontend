@@ -227,7 +227,6 @@ const OneToOnePage = () => {
 
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
       console.log("🥹 곧 종료 됩니다. ", JSON.parse(e.data));
-
       setAlertBarOpen(true);
     });
 
