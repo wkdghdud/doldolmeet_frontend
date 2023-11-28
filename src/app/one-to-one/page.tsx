@@ -113,7 +113,15 @@ const OneToOnePage = () => {
 
         {
           session: sessionId,
-          // name: "room-" + mySessionId + "_memberId-" + myUserName,
+          name:
+            "fanmeetingId:" +
+            fanMeetingId +
+            "room:" +
+            sessionId +
+            "fan:" +
+            myNickName +
+            "idol:" +
+            partnerNickName,
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
@@ -218,10 +226,7 @@ const OneToOnePage = () => {
     });
 
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
-      console.log("🥹 곧 종료 됩니다. ", JSON.parse(e.data));
-
-      // TODO: 박종호 작업 필요.
-      // alert("🥹 곧 종료 됩니다. ");
+      console.log("🥹 통화가 곧 종료 됩니다.", JSON.parse(e.data));
       setAlertBarOpen(true);
     });
 
