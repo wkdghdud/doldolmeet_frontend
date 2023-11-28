@@ -1,13 +1,8 @@
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "@mui/material";
+"use client";
+import { Dialog, DialogActions, DialogContent } from "@mui/material";
 // @ts-ignore
 import GradientButton from "@/components/GradientButton";
-import Typography from "@mui/material/Typography";
+import { useEffect } from "react";
 
 interface Props {
   open: boolean;
@@ -16,29 +11,32 @@ interface Props {
 }
 
 const JoinIdolRoomDialog = ({ open, handleClose, handleEnter }: Props) => {
+  // @ts-ignore
+  const audio = new Audio("/mp3/iphone_bell.mp3");
+
+  useEffect(() => {
+    audio.play();
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, []);
+
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>
-        <Typography
-          variant="h3"
-          component="div"
-          sx={{ fontWeight: "bold", color: "#424242", margin: 1 }}
-        >
-          {"🔔  나의 순서가 다가왔어요!"}
-        </Typography>
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          <img
-            src="/aespa_welcome.gif"
-            alt="invite"
-            style={{ width: "350px", borderRadius: 20 }}
-          />
-        </DialogContentText>
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+      <DialogContent sx={{ display: "flex", justifyContent: "center" }}>
+        <img
+          src="/karina_call.png"
+          alt="invite"
+          style={{ height: "600px", borderRadius: 20 }}
+        />
       </DialogContent>
       <DialogActions>
         <GradientButton
-          onClick={handleEnter}
+          onClick={async () => {
+            handleEnter();
+          }}
           sx={{
             width: "100%",
             margin: 1,
@@ -48,7 +46,7 @@ const JoinIdolRoomDialog = ({ open, handleClose, handleEnter }: Props) => {
             borderRadius: 3,
           }}
         >
-          입장하기
+          통화하기
         </GradientButton>
       </DialogActions>
     </Dialog>
