@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getSession } from "next-auth/react";
 
-const SPRING_URL =
+export const SPRING_URL =
   process.env.NODE_ENV === "production"
     ? "https://api.doldolmeet.shop"
     : "http://localhost:8080";

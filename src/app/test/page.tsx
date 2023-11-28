@@ -1,11 +1,10 @@
 "use client";
 import { OpenVidu } from "openvidu-browser";
 import React, { useEffect, useRef, useState } from "react";
-import { openvidu_api } from "@/utils/api";
-import Recording from "@/components/meeting/Recording";
-
+import { backend_api, openvidu_api, SPRING_URL } from "@/utils/api";
 import html2canvas from "html2canvas";
 import MyStreamView from "@/components/meeting/MyStreamView";
+
 export default function App() {
   const [mySessionId, setMySessionId] = useState("SessionA");
   const [myUserName, setMyUserName] = useState(
@@ -61,17 +60,18 @@ export default function App() {
   //start recording
 
   const startRecording = () => {
-    openvidu_api
+    backend_api()
       .post(
-        "/openvidu/api/recordings/start",
+        SPRING_URL + "/recording-java/api/recording/start",
 
         {
           session: mySessionId,
-          name: "room-" + mySessionId + "_memberId-" + myUserName,
+          // name: "room-" + mySessionId + "_memberId-" + myUserName,
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
-          recordingLayout: "CUSTOM",
+          // recordingLayout: "CUSTOM",
+
           // customLayout: "mySimpleLayout",
           // resolution: "1280x720",
           // frameRate: 25,
@@ -83,6 +83,7 @@ export default function App() {
         },
       )
       .then((response) => {
+        console.log(response.data);
         setForceRecordingId(response.data.id);
       })
       .catch((error) => {
@@ -91,8 +92,10 @@ export default function App() {
   };
 
   const stopRecording = () => {
-    openvidu_api
-      .post(`/openvidu/api/recordings/stop/${forceRecordingId}`)
+    backend_api()
+      .post(SPRING_URL + "/recording-java/api/recording/stop", {
+        recording: forceRecordingId,
+      })
       .then((response) => {
         console.log(response.data);
       })
@@ -100,6 +103,30 @@ export default function App() {
         console.error("Stop recording WRONG:", error);
       });
   };
+
+  const getRecording = () => {
+    var forceRecordingId = document.getElementById("forceRecordingId");
+    backend_api()
+      .get(SPRING_URL + "recording-java/api/recording/get/" + forceRecordingId)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Stop recording WRONG:", error);
+      });
+  };
+
+  const listRecording = () => {
+    backend_api()
+      .get(SPRING_URL + "recording-java/api/recording/list")
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Stop recording WRONG:", error);
+      });
+  };
+
   const joinSession = async () => {
     try {
       // OpneVidu 객체 생성
@@ -399,6 +426,8 @@ export default function App() {
             />
             <button onClick={startRecording}>Start Recording</button>
             <button onClick={stopRecording}>Stop Recording</button>
+            <button onClick={getRecording}>get Recording</button>
+            <button onClick={listRecording}>list Recording</button>
             {/*<Recording></Recording>*/}
             <button onClick={onCapture}>캡쳐</button>
             <input
@@ -412,7 +441,7 @@ export default function App() {
 
           {mainStreamManager !== undefined ? (
             <div id="main-video" className="col-md-6">
-              <MyStreamView stream={mainStreamManager} />
+              <MyStreamView name={""} stream={mainStreamManager} />
             </div>
           ) : null}
           <div id="video-container" className="col-md-6">
