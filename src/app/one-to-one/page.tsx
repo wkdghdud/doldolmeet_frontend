@@ -109,7 +109,15 @@ const OneToOnePage = () => {
 
         {
           session: sessionId,
-          // name: "room-" + mySessionId + "_memberId-" + myUserName,
+          name:
+            "fanmeetingId:" +
+            fanMeetingId +
+            "room:" +
+            sessionId +
+            "fan:" +
+            myNickName +
+            "idol:" +
+            partnerNickName,
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
