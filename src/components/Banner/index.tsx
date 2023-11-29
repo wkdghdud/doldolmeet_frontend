@@ -2,22 +2,16 @@
 
 import React from "react";
 import Carousel from "react-material-ui-carousel";
+import Image from "next/image";
+import banner_img from "/public/newjeans_banner.png";
 
 const imageUrls: string[] = ["/newjeans_banner.png"];
 export default function Banner() {
   return (
-    <Carousel>
+    <Carousel sx={{ height: 350 }}>
       {imageUrls.map((url, i) => (
         <div key={i} style={{ display: "flex", justifyContent: "center" }}>
-          <img
-            src={url}
-            alt=""
-            style={{
-              height: "auto",
-              maxHeight: 500,
-              objectFit: "cover",
-            }}
-          />
+          <Image src={banner_img} alt={"banner"} height={350} />
         </div>
       ))}
     </Carousel>

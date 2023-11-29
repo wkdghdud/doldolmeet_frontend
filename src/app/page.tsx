@@ -10,12 +10,13 @@ import { useQuery } from "@tanstack/react-query";
 import ShowDialog from "@/components/ShowDialog";
 import { fetchTodayFanmeeting } from "@/hooks/useTodayFanmeeting";
 import Link from "next/link";
+import data from "@/mock/fanMeeting.json";
 
 export default function Home() {
-  const { data } = useQuery({
-    queryKey: ["fanMeetings", "opened"],
-    queryFn: ({ queryKey }) => fetchFanMeetings(queryKey[1]),
-  });
+  // const { data } = useQuery({
+  //   queryKey: ["fanMeetings", "opened"],
+  //   queryFn: ({ queryKey }) => fetchFanMeetings(queryKey[1]),
+  // });
 
   const { data: todayMeeting } = useQuery({
     queryKey: ["fanMeetings", "today"],
@@ -97,8 +98,8 @@ export default function Home() {
                   transform: "translate(-50%, -50%)",
                 }}
               >
-                당신의 {todayMeeting?.data?.title} 놓치지 마세요! 지금 바로
-                클릭하세요!
+                당신의 {todayMeeting?.data?.title ?? "팬미팅"} 놓치지 마세요!
+                지금 바로 클릭하세요!
               </Typography>
             </Stack>
           </Link>

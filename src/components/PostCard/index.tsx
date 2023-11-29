@@ -24,6 +24,7 @@ export interface Post {
 export interface FanMeeting {
   id: number;
   imgUrl: string;
+  profileImgUrl: string;
   title: string;
   startTime: string;
 }
@@ -33,12 +34,12 @@ interface Props {
   index: number;
 }
 export default function PostCard({ fanMeeting, index }: Props) {
-  const { id, imgUrl, title, startTime } = fanMeeting;
+  const { id, imgUrl, profileImgUrl, title, startTime } = fanMeeting;
 
   const renderAvatar = (
     <Avatar
-      alt={id}
-      src={imgUrl}
+      alt={id.toString()}
+      src={profileImgUrl}
       sx={{
         zIndex: 9,
         width: 32,

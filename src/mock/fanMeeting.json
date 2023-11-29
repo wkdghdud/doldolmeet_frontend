@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "imgUrl":
+    "/images/fanmeeting/riize_cover.jpeg",
+    "profileImgUrl":
+    "/images/fanmeeting/riize_profile.png",
+    "title": "RIIZE 데뷔 100일 기념 팬미팅",
+    "startTime": "2023-12-03 PM 07:00"
+  },
+  {
+    "id": 2,
+    "imgUrl":
+    "/images/fanmeeting/newjeans_cover.jpeg",
+    "profileImgUrl":
+    "/images/fanmeeting/newjeans_profile.jpeg",
+    "title": "뉴진스 Get Up 발매 기념 팬미팅",
+    "startTime": "2023-12-07 AN 10:00"
+  },
+  {
+    "id": 3,
+    "imgUrl":
+    "/images/fanmeeting/bts_cover.jpeg",
+    "profileImgUrl":
+    "/images/fanmeeting/bts_profile.jpeg",
+    "title": "정국 GOLDEN 발매 기념 팬미팅",
+    "startTime": "2023-12-15 PM 08:00"
+  },
+  {
+    "id": 4,
+    "imgUrl":
+    "/images/fanmeeting/aespa_cover.jpeg",
+    "profileImgUrl":
+    "/images/fanmeeting/aespa_profile.jpeg",
+    "title": "Aespa 데뷔 3주년 기념 팬미팅",
+    "startTime": "2023-12-31 PM 02:00"
+  }
+]
