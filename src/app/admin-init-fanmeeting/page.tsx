@@ -6,7 +6,7 @@ import {
   createOpenViduConnection,
   createOpenViduSession,
 } from "@/utils/openvidu";
-import { Button } from "@mui/material";
+import { Button, Grid, Stack } from "@mui/material";
 import { useSearchParams } from "next/navigation";
 import { Role } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
@@ -15,13 +15,16 @@ import {
   updateFanMeetingRoomCreated,
 } from "@/hooks/fanmeeting";
 import { backend_api } from "@/utils/api";
+import { useAllOpenViduSessions } from "@/hooks/openvidu";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
 
 const AdminInitFanMeetingPage = () => {
-  // const [OV, setOV] = useState<OpenVidu | undefined>();
-  // const [sessionId, setSessionId] = useState<string>("test-idol-session-1");
-  // const [myConnection, setMyConnection] = useState<Connection | undefined>();
-  // const [session, setSession] = useState<Session | undefined>();
-
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("id");
@@ -29,7 +32,17 @@ const AdminInitFanMeetingPage = () => {
   const [role, setRole] = useState<Role>(Role.ADMIN);
   const [userName, setUserName] = useState<string>("");
   const [sessionIds, setSessionIds] = useState<string[]>([]);
+  const [sessionCnt, setSessionCnt] = useState<number>(0);
+  const [sessions, setSessions] = useState<any[]>([]);
   const token = useJwtToken();
+
+  const { data } = useAllOpenViduSessions();
+
+  useEffect(() => {
+    console.log("OpenVidu Sessions", data);
+    setSessionCnt(data?.numberOfElements);
+    setSessions(data?.content);
+  }, [data]);
 
   useEffect(() => {
     if (fanMeetingId) {
@@ -125,21 +138,72 @@ const AdminInitFanMeetingPage = () => {
   };
 
   return (
-    <div>
-      <h1>Admin Init Fan Meeting Page</h1>
-      <Button variant={"contained"} onClick={joinMultipleSession}>
-        팬미팅 생성하기
-      </Button>
-      <Button variant={"contained"} onClick={startFanMeeting}>
-        팬미팅 시작하기
-      </Button>
-      <Button variant={"contained"} onClick={deleteFanMeeting}>
-        팬미팅 삭제하기
-      </Button>
-      <Button variant={"contained"} onClick={endFanMeeting}>
-        팬미팅 종료하기
-      </Button>
-    </div>
+    <Grid
+      container
+      justifyContent={"center"}
+      alignItems={"center"}
+      direction={"column"}
+      spacing={2}
+    >
+      <Grid item>
+        <h1>👩🏻‍💻 팬미팅 관리자 페이지</h1>
+      </Grid>
+      <Grid item>
+        <Stack direction={"row"} spacing={2}>
+          <Button variant={"contained"} onClick={joinMultipleSession}>
+            팬미팅 생성하기
+          </Button>
+          <Button variant={"contained"} onClick={startFanMeeting}>
+            팬미팅 시작하기
+          </Button>
+          <Button variant={"contained"} onClick={deleteFanMeeting}>
+            팬미팅 삭제하기
+          </Button>
+          <Button variant={"contained"} onClick={endFanMeeting}>
+            팬미팅 종료하기
+          </Button>
+        </Stack>
+      </Grid>
+      <Grid item>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>세션 아이디</TableCell>
+                <TableCell align="right">접속 개수</TableCell>
+                <TableCell align="right">접속 정보</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {sessions &&
+                sessions.map((row) => (
+                  <TableRow
+                    key={row.name}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {row.id}
+                    </TableCell>
+                    <TableCell align="right">
+                      {row.connections.numberOfElements}
+                    </TableCell>
+                    <TableCell align="right">
+                      {row.connections.content
+                        .map((connection) => {
+                          const clientData = JSON.parse(
+                            connection.clientData,
+                          ).clientData;
+                          return JSON.parse(clientData).userName;
+                        })
+                        .join(", ")}
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Grid>
+    </Grid>
   );
 };
 
