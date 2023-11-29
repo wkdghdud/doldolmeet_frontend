@@ -202,7 +202,7 @@ const OneToOnePage = () => {
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
       console.log("🥹 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
-      joinNextRoom();
+      joinNextRoom(JSON.parse(e.data).nextRoomId);
     });
 
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
@@ -255,13 +255,13 @@ const OneToOnePage = () => {
     };
   }, [leaveSession]);
 
-  const joinNextRoom = async () => {
+  const joinNextRoom = async (sessionId: string) => {
     await leaveWaitingRoom();
     if (nextRoomId === "END") {
       router.push(`/end-fanmeeting/${userName}/${fanMeetingId}}`);
     } else {
       router.push(
-        `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}`,
+        `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
       );
     }
   };
