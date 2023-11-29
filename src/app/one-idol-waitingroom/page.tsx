@@ -11,6 +11,7 @@ import {
 import { Role, RoomType } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
 import JoinIdolRoomDialog from "@/components/InviteDialog/JoinIdolRoomDialog";
+import { AWS_S3_URL } from "@/utils/api";
 
 interface Props {
   fanStream: StreamManager | undefined;
@@ -26,6 +27,8 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
   const [nextRoomId, setNextRoomId] = useState<string>("");
   const [connection, setConnection] = useState<Connection | undefined>();
+  const [popupImage, setPopupImage] = useState<string>("");
+  const [nextIdolName, setNextIdolName] = useState<string>("");
 
   const token = useJwtToken();
 
@@ -106,6 +109,8 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
     eventSource.addEventListener("moveToIdolRoom", (e: MessageEvent) => {
       console.log("🥹 moveToIdolRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
+      setPopupImage(JSON.parse(e.data).roomThumbnail);
+      setNextIdolName(JSON.parse(e.data).idolNickName);
       setPopupOpen(true);
     });
 
@@ -167,7 +172,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   const joinNextRoom = async () => {
     await leaveWaitingRoom();
     router.push(
-      `/one-to-one?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}`,
+      `/one-to-one?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}&idolName=${nextIdolName}`,
     );
   };
 
@@ -187,6 +192,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
       </Stack>
       <JoinIdolRoomDialog
         open={popupOpen}
+        idolImgUrl={`${AWS_S3_URL}/${popupImage}`}
         handleClose={() => setPopupOpen(false)}
         handleEnter={joinNextRoom}
       />

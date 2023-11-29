@@ -19,6 +19,8 @@ import StartFanMeetingDialog from "@/components/InviteDialog/StartFanMeetingDial
 interface NextRoomEvent {
   nextRoomId: string;
   currRoomType: string;
+  roomThumbnail: string;
+  idolNickName: string;
 }
 
 const WaitingRoom = () => {

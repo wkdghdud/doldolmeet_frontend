@@ -54,3 +54,6 @@ export const WS_STOMP_URL =
   process.env.NODE_ENV === "production"
     ? "https://api.doldolmeet.shop/ws-stomp"
     : "http://localhost:8080/ws-stomp";
+
+export const AWS_S3_URL =
+  "https://s3.ap-northeast-2.amazonaws.com/doldolmeet.test";
