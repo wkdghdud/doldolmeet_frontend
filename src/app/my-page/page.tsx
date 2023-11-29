@@ -6,8 +6,13 @@ import { Button, Grid, Tab, Tabs } from "@mui/material";
 import { useRouter } from "next/navigation";
 import useJwtToken from "@/hooks/useJwtToken";
 
+// TODO: 마이 페이지, 탭버튼 -> 팬 미팅 시작 전이면 예정, 하는 중이면, 진행, 끝났으면, 종료
+
 const MyPage = () => {
   const [fanmeetings, setFanMeetings] = useState([]);
+  const [openedFanMeetings, setOpenedFanMeetings] = useState([]);
+  const [closedFanMeetings, setClosedFanMeetings] = useState([]);
+  const [progressFanMeetings, setProgressFanMeetings] = useState([]);
   const [selectedTab, setSelectedTab] = useState(0); // 현재 선택된 탭의 인덱스
   const [userName, setUserName] = useState<string>("");
 
@@ -28,7 +33,7 @@ const MyPage = () => {
 
   const setFanMeeting = () => {
     backend_api()
-      .get("/fanMeetings", {
+      .get("/fanMeetings/my", {
         params: {
           option: "all",
         },
@@ -36,6 +41,45 @@ const MyPage = () => {
       .then((response) => {
         const fanMeetingsData = response.data.data || [];
         setFanMeetings(fanMeetingsData);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    backend_api()
+      .get("/fanMeetings/my", {
+        params: {
+          option: "opened",
+        },
+      })
+      .then((response) => {
+        const fanMeetingsData = response.data.data || [];
+        setOpenedFanMeetings(fanMeetingsData);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    backend_api()
+      .get("/fanMeetings/my", {
+        params: {
+          option: "closed",
+        },
+      })
+      .then((response) => {
+        const fanMeetingsData = response.data.data || [];
+        setClosedFanMeetings(fanMeetingsData);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    backend_api()
+      .get("/fanMeetings/my", {
+        params: {
+          option: "progress",
+        },
+      })
+      .then((response) => {
+        const fanMeetingsData = response.data.data || [];
+        setProgressFanMeetings(fanMeetingsData);
       })
       .catch((error) => {
         console.error(error);
@@ -118,6 +162,7 @@ const MyPage = () => {
       >
         <Tabs value={selectedTab} onChange={handleTabChange} centered>
           <Tab label="예정" />
+          <Tab label="진행" />
           <Tab label="종료" />
         </Tabs>
 
@@ -127,31 +172,69 @@ const MyPage = () => {
               className="fanmeetings-table"
               style={{ display: selectedTab === 0 ? "table" : "none" }}
             >
-              <thead>
-                <tr>
-                  <th>State</th>
-                  <th>Title</th>
-                  <th>Team Name</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {fanmeetings.map((fanmeeting, idx) => (
-                  <tr key={idx}>
-                    <td>all</td>
-                    <td>{fanmeeting.title}</td>
-                    <td>{fanmeeting.teamName}</td>
-                    <td>{parseISODate(fanmeeting.startTime).date}</td>
-                    <td>{parseISODate(fanmeeting.startTime).time}</td>
-                  </tr>
-                ))}
-              </tbody>
+              {openedFanMeetings.length > 0 ? (
+                <>
+                  <thead>
+                    <tr>
+                      <th>State</th>
+                      <th>Title</th>
+                      <th>Team Name</th>
+                      <th>Date</th>
+                      <th>Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {openedFanMeetings.map((fanmeeting, idx) => (
+                      <tr key={idx}>
+                        <td>all</td>
+                        <td>{fanmeeting.title}</td>
+                        <td>{fanmeeting.teamName}</td>
+                        <td>{parseISODate(fanmeeting.startTime).date}</td>
+                        <td>{parseISODate(fanmeeting.startTime).time}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </>
+              ) : (
+                <caption>예정된 팬미팅이 없습니다.</caption>
+              )}
             </table>
 
             <table
               className="fanmeetings-table"
               style={{ display: selectedTab === 1 ? "table" : "none" }}
+            >
+              {progressFanMeetings.length > 0 ? (
+                <>
+                  <thead>
+                    <tr>
+                      <th>State</th>
+                      <th>Title</th>
+                      <th>Team Name</th>
+                      <th>Date</th>
+                      <th>Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {progressFanMeetings.map((fanmeeting, idx) => (
+                      <tr key={idx}>
+                        <td>all</td>
+                        <td>{fanmeeting.title}</td>
+                        <td>{fanmeeting.teamName}</td>
+                        <td>{parseISODate(fanmeeting.startTime).date}</td>
+                        <td>{parseISODate(fanmeeting.startTime).time}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </>
+              ) : (
+                <p>진행 중인 팬미팅이 없습니다.</p>
+              )}
+            </table>
+
+            <table
+              className="fanmeetings-table"
+              style={{ display: selectedTab === 2 ? "table" : "none" }}
             >
               <thead>
                 <tr>
@@ -164,7 +247,7 @@ const MyPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {fanmeetings.map((fanmeeting, idx) => (
+                {closedFanMeetings.map((fanmeeting, idx) => (
                   <tr key={idx}>
                     <td>all</td>
                     <td>{fanmeeting.title}</td>
@@ -172,7 +255,6 @@ const MyPage = () => {
                     <td>{parseISODate(fanmeeting.startTime).date}</td>
                     <td>{parseISODate(fanmeeting.startTime).time}</td>
                     <td>
-                      {/*<Link href={""}>추억보관함</Link>*/}
                       <Button onClick={() => joinMemoryRoom(fanmeeting)}>
                         추억보관함
                       </Button>
