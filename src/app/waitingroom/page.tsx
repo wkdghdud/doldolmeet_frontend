@@ -96,6 +96,10 @@ const WaitingRoom = () => {
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
 
+    eventSource.addEventListener("connect", (e) => {
+      console.log("🥹 SSE 연결되었습니다.");
+    });
+
     eventSource.addEventListener(
       "moveToFirstIdolWaitRoom",
       (e: MessageEvent) => {
