@@ -96,15 +96,29 @@ const AdminInitFanMeetingPage = () => {
     }
   };
 
-  const endFanMeeting = () => {
+  const startFanMeeting = () => {
+    backend_api()
+      .post(`/fanMeetings/${fanMeetingId}/start`)
+      .then((res) => {
+        console.log(res);
+      });
+  };
+
+  const deleteFanMeeting = async () => {
+    await backend_api()
+      .post(`/fanMeetings/${fanMeetingId}/roomDeleted`)
+      .then((res) => {
+        console.log(res);
+      });
+
     sessionIds.forEach((sessionId) => {
       closeOpenViduSession(sessionId);
     });
   };
 
-  const startFanMeeting = () => {
-    backend_api()
-      .post(`/fanMeetings/${fanMeetingId}/start`)
+  const endFanMeeting = async () => {
+    await backend_api()
+      .post(`/fanMeetings/${fanMeetingId}/close`)
       .then((res) => {
         console.log(res);
       });
@@ -118,6 +132,9 @@ const AdminInitFanMeetingPage = () => {
       </Button>
       <Button variant={"contained"} onClick={startFanMeeting}>
         팬미팅 시작하기
+      </Button>
+      <Button variant={"contained"} onClick={deleteFanMeeting}>
+        팬미팅 삭제하기
       </Button>
       <Button variant={"contained"} onClick={endFanMeeting}>
         팬미팅 종료하기

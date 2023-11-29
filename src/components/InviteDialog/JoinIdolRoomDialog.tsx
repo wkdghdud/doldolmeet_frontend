@@ -6,28 +6,36 @@ import { useEffect } from "react";
 
 interface Props {
   open: boolean;
+  idolImgUrl: string;
   handleClose: () => void;
   handleEnter: () => void;
 }
 
-const JoinIdolRoomDialog = ({ open, handleClose, handleEnter }: Props) => {
+const JoinIdolRoomDialog = ({
+  open,
+  idolImgUrl,
+  handleClose,
+  handleEnter,
+}: Props) => {
   // @ts-ignore
   const audio = new Audio("/mp3/iphone_bell.mp3");
 
   useEffect(() => {
-    audio.play();
+    if (open) {
+      audio.play();
+    }
 
     return () => {
       audio.pause();
       audio.currentTime = 0;
     };
-  }, []);
+  }, [open]);
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogContent sx={{ display: "flex", justifyContent: "center" }}>
         <img
-          src="/karina_call.png"
+          src={idolImgUrl}
           alt="invite"
           style={{ height: "600px", borderRadius: 20 }}
         />
