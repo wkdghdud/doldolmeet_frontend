@@ -129,19 +129,6 @@ const OneToOnePage = () => {
       });
   };
 
-  const stopRecording = () => {
-    backend_api()
-      .post(SPRING_URL + "/recording-java/api/recording/stop", {
-        recording: forceRecordingId,
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error("Stop recording WRONG:", error);
-      });
-  };
-
   const joinSession = async () => {
     try {
       // OpenVidu 객체 생성
@@ -255,7 +242,6 @@ const OneToOnePage = () => {
     setMyStream(undefined);
     setPartnerStream(undefined);
     setMyConnection(undefined);
-    stopRecording();
   };
 
   useEffect(() => {
@@ -324,7 +310,6 @@ const OneToOnePage = () => {
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
-              <button onClick={stopRecording}>Stop Recording</button>
             </Stack>
           </Grid>
           <Grid
