@@ -23,6 +23,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 
 const AdminInitFanMeetingPage = () => {
   /* Query Param으로 전달된 팬미팅 아이디 */
@@ -146,7 +147,12 @@ const AdminInitFanMeetingPage = () => {
       spacing={2}
     >
       <Grid item>
-        <h1>👩🏻‍💻 팬미팅 관리자 페이지</h1>
+        <Typography variant={"h2"}>👩🏻‍💻 팬미팅 관리자 페이지</Typography>
+      </Grid>
+      <Grid item>
+        <Typography variant={"h5"}>
+          팬미팅 아이디: {fanMeetingId} / 총 접속 개수: {sessionCnt}
+        </Typography>
       </Grid>
       <Grid item>
         <Stack direction={"row"} spacing={2}>
