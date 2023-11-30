@@ -35,15 +35,15 @@ const AdminInitFanMeetingPage = () => {
   const [sessionIds, setSessionIds] = useState<string[]>([]);
   const [sessionCnt, setSessionCnt] = useState<number>(0);
   const [sessions, setSessions] = useState<any[]>([]);
+
   const token = useJwtToken();
 
-  const { data } = useAllOpenViduSessions();
+  // const { data } = useAllOpenViduSessions();
 
-  useEffect(() => {
-    console.log("OpenVidu Sessions", data);
-    setSessionCnt(data?.numberOfElements);
-    setSessions(data?.content);
-  }, [data]);
+  // useEffect(() => {
+  //   setSessionCnt(data?.numberOfElements);
+  //   setSessions(data?.content);
+  // }, [data]);
 
   useEffect(() => {
     if (fanMeetingId) {
@@ -149,11 +149,11 @@ const AdminInitFanMeetingPage = () => {
       <Grid item>
         <Typography variant={"h2"}>👩🏻‍💻 팬미팅 관리자 페이지</Typography>
       </Grid>
-      <Grid item>
-        <Typography variant={"h5"}>
-          팬미팅 아이디: {fanMeetingId} / 총 접속 개수: {sessionCnt}
-        </Typography>
-      </Grid>
+      {/*<Grid item>*/}
+      {/*  <Typography variant={"h5"}>*/}
+      {/*    팬미팅 아이디: {fanMeetingId} / 총 접속 개수: {sessionCnt}*/}
+      {/*  </Typography>*/}
+      {/*</Grid>*/}
       <Grid item>
         <Stack direction={"row"} spacing={2}>
           <Button variant={"contained"} onClick={joinMultipleSession}>
@@ -170,45 +170,45 @@ const AdminInitFanMeetingPage = () => {
           </Button>
         </Stack>
       </Grid>
-      <Grid item>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>세션 아이디</TableCell>
-                <TableCell align="right">접속 개수</TableCell>
-                <TableCell align="right">접속 정보</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sessions &&
-                sessions.map((row) => (
-                  <TableRow
-                    key={row.name}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {row.id}
-                    </TableCell>
-                    <TableCell align="right">
-                      {row.connections.numberOfElements}
-                    </TableCell>
-                    <TableCell align="right">
-                      {row.connections.content
-                        .map((connection) => {
-                          const clientData = JSON.parse(
-                            connection.clientData,
-                          ).clientData;
-                          return JSON.parse(clientData).userName;
-                        })
-                        .join(", ")}
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Grid>
+      {/*<Grid item>*/}
+      {/*  <TableContainer component={Paper}>*/}
+      {/*    <Table sx={{ minWidth: 650 }} aria-label="simple table">*/}
+      {/*      <TableHead>*/}
+      {/*        <TableRow>*/}
+      {/*          <TableCell>세션 아이디</TableCell>*/}
+      {/*          <TableCell align="right">접속 개수</TableCell>*/}
+      {/*          <TableCell align="right">접속 정보</TableCell>*/}
+      {/*        </TableRow>*/}
+      {/*      </TableHead>*/}
+      {/*      <TableBody>*/}
+      {/*        {sessions &&*/}
+      {/*          sessions.map((row) => (*/}
+      {/*            <TableRow*/}
+      {/*              key={row.name}*/}
+      {/*              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}*/}
+      {/*            >*/}
+      {/*              <TableCell component="th" scope="row">*/}
+      {/*                {row.id}*/}
+      {/*              </TableCell>*/}
+      {/*              <TableCell align="right">*/}
+      {/*                {row.connections.numberOfElements}*/}
+      {/*              </TableCell>*/}
+      {/*              <TableCell align="right">*/}
+      {/*                {row.connections.content*/}
+      {/*                  .map((connection) => {*/}
+      {/*                    const clientData = JSON.parse(*/}
+      {/*                      connection.clientData,*/}
+      {/*                    ).clientData;*/}
+      {/*                    return JSON.parse(clientData).userName;*/}
+      {/*                  })*/}
+      {/*                  .join(", ")}*/}
+      {/*              </TableCell>*/}
+      {/*            </TableRow>*/}
+      {/*          ))}*/}
+      {/*      </TableBody>*/}
+      {/*    </Table>*/}
+      {/*  </TableContainer>*/}
+      {/*</Grid>*/}
     </Grid>
   );
 };
