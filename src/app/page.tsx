@@ -93,6 +93,8 @@ export default function Home() {
                   color: "white",
                   fontWeight: 800,
                   position: "absolute",
+                  textAlign: "center",
+                  width: "100%",
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
