@@ -83,6 +83,7 @@ const OneToOnePage = () => {
   const token: Promise<JwtToken | null> = useJwtToken();
   const [role, setRole] = useState<Role | undefined>();
   const [userName, setUserName] = useState<string>("");
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -95,6 +96,10 @@ const OneToOnePage = () => {
       if (role === Role.FAN) {
         await fetchSSE();
         const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
+        console.log(
+          "🤔 useFanMeeting에서의 chatRoomId: ",
+          fanToFanMeeting?.chatRoomId,
+        );
         setChatRoomId(fanToFanMeeting?.chatRoomId);
       }
       await joinSession();
@@ -162,6 +167,9 @@ const OneToOnePage = () => {
         setMyConnection(connection);
       }
       const { token } = connection;
+
+      console.log("🤔 connection 할 때의 chatRoomId: ", chatRoomId);
+
       await mySession
         .connect(token, {
           clientData: JSON.stringify({
