@@ -35,6 +35,7 @@ const OneToOnePage = () => {
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("fanMeetingId");
   const sessionId = searchParams?.get("sessionId");
+  const idolName = searchParams?.get("idolName");
 
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();
@@ -73,23 +74,16 @@ const OneToOnePage = () => {
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
   const [nextRoomId, setNextRoomId] = useState<string>("");
 
-  useEffect(() => {
-    async function findFanToFanMeeting() {
-      const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
-      setChatRoomId(fanToFanMeeting?.chatRoomId);
-    }
-
-    findFanToFanMeeting();
-  }, []);
-
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
   const [role, setRole] = useState<Role | undefined>();
   const [userName, setUserName] = useState<string>("");
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
       setUserName(res?.sub ?? "");
+      setMyNickName(res?.nickname ?? "");
     });
   }, [token]);
 
@@ -97,8 +91,12 @@ const OneToOnePage = () => {
     async function init() {
       if (role === Role.FAN) {
         await fetchSSE();
+        const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
+        setChatRoomId(fanToFanMeeting?.chatRoomId);
+        await joinSession(fanToFanMeeting?.chatRoomId);
+      } else {
+        await joinSession();
       }
-      await joinSession();
     }
 
     if (role && userName !== "") {
@@ -116,8 +114,15 @@ const OneToOnePage = () => {
           fanMeetingId: fanMeetingId,
           fan: userName,
           idol: partnerNickName,
-
-          // name: "room-" + mySessionId + "_memberId-" + myUserName,
+          name:
+            "fanmeetingId_" +
+            fanMeetingId +
+            "_room_" +
+            sessionId +
+            "_fan_" +
+            myNickName +
+            "_idol_" +
+            idolName,
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
@@ -132,7 +137,7 @@ const OneToOnePage = () => {
       });
   };
 
-  const joinSession = async () => {
+  const joinSession = async (_chatRoomId?: string) => {
     try {
       // OpenVidu 객체 생성
       const ov = new OpenVidu();
@@ -143,6 +148,15 @@ const OneToOnePage = () => {
       mySession.on("streamCreated", (event) => {
         const subscriber = mySession.subscribe(event.stream, undefined);
         setPartnerStream(subscriber);
+        if (role === Role.IDOL) {
+          const clientData = JSON.parse(
+            event.stream.connection.data,
+          ).clientData;
+          const chatRoomId = JSON.parse(clientData).chatRoomId;
+          const partnerNickName = JSON.parse(clientData).nickname;
+          setChatRoomId(chatRoomId);
+          setPartnerNickName(partnerNickName);
+        }
       });
 
       mySession.on("streamDestroyed", (event) => {
@@ -156,6 +170,7 @@ const OneToOnePage = () => {
         setMyConnection(connection);
       }
       const { token } = connection;
+
       await mySession
         .connect(token, {
           clientData: JSON.stringify({
@@ -163,6 +178,8 @@ const OneToOnePage = () => {
             fanMeetingId: fanMeetingId,
             userName: userName,
             type: "idolRoom",
+            chatRoomId: _chatRoomId,
+            nickname: myNickName,
           }),
         })
         .then(() => {
@@ -205,7 +222,7 @@ const OneToOnePage = () => {
     );
 
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
-      console.log("🥹 moveToWaitRoom: ", JSON.parse(e.data));
+      console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
       joinNextRoom(JSON.parse(e.data).nextRoomId);
     });
@@ -380,12 +397,12 @@ const OneToOnePage = () => {
             <Grid item xs={6}>
               {role === Role.IDOL ? (
                 <MyStreamView
-                  name={`😎 ${myNickName ?? "아이돌"}`}
+                  name={`😎 ${idolName ?? "아이돌"}`}
                   stream={myStream}
                 />
               ) : (
                 <PartnerStreamView
-                  name={`😎 ${partnerNickName ?? "아이돌"}`}
+                  name={`😎 ${idolName ?? "아이돌"}`}
                   stream={partnerStream}
                   partnerRole={Role.IDOL}
                 />

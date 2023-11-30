@@ -7,6 +7,7 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 const Capture = () => {
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("id");
+  const audio = new Audio("/mp3/camera9.mp3");
 
   const onCapture = () => {
     const targetElement = document.getElementById("video-container");
@@ -14,6 +15,7 @@ const Capture = () => {
       html2canvas(targetElement)
         .then((canvas) => {
           // onSavaAs(canvas.toDataURL("image/png"), "image-download.png");
+          audio.play(); // 찰칵 소리
           const imageDataUrl = canvas.toDataURL("image/png");
           uploadImage(imageDataUrl);
         })

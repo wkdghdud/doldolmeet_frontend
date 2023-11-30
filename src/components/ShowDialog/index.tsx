@@ -146,17 +146,17 @@ export default function ShowDialog() {
             팬미팅을 시작하시겠습니까?
           </DialogContentText>
           <DialogActions style={{ justifyContent: "space-between" }}>
-            <GradientButton sx={{ width: "100%", height: 40 }}>
-              <Link
-                href={`/idol-fanmeeting?id=${todayMeeting?.data?.id}`}
-                style={{
-                  textDecoration: "none",
-                  color: "inherit",
-                }}
-              >
+            <Link
+              href={`/idol-fanmeeting?id=${todayMeeting?.data?.id}`}
+              style={{
+                textDecoration: "none",
+                color: "inherit",
+              }}
+            >
+              <GradientButton sx={{ width: "100%", height: 40 }}>
                 이동하기
-              </Link>
-            </GradientButton>
+              </GradientButton>
+            </Link>
           </DialogActions>
         </>
       )}
