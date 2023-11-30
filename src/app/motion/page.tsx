@@ -46,7 +46,11 @@ const TeachableMachinePose = () => {
 
     const size = 200;
     const flip = true;
-    const webcam = new tmPose.Webcam(size, size, flip);
+    const webcam = new tmPose.Webcam(
+      size,
+      size,
+      flip,
+    ); /* todo: 우리 웹캠으로 바꿔야됨 */
 
     await webcam.setup();
     await webcam.play();
@@ -61,6 +65,7 @@ const TeachableMachinePose = () => {
       labelContainerRef.current.appendChild(document.createElement("div"));
     }
 
+    console.log("포즈 모델 로드 완료!🤡🤡🤡🤡🤡");
     window.requestAnimationFrame(loop);
   };
 
@@ -75,17 +80,43 @@ const TeachableMachinePose = () => {
 
   const predict = async () => {
     const webcam = webcamRef.current;
+    console.log("Predict function started...");
+
     if (model && webcam) {
-      const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
-      const prediction = await model.predict(posenetOutput);
+      console.log("Model and webcam are available!");
 
-      for (let i = 0; i < maxPredictions; i++) {
-        const classPrediction =
-          prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-        labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
+      try {
+        const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+        console.log("Pose estimation successful!");
+
+        const prediction = await model.predict(posenetOutput);
+        let detected = false;
+
+        for (let i = 0; i < maxPredictions; i++) {
+          const classPrediction =
+            prediction[i].className +
+            ": " +
+            prediction[i].probability.toFixed(2);
+          labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
+
+          // O 모양이 80% 이상일 때 콘솔 이벤트 발생
+          if (
+            prediction[i].className == "Class 1" &&
+            prediction[i].probability > 0.8
+          ) {
+            detected = true;
+          }
+        }
+        if (detected) {
+          console.log("O 모양이 감지되었습니다!");
+          // 추가적인 로직을 여기에 추가할 수 있습니다.
+        }
+        drawPose(pose);
+      } catch (error) {
+        console.error("Prediction error:", error);
       }
-
-      drawPose(pose);
+    } else {
+      console.log("Model or webcam is not available!");
     }
   };
 
