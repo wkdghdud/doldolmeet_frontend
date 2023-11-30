@@ -15,7 +15,6 @@ import {
   updateFanMeetingRoomCreated,
 } from "@/hooks/fanmeeting";
 import { backend_api } from "@/utils/api";
-import { useAllOpenViduSessions } from "@/hooks/openvidu";
 
 import Typography from "@mui/material/Typography";
 import OpenViduSessionInfo from "@/components/openvidu/OpenViduSessionInfo";
@@ -124,11 +123,11 @@ const AdminInitFanMeetingPage = () => {
       });
   };
 
-  const initFanMeeting = () => {
-    deleteFanMeeting();
-    endFanMeeting();
-    joinMultipleSession();
-    startFanMeeting();
+  const initFanMeeting = async () => {
+    await deleteFanMeeting();
+    await endFanMeeting();
+    await joinMultipleSession();
+    await startFanMeeting();
   };
 
   return (
