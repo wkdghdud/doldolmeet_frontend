@@ -111,8 +111,15 @@ const OneToOnePage = () => {
           fanMeetingId: fanMeetingId,
           fan: userName,
           idol: partnerNickName,
-
-          // name: "room-" + mySessionId + "_memberId-" + myUserName,
+          name:
+            "fanmeetingId_" +
+            fanMeetingId +
+            "_room_" +
+            sessionId +
+            "_fan_" +
+            myNickName +
+            "_idol_" +
+            idolName,
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
