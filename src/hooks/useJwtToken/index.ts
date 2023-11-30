@@ -8,6 +8,7 @@ export interface JwtToken {
   exp: number;
   iat: number;
   sub: string;
+  nickname: string;
 }
 
 // TODO: 여기 안에서 token을 state로 가지고, useEffect로 변화를 관리하도록 수정 필요
