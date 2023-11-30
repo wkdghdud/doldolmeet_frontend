@@ -124,6 +124,13 @@ const AdminInitFanMeetingPage = () => {
       });
   };
 
+  const initFanMeeting = () => {
+    deleteFanMeeting();
+    endFanMeeting();
+    joinMultipleSession();
+    startFanMeeting();
+  };
+
   return (
     <Grid
       container
@@ -151,6 +158,9 @@ const AdminInitFanMeetingPage = () => {
           </Button>
           <Button variant={"contained"} onClick={endFanMeeting}>
             팬미팅 종료하기
+          </Button>
+          <Button variant={"contained"} onClick={initFanMeeting}>
+            팬미팅 초기화하기
           </Button>
         </Stack>
       </Grid>
