@@ -70,14 +70,14 @@ const OneToOnePage = () => {
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
   const [nextRoomId, setNextRoomId] = useState<string>("");
 
-  useEffect(() => {
-    async function findFanToFanMeeting() {
-      const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
-      setChatRoomId(fanToFanMeeting?.chatRoomId);
-    }
-
-    findFanToFanMeeting();
-  }, []);
+  // useEffect(() => {
+  //   async function findFanToFanMeeting() {
+  //     const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
+  //     setChatRoomId(fanToFanMeeting?.chatRoomId);
+  //   }
+  //
+  //   findFanToFanMeeting();
+  // }, []);
 
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
@@ -94,6 +94,8 @@ const OneToOnePage = () => {
     async function init() {
       if (role === Role.FAN) {
         await fetchSSE();
+        const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
+        setChatRoomId(fanToFanMeeting?.chatRoomId);
       }
       await joinSession();
     }
@@ -141,8 +143,13 @@ const OneToOnePage = () => {
         const subscriber = mySession.subscribe(event.stream, undefined);
         setPartnerStream(subscriber);
         if (role === Role.IDOL) {
-          console.log("🥹 chatRoomId: ", event);
-          setChatRoomId(event.stream.connection.clientData.chatRoomId);
+          console.log(
+            "🥹 chatRoomId: ",
+            JSON.parse(event.stream.connection.data).clientData.chatRoomId,
+          );
+          setChatRoomId(
+            JSON.parse(event.stream.connection.data).clientData.chatRoomId,
+          );
         }
       });
 
