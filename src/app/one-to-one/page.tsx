@@ -96,13 +96,11 @@ const OneToOnePage = () => {
       if (role === Role.FAN) {
         await fetchSSE();
         const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
-        console.log(
-          "🤔 useFanMeeting에서의 chatRoomId: ",
-          fanToFanMeeting?.chatRoomId,
-        );
         setChatRoomId(fanToFanMeeting?.chatRoomId);
+        await joinSession(fanToFanMeeting?.chatRoomId);
+      } else {
+        await joinSession();
       }
-      await joinSession();
     }
 
     if (role && userName !== "") {
@@ -136,7 +134,7 @@ const OneToOnePage = () => {
       });
   };
 
-  const joinSession = async () => {
+  const joinSession = async (_chatRoomId?: string) => {
     try {
       // OpenVidu 객체 생성
       const ov = new OpenVidu();
@@ -177,7 +175,7 @@ const OneToOnePage = () => {
             fanMeetingId: fanMeetingId,
             userName: userName,
             type: "idolRoom",
-            chatRoomId: chatRoomId,
+            chatRoomId: _chatRoomId,
           }),
         })
         .then(() => {
