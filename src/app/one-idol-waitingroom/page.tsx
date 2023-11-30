@@ -182,6 +182,11 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
     }
   };
 
+  const handleClose = (event, reason) => {
+    if (reason && reason == "backdropClick") return;
+    setPopupOpen(false);
+  };
+
   return (
     <>
       <Stack spacing={2} justifyContent="center" alignItems="center">
@@ -193,7 +198,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
       <JoinIdolRoomDialog
         open={popupOpen}
         idolImgUrl={`${AWS_S3_URL}/${popupImage}`}
-        handleClose={() => setPopupOpen(false)}
+        handleClose={handleClose}
         handleEnter={joinNextRoom}
       />
     </>

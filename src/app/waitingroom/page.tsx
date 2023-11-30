@@ -153,6 +153,11 @@ const WaitingRoom = () => {
     setTabValue(newValue);
   };
 
+  const handleClose = (event, reason) => {
+    if (reason && reason == "backdropClick") return;
+    setPopupOpen(false);
+  };
+
   return (
     <>
       <Grid
@@ -223,7 +228,7 @@ const WaitingRoom = () => {
       </Grid>
       <StartFanMeetingDialog
         open={popupOpen}
-        handleClose={() => setPopupOpen(false)}
+        handleClose={handleClose}
         handleEnter={joinNextRoom}
       />
     </>

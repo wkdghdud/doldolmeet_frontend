@@ -7,7 +7,7 @@ import { useEffect } from "react";
 interface Props {
   open: boolean;
   idolImgUrl: string;
-  handleClose: () => void;
+  handleClose: (event, reason) => void;
   handleEnter: () => void;
 }
 

@@ -11,7 +11,7 @@ import Typography from "@mui/material/Typography";
 
 interface Props {
   open: boolean;
-  handleClose: () => void;
+  handleClose: (event, reason) => void;
   handleEnter: () => void;
 }
 
