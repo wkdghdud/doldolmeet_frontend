@@ -80,7 +80,7 @@ const OneToOnePage = () => {
     token.then((res) => {
       setRole(res?.auth);
       setUserName(res?.sub ?? "");
-      setMyNickName(res?.sub ?? "");
+      setMyNickName(res?.nickname ?? "");
     });
   }, [token]);
 
@@ -143,7 +143,9 @@ const OneToOnePage = () => {
             event.stream.connection.data,
           ).clientData;
           const chatRoomId = JSON.parse(clientData).chatRoomId;
+          const partnerNickName = JSON.parse(clientData).nickname;
           setChatRoomId(chatRoomId);
+          setPartnerNickName(partnerNickName);
         }
       });
 
@@ -165,6 +167,7 @@ const OneToOnePage = () => {
             userName: userName,
             type: "idolRoom",
             chatRoomId: _chatRoomId,
+            nickname: myNickName,
           }),
         })
         .then(() => {
@@ -329,7 +332,7 @@ const OneToOnePage = () => {
             <Grid item xs={6}>
               {role === Role.IDOL ? (
                 <MyStreamView
-                  name={`😎 ${myNickName ?? "아이돌"}`}
+                  name={`😎 ${idolName ?? "아이돌"}`}
                   stream={myStream}
                 />
               ) : (
