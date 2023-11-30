@@ -140,6 +140,10 @@ const OneToOnePage = () => {
       mySession.on("streamCreated", (event) => {
         const subscriber = mySession.subscribe(event.stream, undefined);
         setPartnerStream(subscriber);
+        if (role === Role.IDOL) {
+          console.log("🥹 chatRoomId: ", event);
+          setChatRoomId(event.stream.connection.clientData.chatRoomId);
+        }
       });
 
       mySession.on("streamDestroyed", (event) => {
@@ -158,6 +162,7 @@ const OneToOnePage = () => {
             fanMeetingId: fanMeetingId,
             userName: userName,
             type: "idolRoom",
+            chatRoomId: chatRoomId,
           }),
         })
         .then(() => {
