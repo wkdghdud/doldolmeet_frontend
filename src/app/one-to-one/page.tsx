@@ -146,9 +146,14 @@ const OneToOnePage = () => {
         const subscriber = mySession.subscribe(event.stream, undefined);
         setPartnerStream(subscriber);
         if (role === Role.IDOL) {
-          const clientData = JSON.parse(event.stream.connection.data);
-          console.log("🥹 chatRoomId: ", JSON.parse(clientData).chatRoomId);
-          setChatRoomId(JSON.parse(clientData).chatRoomId);
+          console.log("💜 event: ", event);
+          const clientData = JSON.parse(
+            event.stream.connection.data,
+          ).clientData;
+          console.log("💜 clientData: ", clientData);
+          const chatRoomId = JSON.parse(clientData).chatRoomId;
+          console.log("💜 chatRoomId: ", chatRoomId);
+          setChatRoomId(chatRoomId);
         }
       });
 
