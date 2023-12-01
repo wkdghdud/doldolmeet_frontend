@@ -4,10 +4,11 @@ import * as tmPose from "@teachablemachine/pose";
 import { Role } from "@/types";
 
 interface Props {
-  handleDetected: () => void;
+  handleDetected: (role: Role) => void;
+  role: Role;
 }
 
-const MotionDetector = ({ handleDetected }: Props) => {
+const MotionDetector = ({ handleDetected, role }: Props) => {
   const webcamRef = useRef(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const labelContainerRef = useRef<HTMLDivElement>(null);
@@ -126,7 +127,7 @@ const MotionDetector = ({ handleDetected }: Props) => {
         if (detected) {
           console.log("포즈가 감지되었습니다!");
           if (!hasDetected) {
-            handleDetected();
+            handleDetected(role);
             hasDetected = true;
           }
         }

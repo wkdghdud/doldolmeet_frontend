@@ -367,13 +367,13 @@ const OneToOnePage = () => {
     });
   };
 
-  const handleDetected = () => {
+  const handleDetected = (role: Role) => {
     console.log("👋 handleDetected", role);
     if (role === Role.FAN) {
       // 아이돌도 포즈, 나도 포즈
-      onCapture();
       if (idolPose) {
         console.log("👋 아이돌이 포즈를 취했습니다.");
+        onCapture();
       } else {
         console.log("👋 아이돌이 포즈를 취하지 않았습니다.");
       }
@@ -478,7 +478,7 @@ const OneToOnePage = () => {
         open={alertBarOpen}
         handleClose={() => setAlertBarOpen(false)}
       />
-      <MotionDetector handleDetected={handleDetected} />
+      <MotionDetector handleDetected={handleDetected} role={role ?? Role.FAN} />
     </Grid>
   );
 };
