@@ -1,11 +1,10 @@
 "use client";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { backend_api } from "@/utils/api";
-import { Button, Grid, IconButton, Paper, Typography } from "@mui/material";
+import { Grid, IconButton, Paper, Typography } from "@mui/material";
 import { GetApp, Twitter } from "@mui/icons-material";
 import GradientButton from "@/components/GradientButton";
-import { useSearchParams } from "next/navigation";
 
 const EndFanMeetingPage = () => {
   const router = useRouter();
@@ -14,26 +13,27 @@ const EndFanMeetingPage = () => {
   const [captures, setCaptures] = useState([]);
   const [videos, setVideos] = useState([]); // Todo: captures를 videos로 변경해야됨
 
-  const videoRef = useRef(null);
+  const handleDownload = (videoUrl) => {
+    fetch(videoUrl)
+      .then((response) => response.blob()) // 비디오 데이터를 Blob 형식으로 받아옵니다.
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
 
-  const handleDownload = () => {
-    const video = videoRef.current;
-    console.log("vid🤡🤡🤡🤡🤡🤡eo", video);
-    if (video) {
-      const blob = new Blob([video.outerHTML], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = userName + "video.mp4"; // 다운로드할 파일명 설정
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "video.html";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      // Optionally revoke the Object URL to free up resources
-      URL.revokeObjectURL(url);
-    }
+        // Optionally revoke the Object URL to free up resources
+        URL.revokeObjectURL(url);
+      })
+      .catch((error) => {
+        console.error("Error downloading the video:", error);
+      });
   };
+
   // const searchParams = useSearchParams();
   const s3Addr = "https://s3.ap-northeast-2.amazonaws.com/doldolmeet.test/";
   // const idolName = searchParams?.get("idolName");
@@ -57,7 +57,6 @@ const EndFanMeetingPage = () => {
             // idol: "karina",
           })
           .then((res) => {
-            console.log("res.data", res.data);
             setVideos(res.data);
           })
           .catch((error) => {
@@ -157,7 +156,7 @@ const EndFanMeetingPage = () => {
                     <video width="100%" controls>
                       <source src={video.url} type="video/mp4" />
                     </video>
-                    <IconButton onClick={handleDownload}>
+                    <IconButton onClick={() => handleDownload(video.url)}>
                       <GetApp />
                     </IconButton>
                     <IconButton onClick={() => shareTwitter(video.url)}>
