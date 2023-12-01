@@ -4,18 +4,44 @@ import { backend_api } from "@/utils/api";
 import { Button, Grid, IconButton, Paper, Typography } from "@mui/material";
 import { GetApp, Twitter } from "@mui/icons-material";
 import GradientButton from "@/components/GradientButton";
+import { useSearchParams } from "next/navigation";
 
 const EndFanMeetingPage = () => {
   const router = useRouter();
   const { userName, fanMeetingId } = router.query;
   const [user, setUser] = useState(null);
   const [captures, setCaptures] = useState([]);
+  const [videos, setVideos] = useState([]); // Todo: captures를 videos로 변경해야됨
 
+  const searchParams = useSearchParams();
   const s3Addr = "https://s3.ap-northeast-2.amazonaws.com/doldolmeet.test/";
+  const idolName = searchParams?.get("idolName");
 
   const joinMemoryRoom = async () => {
     await router.push(`/my-page/${userName}/${fanMeetingId}`);
   };
+
+  useEffect(() => {
+    if (fanMeetingId && fanMeetingId !== "undefined") {
+      backend_api()
+        .post(`recording-java/api/recordings/get`, {
+          fanMeetingId: fanMeetingId,
+          fan: userName,
+          // idol: "karina",
+        })
+        .then((res) => {
+          console.log("res.data", res.data);
+          setVideos(res.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching videos:", error);
+        });
+    }
+  }, [fanMeetingId]);
+
+  useEffect(() => {
+    console.log("videos", videos);
+  }, [videos]);
 
   useEffect(() => {
     // fanMeetingId가 유효한 경우에만 API 호출 수행
@@ -30,6 +56,7 @@ const EndFanMeetingPage = () => {
         });
     }
   }, [fanMeetingId]);
+
   const imgDownLoad = (imgUrl) => {
     const fileName = imgUrl;
 
@@ -90,8 +117,8 @@ const EndFanMeetingPage = () => {
           녹화된 영상
         </Typography>
         <Grid container spacing={1}>
-          {captures.length > 0 /* Todo: captures를 videos로 변경해야됨 */ ? (
-            captures.map((cap, i) => (
+          {videos.length > 0 /* Todo: captures를 videos로 변경해야됨 */ ? (
+            videos.map((cap, i) => (
               <Grid item xs={6} sm={6} key={i}>
                 <Paper elevation={3} style={{ padding: "10px" }}>
                   <div>
@@ -116,6 +143,7 @@ const EndFanMeetingPage = () => {
             ))
           ) : (
             <Typography variant="body1">
+              <div>asdfasdfasdf</div>
               No captures found for this fanMeetingId.
             </Typography>
           )}
