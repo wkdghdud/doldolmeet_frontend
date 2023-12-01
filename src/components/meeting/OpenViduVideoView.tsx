@@ -6,9 +6,10 @@ import { Typography } from "@mui/material";
 interface Props {
   name: string | undefined;
   streamManager: StreamManager | Publisher | Subscriber;
+  mirror?: boolean;
 }
 
-const OpenViduVideoView = ({ name, streamManager }: Props) => {
+const OpenViduVideoView = ({ name, streamManager, mirror }: Props) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -41,16 +42,30 @@ const OpenViduVideoView = ({ name, streamManager }: Props) => {
           {name}
         </Typography>
       )}
-      <video
-        autoPlay={true}
-        ref={videoRef}
-        style={{
-          borderRadius: 20,
-          maxWidth: "95%",
-          height: "70vh",
-          objectFit: "cover",
-        }}
-      />
+      {mirror ? (
+        <video
+          autoPlay={true}
+          ref={videoRef}
+          style={{
+            borderRadius: 20,
+            maxWidth: "95%",
+            height: "70vh",
+            objectFit: "cover",
+            transform: "rotateY(180deg)",
+          }}
+        />
+      ) : (
+        <video
+          autoPlay={true}
+          ref={videoRef}
+          style={{
+            borderRadius: 20,
+            maxWidth: "95%",
+            height: "70vh",
+            objectFit: "cover",
+          }}
+        />
+      )}
     </div>
   );
 };

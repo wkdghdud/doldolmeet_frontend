@@ -13,7 +13,7 @@ const MyStreamView = ({ name, stream }: Props) => {
       {stream === undefined ? (
         <LocalCameraView name={name} />
       ) : (
-        <OpenViduVideoView name={name} streamManager={stream} />
+        <OpenViduVideoView name={name} streamManager={stream} mirror={false} />
       )}
     </>
   );

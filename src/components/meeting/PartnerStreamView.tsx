@@ -16,7 +16,7 @@ const PartnerStreamView = ({ name, stream, partnerRole }: Props) => {
       {stream === undefined ? (
         <WaitingImage waitingFor={partnerRole} name={name} />
       ) : (
-        <OpenViduVideoView name={name} streamManager={stream} />
+        <OpenViduVideoView name={name} streamManager={stream} mirror={true} />
       )}
     </>
   );
