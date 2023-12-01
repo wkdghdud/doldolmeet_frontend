@@ -368,10 +368,12 @@ const OneToOnePage = () => {
   };
 
   const handleDetected = () => {
+    console.log("👋 handleDetected", role);
     if (role === Role.FAN) {
       // 아이돌도 포즈, 나도 포즈
+      onCapture();
       if (idolPose) {
-        onCapture();
+        console.log("👋 아이돌이 포즈를 취했습니다.");
       } else {
         console.log("👋 아이돌이 포즈를 취하지 않았습니다.");
       }
