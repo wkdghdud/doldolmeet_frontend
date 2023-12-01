@@ -114,8 +114,6 @@ const OneToOnePage = () => {
           name:
             "fanmeetingId" +
             fanMeetingId +
-            "room" +
-            sessionId +
             "fan" +
             myNickName +
             "idol" +
