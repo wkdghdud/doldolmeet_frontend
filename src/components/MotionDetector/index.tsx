@@ -4,8 +4,8 @@ import * as tmPose from "@teachablemachine/pose";
 import { Role } from "@/types";
 
 interface Props {
-  handleDetected: (role: Role, idolPose: boolean) => void;
-  role: Role;
+  handleDetected: (role: Role | undefined, idolPose: boolean) => void;
+  role: Role | undefined;
   idolPose: boolean;
 }
 
