@@ -1,5 +1,6 @@
+"use client";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { backend_api } from "@/utils/api";
 import { Button, Grid, IconButton, Paper, Typography } from "@mui/material";
 import { GetApp, Twitter } from "@mui/icons-material";
@@ -13,49 +14,80 @@ const EndFanMeetingPage = () => {
   const [captures, setCaptures] = useState([]);
   const [videos, setVideos] = useState([]); // Todo: captures를 videos로 변경해야됨
 
-  const searchParams = useSearchParams();
+  const videoRef = useRef(null);
+
+  const handleDownload = () => {
+    const video = videoRef.current;
+    console.log("vid🤡🤡🤡🤡🤡🤡eo", video);
+    if (video) {
+      const blob = new Blob([video.outerHTML], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "video.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // Optionally revoke the Object URL to free up resources
+      URL.revokeObjectURL(url);
+    }
+  };
+  // const searchParams = useSearchParams();
   const s3Addr = "https://s3.ap-northeast-2.amazonaws.com/doldolmeet.test/";
-  const idolName = searchParams?.get("idolName");
+  // const idolName = searchParams?.get("idolName");
 
   const joinMemoryRoom = async () => {
     await router.push(`/my-page/${userName}/${fanMeetingId}`);
   };
 
   useEffect(() => {
-    if (fanMeetingId && fanMeetingId !== "undefined") {
-      backend_api()
-        .post(`recording-java/api/recordings/get`, {
-          fanMeetingId: fanMeetingId,
-          fan: userName,
-          // idol: "karina",
-        })
-        .then((res) => {
-          console.log("res.data", res.data);
-          setVideos(res.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching videos:", error);
-        });
+    async function init() {
+      if (
+        userName &&
+        userName !== undefined &&
+        fanMeetingId &&
+        fanMeetingId !== "undefined"
+      ) {
+        await backend_api()
+          .post(`recording-java/api/recordings/get`, {
+            fanMeetingId: fanMeetingId,
+            fan: userName,
+            // idol: "karina",
+          })
+          .then((res) => {
+            console.log("res.data", res.data);
+            setVideos(res.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching videos:", error);
+          });
+      }
+
+      // fanMeetingId가 유효한 경우에만 API 호출 수행
+      if (fanMeetingId && fanMeetingId !== "undefined") {
+        await backend_api()
+          .get(`/captures/${fanMeetingId}`)
+          .then((res) => {
+            setCaptures(res.data.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching captures:", error);
+          });
+      }
     }
+
+    init();
   }, [fanMeetingId]);
 
-  useEffect(() => {
-    console.log("videos", videos);
-  }, [videos]);
+  // useEffect(() => {
+  //   console.log("videos", videos);
+  // }, [videos]);
 
-  useEffect(() => {
-    // fanMeetingId가 유효한 경우에만 API 호출 수행
-    if (fanMeetingId && fanMeetingId !== "undefined") {
-      backend_api()
-        .get(`/captures/${fanMeetingId}`)
-        .then((res) => {
-          setCaptures(res.data.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching captures:", error);
-        });
-    }
-  }, [fanMeetingId]);
+  // useEffect(() => {
+  //
+  // }, [fanMeetingId]);
 
   const imgDownLoad = (imgUrl) => {
     const fileName = imgUrl;
@@ -117,24 +149,18 @@ const EndFanMeetingPage = () => {
           녹화된 영상
         </Typography>
         <Grid container spacing={1}>
-          {videos.length > 0 /* Todo: captures를 videos로 변경해야됨 */ ? (
-            videos.map((cap, i) => (
+          {Object.values(videos).length > 0 ? (
+            Object.values(videos).map((video, i) => (
               <Grid item xs={6} sm={6} key={i}>
                 <Paper elevation={3} style={{ padding: "10px" }}>
                   <div>
                     <video width="100%" controls>
-                      <source
-                        src="https://youngeui-in-jungle.store/openvidu/recordings/b563a3d2-2300-412a-b7ca-b06b0df972ea/b563a3d2-2300-412a-b7ca-b06b0df972ea.mp4"
-                        // src={`https://youngeui-in-jungle.store/openvidu/recordings/${cap.videoId}/${cap.videoId}.mp4`}
-                        type="video/mp4"
-                      />
+                      <source src={video.url} type="video/mp4" />
                     </video>
-                    <IconButton onClick={() => imgDownLoad(cap.captureUrl)}>
+                    <IconButton onClick={handleDownload}>
                       <GetApp />
                     </IconButton>
-                    <IconButton
-                      onClick={() => shareTwitter(s3Addr + cap.captureUrl)}
-                    >
+                    <IconButton onClick={() => shareTwitter(video.url)}>
                       <Twitter />
                     </IconButton>
                   </div>
@@ -143,7 +169,6 @@ const EndFanMeetingPage = () => {
             ))
           ) : (
             <Typography variant="body1">
-              <div>asdfasdfasdf</div>
               No captures found for this fanMeetingId.
             </Typography>
           )}
