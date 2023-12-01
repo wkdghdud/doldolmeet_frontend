@@ -1,6 +1,13 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as tmPose from "@teachablemachine/pose";
+import OpenViduVideoView from "@/components/meeting/OpenViduVideoView";
+import { OpenVidu, StreamManager } from "openvidu-browser";
+import {
+  createOpenViduConnection,
+  createOpenViduSession,
+} from "@/utils/openvidu";
+import { Role } from "@/types";
 
 const TeachableMachinePose = () => {
   const webcamRef = useRef(null);
@@ -8,7 +15,81 @@ const TeachableMachinePose = () => {
   const labelContainerRef = useRef(null);
   let model, maxPredictions;
 
+  const [myStream, setMyStream] = useState<StreamManager | undefined>(
+    undefined,
+  );
+
+  const joinSession = async () => {
+    try {
+      // OpenVidu 객체 생성
+      const ov = new OpenVidu();
+      // setOV(ov);
+
+      const mySession = ov.initSession();
+
+      mySession.on("streamCreated", (event) => {
+        const subscriber = mySession.subscribe(event.stream, undefined);
+        // setPartnerStream(subscriber);
+      });
+
+      mySession.on("streamDestroyed", (event) => {
+        // setPartnerStream(undefined);
+      });
+
+      await createOpenViduSession("doldolmeet");
+
+      const connection = await createOpenViduConnection("doldolmeet");
+      if (connection) {
+        // setMyConnection(connection);
+      }
+      const { token } = connection;
+      await mySession
+        .connect(token, {
+          // clientData: JSON.stringify({
+          //   role: role,
+          //   fanMeetingId: fanMeetingId,
+          //   userName: userName,
+          //   type: "idolRoom",
+          // }
+          // ),
+        })
+        .then(() => {
+          // if (role === Role.FAN) {
+          //   startRecording();
+          // }
+        });
+
+      await ov.getUserMedia({
+        audioSource: undefined,
+        videoSource: undefined,
+      });
+
+      const devices = await ov.getDevices();
+      const videoDevices = devices.filter(
+        (device) => device.kind === "videoinput",
+      );
+
+      const newPublisher = await ov.initPublisherAsync(undefined, {
+        audioSource: undefined,
+        videoSource: videoDevices[0].deviceId,
+        publishAudio: true,
+        publishVideo: true,
+        resolution: "640x480",
+        frameRate: 30,
+        insertMode: "APPEND",
+      });
+      mySession.publish(newPublisher);
+      // setSession(mySession);
+      setMyStream(newPublisher);
+    } catch (error) {
+      console.error("Error in enterFanmeeting:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
+    joinSession();
+
     const loadScripts = async () => {
       const tfScript = document.createElement("script");
       tfScript.src =
@@ -46,7 +127,11 @@ const TeachableMachinePose = () => {
 
     const size = 200;
     const flip = true;
-    const webcam = new tmPose.Webcam(size, size, flip);
+    const webcam = new tmPose.Webcam(
+      size,
+      size,
+      flip,
+    ); /* todo: 우리 웹캠으로 바꿔야됨 */
 
     await webcam.setup();
     await webcam.play();
@@ -61,6 +146,7 @@ const TeachableMachinePose = () => {
       labelContainerRef.current.appendChild(document.createElement("div"));
     }
 
+    console.log("포즈 모델 로드 완료!🤡🤡🤡🤡🤡");
     window.requestAnimationFrame(loop);
   };
 
@@ -75,17 +161,44 @@ const TeachableMachinePose = () => {
 
   const predict = async () => {
     const webcam = webcamRef.current;
+    console.log("Predict function started...");
+
     if (model && webcam) {
-      const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
-      const prediction = await model.predict(posenetOutput);
+      console.log("Model and webcam are available!");
 
-      for (let i = 0; i < maxPredictions; i++) {
-        const classPrediction =
-          prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-        labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
+      try {
+        const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+        console.log("Pose estimation successful!");
+
+        const prediction = await model.predict(posenetOutput);
+        let detected = false;
+
+        for (let i = 0; i < maxPredictions; i++) {
+          const classPrediction =
+            prediction[i].className +
+            ": " +
+            prediction[i].probability.toFixed(2);
+          labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
+
+          // O 모양이 80% 이상일 때 콘솔 이벤트 발생
+          if (
+            prediction[i].className == "Class 1" &&
+            prediction[i].probability > 0.8
+          ) {
+            detected = true;
+          }
+        }
+        if (detected) {
+          console.log("O 모양이 감지되었습니다!");
+          alert("O 모양이 감지되었습니다!");
+          // 추가적인 로직을 여기에 추가할 수 있습니다.
+        }
+        drawPose(pose);
+      } catch (error) {
+        console.error("Prediction error:", error);
       }
-
-      drawPose(pose);
+    } else {
+      console.log("Model or webcam is not available!");
     }
   };
 
@@ -112,10 +225,11 @@ const TeachableMachinePose = () => {
   return (
     <div>
       <div>Teachable Machine Pose Model</div>
+      {myStream && <OpenViduVideoView name={""} streamManager={myStream} />}
       <button type="button" onClick={handleStart}>
         Start
       </button>
-      <div>
+      <div hidden={true}>
         <canvas ref={canvasRef}></canvas>
       </div>
       <div ref={labelContainerRef}></div>

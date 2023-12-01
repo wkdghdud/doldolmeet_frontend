@@ -24,6 +24,9 @@ import PartnerStreamView from "@/components/meeting/PartnerStreamView";
 import ChatAndMemo from "@/components/ChatAndMemo";
 import EndAlertBar from "@/components/Timer";
 import { backend_api, SPRING_URL } from "@/utils/api";
+import MotionDetector from "@/components/MotionDetector";
+import TeachableMachinePose from "@/app/motion/page";
+import html2canvas from "html2canvas";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -158,6 +161,8 @@ const OneToOnePage = () => {
         setPartnerStream(undefined);
       });
 
+      await createOpenViduSession(sessionId);
+
       const connection = await createOpenViduConnection(sessionId);
       if (connection) {
         setMyConnection(connection);
@@ -287,6 +292,59 @@ const OneToOnePage = () => {
     }
   };
 
+  const onCapture = () => {
+    const targetElement = document.getElementById("video-container");
+    if (targetElement) {
+      html2canvas(targetElement)
+        .then((canvas) => {
+          // onSavaAs(canvas.toDataURL("image/png"), "image-download.png");
+          const imageDataUrl = canvas.toDataURL("image/png");
+          uploadImage(imageDataUrl);
+        })
+        .catch((error) => {
+          console.error("html2canvas error:", error);
+        });
+    } else {
+      console.error("Target element not found");
+    }
+  };
+
+  const uploadImage = (imageDataUrl) => {
+    const blobImage = dataURLtoBlob(imageDataUrl);
+    // Blob을 파일로 변환
+    const imageFile = new File([blobImage], "image.png", { type: "image/png" });
+
+    const formData = new FormData();
+    formData.append("file", imageFile);
+
+    if (fanMeetingId) {
+      backend_api()
+        .post(`/captures/upload/${fanMeetingId}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((response) => {
+          console.log("Image uploaded successfully:", response.data);
+        })
+        .catch((error) => {
+          console.error("Image upload failed:", error);
+        });
+    }
+  };
+
+  function dataURLtoBlob(dataURL) {
+    let arr = dataURL.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new Blob([u8arr], { type: mime });
+  }
+
   return (
     <Grid container spacing={2}>
       <Grid
@@ -383,6 +441,7 @@ const OneToOnePage = () => {
         open={alertBarOpen}
         handleClose={() => setAlertBarOpen(false)}
       />
+      <MotionDetector handleDetected={onCapture} />
     </Grid>
   );
 };
