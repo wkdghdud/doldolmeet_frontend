@@ -110,7 +110,7 @@ const OneToOnePage = () => {
           session: sessionId,
           fanMeetingId: fanMeetingId,
           fan: userName,
-          idol: partnerNickName,
+          idol: idolName,
           name:
             "fanmeetingId_" +
             fanMeetingId +
