@@ -30,6 +30,7 @@ import html2canvas from "html2canvas";
 
 const OneToOnePage = () => {
   const router = useRouter();
+  const audio = new Audio("/mp3/camera9.mp3");
 
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
@@ -298,6 +299,7 @@ const OneToOnePage = () => {
       html2canvas(targetElement)
         .then((canvas) => {
           // onSavaAs(canvas.toDataURL("image/png"), "image-download.png");
+          audio.play(); // 찰칵 소리
           const imageDataUrl = canvas.toDataURL("image/png");
           uploadImage(imageDataUrl);
         })
