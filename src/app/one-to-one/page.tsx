@@ -359,8 +359,8 @@ const OneToOnePage = () => {
   const signalPoseDetected = async () => {
     await openvidu_api.post(`/openvidu/api/signal`, {
       session: sessionId,
-      type: "pose_detected",
-      data: true,
+      type: "signal:pose_detected",
+      data: "true",
     });
   };
 
