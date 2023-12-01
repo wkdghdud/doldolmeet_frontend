@@ -468,7 +468,7 @@ const OneToOnePage = () => {
         open={alertBarOpen}
         handleClose={() => setAlertBarOpen(false)}
       />
-      <MotionDetector handleDetected={onCapture} />
+      <MotionDetector handleDetected={handleDetected} />
     </Grid>
   );
 };
