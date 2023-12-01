@@ -112,13 +112,13 @@ const OneToOnePage = () => {
           fan: userName,
           idol: idolName,
           name:
-            "fanmeetingId_" +
+            "fanmeetingId" +
             fanMeetingId +
-            "_room_" +
+            "room" +
             sessionId +
-            "_fan_" +
+            "fan" +
             myNickName +
-            "_idol_" +
+            "idol" +
             idolName,
           hasAudio: true,
           hasVideo: true,
