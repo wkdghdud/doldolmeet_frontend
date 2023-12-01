@@ -115,7 +115,7 @@ const OneToOnePage = () => {
             "fanmeetingId" +
             fanMeetingId +
             "fan" +
-            myNickName +
+            userName +
             "idol" +
             idolName,
           hasAudio: true,
