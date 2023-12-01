@@ -80,6 +80,7 @@ const OneToOnePage = () => {
 
   /* Camera 효과음 */
   const [shutter, setShutter] = useState<HTMLAudioElement>();
+  const audio = new Audio("/mp3/camera9.mp3");
 
   useEffect(() => {
     token.then((res) => {
@@ -101,7 +102,7 @@ const OneToOnePage = () => {
       }
 
       // 카메라 셔터 효과음
-      setShutter(new Audio("/mp3/camera9.mp3"));
+      // setShutter(new Audio("/mp3/camera9.mp3"));
     }
 
     if (role && userName !== "") {
@@ -301,7 +302,8 @@ const OneToOnePage = () => {
       html2canvas(targetElement)
         .then((canvas) => {
           // onSavaAs(canvas.toDataURL("image/png"), "image-download.png");
-          shutter?.play(); // 찰칵 소리
+          // shutter?.play(); // 찰칵 소리
+          audio.play();
           const imageDataUrl = canvas.toDataURL("image/png");
           uploadImage(imageDataUrl);
         })
