@@ -162,8 +162,6 @@ const OneToOnePage = () => {
         setPartnerStream(undefined);
       });
 
-      await createOpenViduSession(sessionId);
-
       const connection = await createOpenViduConnection(sessionId);
       if (connection) {
         setMyConnection(connection);
