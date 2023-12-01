@@ -80,6 +80,8 @@ const OneToOnePage = () => {
 
   /* Camera 효과음 */
   const [shutter, setShutter] = useState<HTMLAudioElement>();
+  const [idolPose, setIdolPose] = useState<boolean>(false);
+
   const audio = new Audio("/mp3/camera9.mp3");
 
   useEffect(() => {
@@ -169,6 +171,7 @@ const OneToOnePage = () => {
 
       mySession.on("signal:pose_detected", (event) => {
         console.log("👋 아이돌이 포즈를 취했어요.", event.data);
+        setIdolPose(true);
       });
 
       const connection = await createOpenViduConnection(sessionId);
@@ -366,7 +369,12 @@ const OneToOnePage = () => {
 
   const handleDetected = () => {
     if (role === Role.FAN) {
-      onCapture();
+      // 아이돌도 포즈, 나도 포즈
+      if (idolPose) {
+        onCapture();
+      } else {
+        console.log("👋 아이돌이 포즈를 취하지 않았습니다.");
+      }
     } else {
       signalPoseDetected();
     }
