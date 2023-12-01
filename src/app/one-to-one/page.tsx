@@ -273,7 +273,7 @@ const OneToOnePage = () => {
   const joinNextRoom = async (sessionId: string) => {
     await leaveWaitingRoom();
     if (sessionId === "END") {
-      router.push(`/end-fanmeeting/${userName}/${fanMeetingId}}`);
+      router.push(`/end-fanmeeting/${userName}/${fanMeetingId}`);
     } else {
       router.push(
         `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
