@@ -319,7 +319,7 @@ const OneToOnePage = () => {
 
     if (fanMeetingId) {
       backend_api()
-        .post(`/captures/upload/${fanMeetingId}`, formData, {
+        .post(`/captures/upload/${fanMeetingId}/${idolName}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((response) => {
