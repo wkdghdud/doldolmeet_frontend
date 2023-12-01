@@ -113,15 +113,13 @@ const OneToOnePage = () => {
           session: sessionId,
           fanMeetingId: fanMeetingId,
           fan: userName,
-          idol: partnerNickName,
+          idol: idolName,
           name:
-            "fanmeetingId_" +
+            "fanmeetingId" +
             fanMeetingId +
-            "_room_" +
-            sessionId +
-            "_fan_" +
-            myNickName +
-            "_idol_" +
+            "fan" +
+            userName +
+            "idol" +
             idolName,
           hasAudio: true,
           hasVideo: true,
