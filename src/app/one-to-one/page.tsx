@@ -208,7 +208,7 @@ const OneToOnePage = () => {
         resolution: "640x480",
         frameRate: 30,
         insertMode: "APPEND",
-        mirror: true,
+        mirror: false,
       });
       mySession.publish(newPublisher);
       setSession(mySession);
