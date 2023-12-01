@@ -25,12 +25,10 @@ import ChatAndMemo from "@/components/ChatAndMemo";
 import EndAlertBar from "@/components/Timer";
 import { backend_api, SPRING_URL } from "@/utils/api";
 import MotionDetector from "@/components/MotionDetector";
-import TeachableMachinePose from "@/app/motion/page";
 import html2canvas from "html2canvas";
 
 const OneToOnePage = () => {
   const router = useRouter();
-  const audio = new Audio("/mp3/camera9.mp3");
 
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
@@ -80,6 +78,9 @@ const OneToOnePage = () => {
   const [role, setRole] = useState<Role | undefined>();
   const [userName, setUserName] = useState<string>("");
 
+  /* Camera 효과음 */
+  const [shutter, setShutter] = useState<HTMLAudioElement>();
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -98,6 +99,9 @@ const OneToOnePage = () => {
       } else {
         await joinSession();
       }
+
+      // 카메라 셔터 효과음
+      setShutter(new Audio("/mp3/camera9.mp3"));
     }
 
     if (role && userName !== "") {
@@ -297,7 +301,7 @@ const OneToOnePage = () => {
       html2canvas(targetElement)
         .then((canvas) => {
           // onSavaAs(canvas.toDataURL("image/png"), "image-download.png");
-          audio.play(); // 찰칵 소리
+          shutter?.play(); // 찰칵 소리
           const imageDataUrl = canvas.toDataURL("image/png");
           uploadImage(imageDataUrl);
         })
