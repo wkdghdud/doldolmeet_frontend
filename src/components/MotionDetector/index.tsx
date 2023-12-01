@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import * as tmPose from "@teachablemachine/pose";
+import { Role } from "@/types";
 
 interface Props {
   handleDetected: () => void;

@@ -23,7 +23,7 @@ import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
 import ChatAndMemo from "@/components/ChatAndMemo";
 import EndAlertBar from "@/components/Timer";
-import { backend_api, SPRING_URL } from "@/utils/api";
+import { backend_api, openvidu_api, SPRING_URL } from "@/utils/api";
 import MotionDetector from "@/components/MotionDetector";
 import html2canvas from "html2canvas";
 
@@ -165,6 +165,10 @@ const OneToOnePage = () => {
 
       mySession.on("streamDestroyed", (event) => {
         setPartnerStream(undefined);
+      });
+
+      mySession.on("signal:pose_detected", (event) => {
+        console.log("👋 아이돌이 포즈를 취했어요.", event.data);
       });
 
       const connection = await createOpenViduConnection(sessionId);
@@ -351,6 +355,22 @@ const OneToOnePage = () => {
 
     return new Blob([u8arr], { type: mime });
   }
+
+  const signalPoseDetected = async () => {
+    await openvidu_api.post(`/openvidu/api/signal`, {
+      session: sessionId,
+      type: "pose_detected",
+      data: true,
+    });
+  };
+
+  const handleDetected = () => {
+    if (role === Role.FAN) {
+      onCapture();
+    } else {
+      signalPoseDetected();
+    }
+  };
 
   return (
     <Grid container spacing={2}>
