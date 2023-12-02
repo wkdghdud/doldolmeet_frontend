@@ -80,7 +80,7 @@ const OneToOnePage = () => {
 
   /* Camera 효과음 */
   const [shutter, setShutter] = useState<HTMLAudioElement>();
-  const [idolPose, setIdolPose] = useState<boolean>(false);
+  const [partnerPose, setPartnerPose] = useState<boolean>(false);
 
   const audio = new Audio("/mp3/camera9.mp3");
 
@@ -170,8 +170,8 @@ const OneToOnePage = () => {
       });
 
       mySession.on("signal:pose_detected", (event) => {
-        console.log("👋 아이돌이 포즈를 취했어요.", event.data);
-        setIdolPose(true);
+        console.log("👋 상대방이 포즈를 취했어요.", event.data);
+        setPartnerPose(true);
       });
 
       const connection = await createOpenViduConnection(sessionId);
@@ -367,18 +367,23 @@ const OneToOnePage = () => {
     });
   };
 
-  const handleDetected = (role: Role | undefined, idolPose: boolean) => {
+  const handleDetected = async (
+    role: Role | undefined,
+    partnerPose: boolean,
+  ) => {
     console.log("👋 handleDetected role: ", role);
+
+    await signalPoseDetected().then(() => {
+      console.log("📣 포즈 감지 신호를 보냈습니다.");
+    });
+
     if (role === Role.FAN) {
-      // 아이돌도 포즈, 나도 포즈
-      if (idolPose) {
-        console.log("👋 아이돌이 포즈를 취했습니다.");
+      if (partnerPose) {
+        console.log("👋 아이돌도 포즈를 취했습니다.");
         onCapture();
       } else {
         console.log("👋 아이돌이 포즈를 취하지 않았습니다.");
       }
-    } else if (role === Role.IDOL) {
-      signalPoseDetected();
     }
   };
 
@@ -481,7 +486,7 @@ const OneToOnePage = () => {
       <MotionDetector
         handleDetected={handleDetected}
         role={role}
-        idolPose={idolPose}
+        partnerPose={partnerPose}
       />
     </Grid>
   );
