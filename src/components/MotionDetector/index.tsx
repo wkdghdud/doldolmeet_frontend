@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as tmPose from "@teachablemachine/pose";
 import html2canvas from "html2canvas";
 import { backend_api, openvidu_api } from "@/utils/api";
+import PhotoFrame from "@/components/PhotoFrame";
 
 interface Props {
   fanMeetingId: string | null | undefined;
@@ -33,22 +34,86 @@ const MotionDetector = ({
   let model, maxPredictions;
   let hasDetected = false;
 
-  const onCapture = () => {
-    const targetElement = document.getElementById("video-container");
-    if (targetElement) {
-      html2canvas(targetElement)
+  const [idolImgSrc, setidolImgSrc] = useState<string>("");
+  const [fanImgSrc, setFanImgSrc] = useState<string>("");
+
+  const onCapture = async () => {
+    const idolElement: HTMLVideoElement = document.getElementById(
+      "idol-video-container",
+    ) as HTMLVideoElement;
+    const fanElement: HTMLVideoElement = document.getElementById(
+      "fan-video-container",
+    ) as HTMLVideoElement;
+
+    const idolCanvas: HTMLCanvasElement = document.getElementById(
+      "idol-canvas",
+    ) as HTMLCanvasElement;
+    const fanCanvas: HTMLCanvasElement = document.getElementById(
+      "fan-canvas",
+    ) as HTMLCanvasElement;
+
+    if (idolElement && fanElement) {
+      // 아이돌 캔버스에 캡처 이미지 넣기
+      idolCanvas.width = idolElement.videoWidth;
+      idolCanvas.height = idolElement.videoHeight;
+      idolCanvas
+        .getContext("2d")
+        ?.drawImage(
+          idolElement,
+          0,
+          0,
+          idolElement.videoWidth,
+          idolElement.videoHeight,
+        );
+
+      // 팬 캔버스에 캡처 이미지 넣기
+      fanCanvas.width = fanElement.videoWidth;
+      fanCanvas.height = fanElement.videoHeight;
+      fanCanvas
+        .getContext("2d")
+        ?.drawImage(
+          fanElement,
+          0,
+          0,
+          fanElement.videoWidth,
+          fanElement.videoHeight,
+        );
+
+      audio.play(); // 찰칵 소리
+      const idolImageDataUrl = idolCanvas.toDataURL("image/png");
+      setidolImgSrc(idolImageDataUrl);
+
+      const fanImageDataUrl = fanCanvas.toDataURL("image/png");
+      setFanImgSrc(fanImageDataUrl);
+    } else {
+      console.error("Target element not found");
+    }
+  };
+
+  useEffect(() => {
+    if (fanImgSrc === "" || idolImgSrc === "") {
+      return;
+    }
+
+    const photoFrameElement = document.getElementById("photo-frame");
+
+    if (photoFrameElement) {
+      html2canvas(photoFrameElement, {
+        onclone: function (cloned) {
+          // @ts-ignore
+          cloned.getElementById("photo-frame").style.display = "block";
+        },
+      })
         .then((canvas) => {
-          audio.play();
+          audio.play(); // 찰칵 소리
           const imageDataUrl = canvas.toDataURL("image/png");
           uploadImage(imageDataUrl);
         })
         .catch((error) => {
           console.error("html2canvas error:", error);
         });
-    } else {
-      console.error("Target element not found");
     }
-  };
+  }, [idolImgSrc, fanImgSrc]);
 
   const uploadImage = (imageDataUrl) => {
     const blobImage = dataURLtoBlob(imageDataUrl);
@@ -60,7 +125,7 @@ const MotionDetector = ({
 
     if (fanMeetingId) {
       backend_api()
-        .post(`/captures/upload/${fanMeetingId}/${idolName}`, formData, {
+        .post(`/captures/upload/${fanMeetingId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((response) => {
@@ -221,6 +286,7 @@ const MotionDetector = ({
         <canvas ref={canvasRef}></canvas>
       </div>
       <div hidden={true} ref={labelContainerRef}></div>
+      <PhotoFrame fanImgSrc={fanImgSrc} idolImgSrc={idolImgSrc} />
     </div>
   );
 };

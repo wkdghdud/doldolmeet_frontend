@@ -52,6 +52,7 @@ const OpenViduVideoView = ({
       )}
       {mirror ? (
         <video
+          id={left ? "idol-video-container" : "fan-video-container"}
           autoPlay={true}
           ref={videoRef}
           style={{
@@ -63,6 +64,7 @@ const OpenViduVideoView = ({
         />
       ) : (
         <video
+          id={left ? "idol-video-container" : "fan-video-container"}
           autoPlay={true}
           ref={videoRef}
           style={{
@@ -89,6 +91,7 @@ const OpenViduVideoView = ({
           }}
         />
       )}
+      <canvas hidden={true} id={left ? "idol-canvas" : "fan-canvas"} />
     </div>
   );
 };
