@@ -208,7 +208,15 @@ export const createOpenViduSession = async (sessionId) => {
 export const createOpenViduConnection = async (sessionId) => {
   const response = await openvidu_api.post(
     "/openvidu/api/sessions/" + sessionId + "/connection",
-    {},
+    {
+      kurentoOptions: {
+        allowedFilters: [
+          "FaceOverlayFilter",
+          "ChromaFilter",
+          "GStreamerFilter",
+        ],
+      },
+    },
     {
       headers: { "Content-Type": "application/json" },
     },

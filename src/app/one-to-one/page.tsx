@@ -49,7 +49,7 @@ const OneToOnePage = () => {
     StreamManager | undefined
   >();
 
-  /* TODO: 닉네임 */
+  /* 닉네임 */
   const [myNickName, setMyNickName] = useState<string | undefined>(undefined);
   const [partnerNickName, setPartnerNickName] = useState<string | undefined>(
     undefined,
@@ -65,7 +65,7 @@ const OneToOnePage = () => {
   const [chatRoomId, setChatRoomId] = useState<string | undefined>();
 
   /* 팬미팅 종료 임박 Alert */
-  const [alertBarOpen, setAlertBarOpen] = useState<boolean>(false);
+  const [endSoon, setEndSoon] = useState<boolean>(false);
 
   /* 녹화를 위한 recordingid */
   const [forceRecordingId, setForceRecordingId] = useState("");
@@ -192,6 +192,13 @@ const OneToOnePage = () => {
             chatRoomId: _chatRoomId,
             nickname: myNickName,
           }),
+          kurentoOptions: {
+            allowedFilters: [
+              "FaceOverlayFilter",
+              "ChromaFilter",
+              "GStreamerFilter",
+            ],
+          },
         })
         .then(() => {
           if (role === Role.FAN) {
@@ -218,7 +225,18 @@ const OneToOnePage = () => {
         frameRate: 30,
         insertMode: "APPEND",
         mirror: false,
+        // @ts-ignore
+        // filter: {
+        //   type: "GStreamerFilter",
+        //   options: {
+        //     command:
+        //       // 'textoverlay text="Photo Time!" valignment=center halignment=center font-desc="Cantarell 25" draw-shadow=true',
+        //       "chromahold target-r=50 target-g=0 target-b=50 tolerance=90",
+        //   },
+        // },
       });
+
+      newPublisher.subscribeToRemote();
       mySession.publish(newPublisher);
       setSession(mySession);
       setMyStream(newPublisher);
@@ -241,7 +259,7 @@ const OneToOnePage = () => {
 
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
       console.log("🥹 통화가 곧 종료 됩니다.", JSON.parse(e.data));
-      setAlertBarOpen(true);
+      setEndSoon(true);
     });
 
     eventSource.onopen = () => {
@@ -358,12 +376,16 @@ const OneToOnePage = () => {
                 <MyStreamView
                   name={`😎 ${idolName ?? "아이돌"}`}
                   stream={myStream}
+                  left={true}
+                  showOverlay={endSoon}
                 />
               ) : (
                 <PartnerStreamView
                   name={`😎 ${idolName ?? "아이돌"}`}
                   stream={partnerStream}
                   partnerRole={Role.IDOL}
+                  left={true}
+                  showOverlay={endSoon}
                 />
               )}
             </Grid>
@@ -372,12 +394,16 @@ const OneToOnePage = () => {
                 <MyStreamView
                   name={`😍 ${myNickName ?? "팬"}`}
                   stream={myStream}
+                  left={false}
+                  showOverlay={endSoon}
                 />
               ) : (
                 <PartnerStreamView
                   name={`😍 ${partnerNickName ?? "팬"}`}
                   stream={partnerStream}
                   partnerRole={Role.FAN}
+                  left={false}
+                  showOverlay={endSoon}
                 />
               )}
             </Grid>
@@ -398,10 +424,7 @@ const OneToOnePage = () => {
           <ChatAndMemo chatRoomId={chatRoomId} height={"75vh"} />
         </Grid>
       )}
-      <EndAlertBar
-        open={alertBarOpen}
-        handleClose={() => setAlertBarOpen(false)}
-      />
+      <EndAlertBar open={endSoon} handleClose={() => setEndSoon(false)} />
       {fanMeetingId && idolName && sessionId && userName && (
         <MotionDetector
           fanMeetingId={fanMeetingId}
