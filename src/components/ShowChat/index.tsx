@@ -2,18 +2,34 @@
 import React, { useEffect, useRef, useState } from "react";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { IconButton, TextField } from "@mui/material";
+import { IconButton, MenuItem, Select, TextField } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import useJwtToken from "@/hooks/useJwtToken";
 import { WS_STOMP_URL } from "@/utils/api";
 import ChatBalloon from "@/components/chat/ChatBalloon";
 import { Box } from "@mui/system";
+import FormControl from "@mui/material/FormControl";
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+const SUPPORTED_TARGETS = [
+  { code: "ja", label: "Japanese" },
+  { code: "en", label: "English" },
+  { code: "ko", label: "Korean" },
+];
 const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [message, setMessage] = useState<any>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [sender, setSender] = useState<string | null>("");
-  const [sock, setSock] = useState<any>(null);
   const [stompClient, setStompClient] = useState<any>(null);
 
   const messagesRef = useRef<HTMLElement | null>(null);
@@ -90,6 +106,16 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
     }
   };
 
+  const [target, setTarget] = useState("en"); // 기본값은 "ko"
+  const toggleTarget = () => {
+    // 현재 target의 인덱스를 찾아서 다음 target으로 변경
+    const currentIndex = SUPPORTED_TARGETS.findIndex(
+      (item) => item.code === target,
+    );
+    const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
+    setTarget(SUPPORTED_TARGETS[nextIndex].code);
+  };
+
   return (
     <Box
       sx={{
@@ -102,6 +128,32 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         borderRadius: 2,
       }}
     >
+      <div>
+        {/* m - margin, mt - margin-top */}
+        <FormControl sx={{ width: 425, m: 3 }}>
+          {/* 언어 선택용 Select */}
+          <Select
+            displayEmpty
+            value={target}
+            onChange={(e) => setTarget(e.target.value)}
+            variant="standard"
+            style={{ marginTop: "8px", textAlign: "right" }}
+          >
+            <MenuItem disabled value="">
+              <em>언어 선택</em>
+            </MenuItem>
+            {SUPPORTED_TARGETS.map((item) => (
+              <MenuItem
+                key={item.code}
+                value={item.code}
+                sx={{ textAlign: "right" }}
+              >
+                {item.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
       <Box
         ref={messagesRef}
         sx={{
@@ -119,6 +171,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 key={index}
                 sender={msg.sender}
                 message={msg.message}
+                isLanaguage={target}
               />
             ),
         )}

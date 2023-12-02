@@ -1,16 +1,25 @@
-import React, { useMemo } from "react";
-import { Typography } from "@mui/material";
+import React, { useMemo, useState } from "react";
+import { Button, Divider, Typography, MenuItem, Select } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import SmallAvatar from "@/components/avatar/SmallAvatar";
+import { backend_api } from "@/utils/api";
+
+const SUPPORTED_TARGETS = [
+  { code: "ja", label: "Japanese" },
+  { code: "en", label: "English" },
+  { code: "ko", label: "Korean" },
+];
 
 export default function ChatBalloon({
   sender,
   message,
   profile,
+  isLanaguage,
 }: {
   sender: string;
   message: any;
   profile?: string;
+  isLanaguage: string;
 }) {
   const createMarkup = useMemo(() => {
     return (text) => {
@@ -21,7 +30,7 @@ export default function ChatBalloon({
         '<iframe width="100%" height="auto" src="https://www.youtube.com/embed/$2" frameborder="0" allowfullscreen></iframe>',
       );
 
-      const imageRegex = /(https?:\/\/[^\s]+\.(?:png|jpg|gif|jpeg))/g;
+      const imageRegex = /(https?:\/\/[^\s]+\.(?:png|jpg|gif|jpeg|webp))/g;
       const finalText = replacedText.replace(
         imageRegex,
         '<img src="$1" alt="Image" style="max-width: 100%; height: auto;">',
@@ -30,6 +39,30 @@ export default function ChatBalloon({
       return { __html: finalText };
     };
   }, []);
+
+  const [text, setText] = useState("");
+  const [showDivider, setShowDivider] = useState(false);
+  const [target, setTarget] = useState("ko"); // 기본값은 "ko"
+
+  const handleChat = () => {
+    backend_api()
+      .post(`/translate?target=${isLanaguage}`, {
+        text: message,
+      })
+      .then((res) => {
+        setText(res.data.translatedText);
+        setShowDivider(true); // 버튼 클릭 시 Divider 보이기
+      });
+  };
+
+  const toggleTarget = () => {
+    // 현재 target의 인덱스를 찾아서 다음 target으로 변경
+    const currentIndex = SUPPORTED_TARGETS.findIndex(
+      (item) => item.code === target,
+    );
+    const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
+    setTarget(SUPPORTED_TARGETS[nextIndex].code);
+  };
 
   return (
     <Stack
@@ -53,11 +86,38 @@ export default function ChatBalloon({
             maxWidth: "260px",
           }}
         >
+          <Button onClick={handleChat}>
+            <Typography
+              variant="subtitle1"
+              style={{ wordWrap: "break-word" }}
+              dangerouslySetInnerHTML={createMarkup(message)}
+            />
+          </Button>
+          {showDivider && (
+            <Divider
+              variant="middle"
+              sx={{ height: 1.1, bgcolor: "#000", margin: "8px 0" }}
+            />
+          )}
           <Typography
             variant="subtitle1"
-            style={{ wordWrap: "break-word" }}
-            dangerouslySetInnerHTML={createMarkup(message)}
-          />
+            style={{ wordWrap: "break-word", textAlign: "center" }}
+          >
+            {text}
+          </Typography>
+          {/*<Select*/}
+          {/*  value={target}*/}
+          {/*  onChange={(e) => setTarget(e.target.value)}*/}
+          {/*  variant="standard"*/}
+          {/*  style={{ marginTop: "8px" }}*/}
+          {/*>*/}
+          {/*  {SUPPORTED_TARGETS.map((item) => (*/}
+          {/*    <MenuItem key={item.code} value={item.code}>*/}
+          {/*      {item.label}*/}
+          {/*    </MenuItem>*/}
+          {/*  ))}*/}
+          {/*</Select>*/}
+          {/*<Button onClick={toggleTarget}>Toggle Target</Button>*/}
         </Box>
       </Stack>
     </Stack>
