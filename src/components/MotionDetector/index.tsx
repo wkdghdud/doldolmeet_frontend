@@ -238,7 +238,7 @@ const MotionDetector = ({
             prediction[i].probability.toFixed(2);
 
           // @ts-ignore
-          labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
+          labelContainerRef2.current.childNodes[i].innerHTML = classPrediction;
 
           if (
             role === Role.FAN &&
@@ -264,7 +264,7 @@ const MotionDetector = ({
     } else {
       console.log("Model or webcam is not available!");
     }
-  }, [model2, webcamRef, labelContainerRef, maxPredictions2, myPose]);
+  }, [model2, webcamRef, labelContainerRef2, maxPredictions2, myPose]);
 
   const predict = useCallback(async () => {
     const webcam = webcamRef.current;
@@ -310,6 +310,7 @@ const MotionDetector = ({
         <canvas ref={canvasRef}></canvas>
       </div>
       <div hidden={true} ref={labelContainerRef}></div>
+      <div hidden={true} ref={labelContainerRef2}></div>
     </div>
   );
 };
