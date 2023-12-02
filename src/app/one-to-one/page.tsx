@@ -372,7 +372,9 @@ const OneToOnePage = () => {
   }
 
   const signalPoseDetected = async () => {
-    console.log("🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶", userName);
+    console.log(
+      `🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶, userName: ${userName} / sessionId: ${sessionId}`,
+    );
     if (userName !== "") {
       await openvidu_api.post(`/openvidu/api/signal`, {
         session: sessionId,
@@ -484,14 +486,16 @@ const OneToOnePage = () => {
           }
         }
         if (detected) {
-          console.log(`🔔 포즈가 감지되었습니다`);
-          if (!hasDetected && userName !== "" && sessionId !== "") {
-            await signalPoseDetected().then(() => {
-              console.log("📣 포즈 감지 신호를 보냈습니다.");
-            });
-            setMyPose(true);
-            hasDetected = true;
-          }
+          console.log(
+            `🔔 포즈가 감지되었습니다: hasDetected: ${hasDetected}, userName: ${userName}, sessionId: ${sessionId}`,
+          );
+          // if (!hasDetected && userName !== "" && sessionId !== "") {
+          await signalPoseDetected().then(() => {
+            console.log("📣 포즈 감지 신호를 보냈습니다.");
+          });
+          setMyPose(true);
+          // hasDetected = true;
+          // }
         }
       } catch (error) {
         console.error("Prediction error:", error);
