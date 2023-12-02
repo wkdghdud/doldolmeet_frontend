@@ -84,6 +84,7 @@ const OneToOnePage = () => {
 
   useEffect(() => {
     token.then((res) => {
+      console.log("🚀 token role changed!", res);
       setRole(res?.auth);
       setUserName(res?.sub ?? "");
       setMyNickName(res?.nickname ?? "");

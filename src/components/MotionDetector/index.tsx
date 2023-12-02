@@ -33,6 +33,10 @@ const MotionDetector = ({
   let hasDetected = false;
   const [detectedCnt, setDetectedCnt] = useState<number>(0);
 
+  useEffect(() => {
+    console.log("👀 MotionDetector role changed!", role);
+  }, [role]);
+
   const onCapture = () => {
     const targetElement = document.getElementById("video-container");
     if (targetElement) {
@@ -250,7 +254,7 @@ const MotionDetector = ({
       <div hidden={true}>
         <canvas ref={canvasRef}></canvas>
       </div>
-      <div ref={labelContainerRef}></div>
+      <div hidden={true} ref={labelContainerRef}></div>
     </div>
   );
 };
