@@ -176,9 +176,9 @@ const MotionDetector = ({
     if (partnerPose && myPose && !hasCaptured) {
       console.log("📸📸 사진촬영!!!!!📸📸", myPose);
       onCapture();
-      setHasCaptured(false);
+      setHasCaptured(true);
     }
-  }, [partnerPose, myPose, hasCaptured]);
+  }, [partnerPose, myPose]);
 
   const predict = async () => {
     const webcam = webcamRef.current;
