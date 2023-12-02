@@ -130,8 +130,10 @@ const MotionDetector = ({
 
       // TensorFlow 및 Teachable Machine Pose 스크립트 로드 완료 후 초기화
       if (motionType === "bigHeart") {
+        console.log("😾😾😾😾😾😾😾motionType", motionType);
         init();
       } else if (motionType === "halfHeart") {
+        console.log("😾😾😾😾😾😾😾motionType", motionType);
         init2();
       }
     };
@@ -255,7 +257,7 @@ const MotionDetector = ({
           }
         }
         if (detected && !myPose) {
-          console.log("✊✊✊✊✊✊✊✊✊✊", myPose);
+          console.log("내가 시그널을 보냈어요", myPose);
           await signalPoseDetected();
         }
       } catch (error) {
