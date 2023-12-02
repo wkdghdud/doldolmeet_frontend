@@ -200,8 +200,10 @@ const MotionDetector = ({
       if (webcam) {
         webcam.update();
         if (motionType === "bigHeart") {
+          console.log("?😶‍🌫‍🌫‍🌫‍🌫‍🌫‍🌫‍🌫‍🌫?", motionType);
           predict();
         } else if (motionType === "halfHeart") {
+          console.log("😘🌫‍🌫‍🌫‍🌫‍🌫‍🌫‍🌫?", motionType);
           predict2();
         }
         window.requestAnimationFrame(loop);
@@ -253,6 +255,7 @@ const MotionDetector = ({
           }
         }
         if (detected && !myPose) {
+          console.log("✊✊✊✊✊✊✊✊✊✊", myPose);
           await signalPoseDetected();
         }
       } catch (error) {
@@ -290,6 +293,7 @@ const MotionDetector = ({
           }
         }
         if (detected && !myPose) {
+          console.log("✊✊✊✊✊✊✊✊✊✊", myPose);
           await signalPoseDetected();
         }
       } catch (error) {
