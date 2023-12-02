@@ -26,25 +26,16 @@ const MotionDetector = ({
   const webcamRef = useRef(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const labelContainerRef = useRef<HTMLDivElement>(null);
-  const [poseAPrediction, setPoseAPrediction] = useState<number>(0);
-  const [poseBPrediction, setPoseBPrediction] = useState<number>(0);
-  const [valueChanged, setValueChanged] = useState<boolean>(false);
   let model, maxPredictions;
-  let hasCaptured = false;
-  const [detectedCnt, setDetectedCnt] = useState<number>(0);
+  // let hasCaptured = false;
+  const [hasCaptured, setHasCaptured] = useState<boolean>(false);
   const [myPose, setMyPose] = useState<boolean>(false);
-
-  useEffect(() => {
-    console.log("👀 MotionDetector role changed!", role);
-  }, [role]);
 
   const onCapture = () => {
     const targetElement = document.getElementById("video-container");
     if (targetElement) {
       html2canvas(targetElement)
         .then((canvas) => {
-          // onSavaAs(canvas.toDataURL("image/png"), "image-download.png");
-          // shutter?.play(); // 찰칵 소리
           audio.play();
           const imageDataUrl = canvas.toDataURL("image/png");
           uploadImage(imageDataUrl);
@@ -101,23 +92,6 @@ const MotionDetector = ({
     });
   };
 
-  const handleDetected = useCallback(async () => {
-    console.log("👋 handleDetected role: ", role);
-
-    await signalPoseDetected().then(() => {
-      console.log("📣 포즈 감지 신호를 보냈습니다.");
-    });
-
-    if (role === Role.FAN) {
-      if (partnerPose) {
-        console.log("👋 아이돌도 포즈를 취했습니다.");
-        onCapture();
-      } else {
-        console.log("👋 아이돌이 포즈를 취하지 않았습니다.");
-      }
-    }
-  }, [role, partnerPose]);
-
   useEffect(() => {
     console.log("MotionDetector component mounted!");
     const loadScripts = async () => {
@@ -161,23 +135,16 @@ const MotionDetector = ({
     await webcam.setup();
     await webcam.play();
 
-    // if (webcamRef.current) {
     // @ts-ignore
     webcamRef.current = webcam;
-    // }
 
-    // if (canvasRef.current) {
     canvasRef.current.width = size;
     canvasRef.current.height = size;
-    // }
 
-    // if (labelContainerRef.current) {
     labelContainerRef.current.innerHTML = ""; // 레이블 컨테이너 초기화
     for (let i = 0; i < maxPredictions; i++) {
       labelContainerRef.current.appendChild(document.createElement("div"));
     }
-    // }
-
     window.requestAnimationFrame(loop);
   };
 
@@ -196,20 +163,16 @@ const MotionDetector = ({
     if (partnerPose && myPose && !hasCaptured) {
       console.log("📸📸 사진촬영!!!!!📸📸", myPose);
       onCapture();
-      hasCaptured = true;
+      setHasCaptured(true);
     }
   }, [partnerPose, myPose]);
 
   const predict = async () => {
     const webcam = webcamRef.current;
-    // console.log("Predict function started...");
 
     if (model && webcam) {
-      // console.log("Model and webcam are available!");
-
       try {
         const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
-        // console.log("Pose estimation successful!");
 
         const prediction = await model.predict(posenetOutput);
         let detected = false;
@@ -219,28 +182,23 @@ const MotionDetector = ({
             prediction[i].className +
             ": " +
             prediction[i].probability.toFixed(2);
-          // if (labelContainerRef.current) {
+
           // @ts-ignore
           labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
-          // }
 
-          // O 모양이 80% 이상일 때 콘솔 이벤트 발생
           if (
             prediction[i].className == "Class 1" &&
-            prediction[i].probability > 0.8
+            prediction[i].probability > 0.9
           ) {
             detected = true;
           }
         }
         if (detected) {
           console.log(`🔔 포즈가 감지되었습니다`);
-
+          await signalPoseDetected().then(() => {
+            console.log("📣 포즈 감지 신호를 보냈습니다.");
+          });
           setMyPose(true);
-          //   if (!hasDetected) {
-          //   handleDetected(role, partnerPose);
-          //   hasDetected = false;
-          //   setDetectedCnt(detectedCnt + 1);
-          // }
         }
       } catch (error) {
         console.error("Prediction error:", error);
@@ -249,12 +207,6 @@ const MotionDetector = ({
       console.log("Model or webcam is not available!");
     }
   };
-
-  useEffect(() => {
-    // if (hasDetected) {
-    handleDetected();
-    // }
-  }, [detectedCnt]);
 
   return (
     <div>
