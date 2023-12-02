@@ -9,7 +9,7 @@ interface Props {
   idolName: string | null | undefined;
   sessionId: string | null | undefined;
   partnerPose: boolean;
-  usernameProps: string;
+  username: string;
 }
 
 const MotionDetector = ({
@@ -17,7 +17,7 @@ const MotionDetector = ({
   idolName,
   sessionId,
   partnerPose,
-  usernameProps,
+  username,
 }: Props) => {
   const audio = new Audio("/mp3/camera9.mp3");
 
@@ -29,17 +29,9 @@ const MotionDetector = ({
   /* State*/
   const [hasCaptured, setHasCaptured] = useState<boolean>(false);
   const [myPose, setMyPose] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>("");
 
   let model, maxPredictions;
-  // let hasDetected = false;
-
-  const [hasDetected, setHasDetected] = useState<boolean>(false);
-
-  useEffect(() => {
-    console.log("usernameProps:", usernameProps);
-    setUsername(usernameProps);
-  }, [usernameProps]);
+  let hasDetected = false;
 
   const onCapture = () => {
     const targetElement = document.getElementById("video-container");
@@ -102,6 +94,7 @@ const MotionDetector = ({
         type: "signal:pose_detected",
         data: username,
       });
+      setMyPose(true);
     }
   }, [username, sessionId]);
 
@@ -162,25 +155,32 @@ const MotionDetector = ({
   };
 
   const loop = () => {
-    // if (!hasDetected) {
-    const webcam = webcamRef.current;
-    if (webcam) {
-      webcam.update();
-      predict();
-      window.requestAnimationFrame(loop);
+    if (!hasDetected) {
+      const webcam = webcamRef.current;
+      if (webcam) {
+        webcam.update();
+        predict();
+        window.requestAnimationFrame(loop);
+      }
     }
-    // }
   };
 
+  // useEffect(() => {
+  //   if (partnerPose && myPose && !hasCaptured) {
+  //     console.log("📸📸 사진촬영!!!!!📸📸", myPose);
+  //     onCapture();
+  //     setHasCaptured(true);
+  //   }
+  // }, [partnerPose, myPose]);
   useEffect(() => {
     if (partnerPose && myPose && !hasCaptured) {
       console.log("📸📸 사진촬영!!!!!📸📸", myPose);
       onCapture();
       setHasCaptured(true);
     }
-  }, [partnerPose, myPose]);
+  }, [partnerPose, myPose, hasCaptured]);
 
-  const predict = async () => {
+  const predict = useCallback(async () => {
     const webcam = webcamRef.current;
 
     if (model && webcam) {
@@ -208,18 +208,14 @@ const MotionDetector = ({
         }
         // if (detected) {
         //   console.log(`🔔 포즈가 감지되었습니다`);
-        //   if (!hasDetected && username && sessionId) {
+        //   if (!myPose) {
         //     await signalPoseDetected().then(() => {
         //       console.log("📣 포즈 감지 신호를 보냈습니다.");
         //     });
-        //     setMyPose(true);
-        //     hasDetected = true;
         //   }
         // }
-        if (detected && !hasDetected && username && sessionId) {
+        if (detected && !myPose) {
           await signalPoseDetected();
-          setHasDetected(true); // 상태 업데이트
-          console.log("📣 포즈 감지 신호를 보냈습니다.");
         }
       } catch (error) {
         console.error("Prediction error:", error);
@@ -227,7 +223,7 @@ const MotionDetector = ({
     } else {
       console.log("Model or webcam is not available!");
     }
-  };
+  }, [model, webcamRef, labelContainerRef, maxPredictions, myPose]);
 
   return (
     <div>
