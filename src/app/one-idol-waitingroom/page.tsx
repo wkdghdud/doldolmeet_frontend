@@ -22,6 +22,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("fanMeetingId");
   const sessionId = searchParams?.get("sessionId");
+
   const [role, setRole] = useState<Role>(Role.FAN);
   const [userName, setUserName] = useState<string>("");
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
@@ -29,7 +30,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   const [connection, setConnection] = useState<Connection | undefined>();
   const [popupImage, setPopupImage] = useState<string>("");
   const [nextIdolName, setNextIdolName] = useState<string>("");
-
+  const [motionType, setMotionType] = useState<string>("");
   const token = useJwtToken();
 
   useEffect(() => {
@@ -111,6 +112,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
       setNextRoomId(JSON.parse(e.data).nextRoomId);
       setPopupImage(JSON.parse(e.data).roomThumbnail);
       setNextIdolName(JSON.parse(e.data).idolNickName);
+      setMotionType(JSON.parse(e.data).motionType);
       setPopupOpen(true);
     });
 
@@ -172,7 +174,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   const joinNextRoom = async () => {
     await leaveWaitingRoom();
     router.push(
-      `/one-to-one?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}&idolName=${nextIdolName}`,
+      `/one-to-one?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}&idolName=${nextIdolName}&motionType=${motionType}`,
     );
   };
 

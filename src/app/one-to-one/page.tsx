@@ -39,6 +39,7 @@ const OneToOnePage = () => {
   const fanMeetingId = searchParams?.get("fanMeetingId");
   const sessionId = searchParams?.get("sessionId");
   const idolName = searchParams?.get("idolName");
+  const motionType = searchParams?.get("motionType");
 
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();
@@ -474,6 +475,7 @@ const OneToOnePage = () => {
           sessionId={sessionId}
           partnerPose={partnerPose}
           username={userName}
+          motionType={motionType}
         />
       )}
     </Grid>
