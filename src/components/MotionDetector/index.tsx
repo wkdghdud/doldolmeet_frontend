@@ -94,8 +94,9 @@ const MotionDetector = ({
         type: "signal:pose_detected",
         data: username,
       });
+      setMyPose(true);
     }
-  }, [username, sessionId]);
+  }, [username, sessionId, setMyPose]);
 
   useEffect(() => {
     console.log("MotionDetector component mounted!");
@@ -204,7 +205,6 @@ const MotionDetector = ({
             await signalPoseDetected().then(() => {
               console.log("📣 포즈 감지 신호를 보냈습니다.");
             });
-            setMyPose(true);
           }
         }
       } catch (error) {
