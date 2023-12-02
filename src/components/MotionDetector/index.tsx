@@ -1,17 +1,17 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as tmPose from "@teachablemachine/pose";
 import { Role } from "@/types";
 import html2canvas from "html2canvas";
 import { backend_api, openvidu_api } from "@/utils/api";
 
 interface Props {
-  // handleDetected: (role: Role | undefined, partnerPose: boolean) => void;
   fanMeetingId: string | null | undefined;
   idolName: string | null | undefined;
   sessionId: string | null | undefined;
   role: Role | undefined;
   partnerPose: boolean;
+  username: string | undefined;
 }
 
 const MotionDetector = ({
@@ -20,16 +20,19 @@ const MotionDetector = ({
   sessionId,
   role,
   partnerPose,
+  username,
 }: Props) => {
   const audio = new Audio("/mp3/camera9.mp3");
 
+  /* Ref */
   const webcamRef = useRef(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const labelContainerRef = useRef<HTMLDivElement>(null);
-  let model, maxPredictions;
-  // let hasCaptured = false;
+
+  /* State*/
   const [hasCaptured, setHasCaptured] = useState<boolean>(false);
   const [myPose, setMyPose] = useState<boolean>(false);
+  let model, maxPredictions;
   let hasDetected = false;
 
   const onCapture = () => {
@@ -89,7 +92,7 @@ const MotionDetector = ({
     await openvidu_api.post(`/openvidu/api/signal`, {
       session: sessionId,
       type: "signal:pose_detected",
-      data: "true",
+      data: username,
     });
   };
 
