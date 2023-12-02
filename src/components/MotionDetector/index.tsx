@@ -190,7 +190,7 @@ const MotionDetector = ({
     canvasRef.current.height = size;
 
     labelContainerRef2.current.innerHTML = ""; // 레이블 컨테이너 초기화
-    for (let i = 0; i < maxPredictions; i++) {
+    for (let i = 0; i < maxPredictions2; i++) {
       labelContainerRef2.current.appendChild(document.createElement("div"));
     }
     window.requestAnimationFrame(loop);
