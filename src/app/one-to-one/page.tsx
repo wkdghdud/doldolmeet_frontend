@@ -169,8 +169,10 @@ const OneToOnePage = () => {
       });
 
       mySession.on("signal:pose_detected", (event) => {
-        console.log("👋 상대방이 포즈를 취했어요.", event.data);
-        setPartnerPose(true);
+        if (event.data !== userName) {
+          console.log("👋 상대방이 포즈를 취했어요.", event.data);
+          setPartnerPose(true);
+        }
       });
 
       const connection = await createOpenViduConnection(sessionId);
@@ -405,6 +407,7 @@ const OneToOnePage = () => {
         fanMeetingId={fanMeetingId}
         sessionId={sessionId}
         idolName={idolName}
+        username={userName}
       />
     </Grid>
   );
