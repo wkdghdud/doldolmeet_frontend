@@ -198,12 +198,13 @@ const MotionDetector = ({
             detected = true;
           }
         }
-        let flag = false;
-        if (detected && !flag) {
+        if (detected) {
           console.log(`🔔 포즈가 감지되었습니다`);
-          if (!myPose) {
+          let flag = false;
+          if (!myPose && !flag) {
             await signalPoseDetected().then(() => {
               console.log("📣 포즈 감지 신호를 보냈습니다.");
+              flag = true;
             });
             setMyPose(true);
           }
