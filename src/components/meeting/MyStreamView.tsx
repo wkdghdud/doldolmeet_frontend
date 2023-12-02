@@ -5,15 +5,23 @@ import OpenViduVideoView from "@/components/meeting/OpenViduVideoView";
 interface Props {
   name: string | undefined;
   stream: StreamManager | Publisher | Subscriber | undefined;
+  left: boolean;
+  showOverlay: boolean;
 }
 
-const MyStreamView = ({ name, stream }: Props) => {
+const MyStreamView = ({ name, stream, left, showOverlay }: Props) => {
   return (
     <>
       {stream === undefined ? (
         <LocalCameraView name={name} />
       ) : (
-        <OpenViduVideoView name={name} streamManager={stream} mirror={false} />
+        <OpenViduVideoView
+          name={name}
+          streamManager={stream}
+          mirror={false}
+          left={left}
+          showOverlay={showOverlay}
+        />
       )}
     </>
   );

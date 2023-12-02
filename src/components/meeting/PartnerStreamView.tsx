@@ -8,15 +8,29 @@ interface Props {
   name: string | undefined;
   stream: StreamManager | Publisher | Subscriber | undefined;
   partnerRole: Role;
+  left: boolean;
+  showOverlay: boolean;
 }
 
-const PartnerStreamView = ({ name, stream, partnerRole }: Props) => {
+const PartnerStreamView = ({
+  name,
+  stream,
+  partnerRole,
+  left,
+  showOverlay,
+}: Props) => {
   return (
     <>
       {stream === undefined ? (
         <WaitingImage waitingFor={partnerRole} name={name} />
       ) : (
-        <OpenViduVideoView name={name} streamManager={stream} mirror={true} />
+        <OpenViduVideoView
+          name={name}
+          streamManager={stream}
+          mirror={true}
+          left={left}
+          showOverlay={showOverlay}
+        />
       )}
     </>
   );

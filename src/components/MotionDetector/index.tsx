@@ -1,23 +1,106 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as tmPose from "@teachablemachine/pose";
+import html2canvas from "html2canvas";
+import { backend_api, openvidu_api } from "@/utils/api";
 import { Role } from "@/types";
 
 interface Props {
-  handleDetected: (role: Role | undefined, idolPose: boolean) => void;
-  role: Role | undefined;
-  idolPose: boolean;
+  fanMeetingId: string | null | undefined;
+  idolName: string | null | undefined;
+  sessionId: string | null | undefined;
+  partnerPose: boolean;
+  username: string;
+  role: string | undefined;
 }
 
-const MotionDetector = ({ handleDetected, role, idolPose }: Props) => {
+const MotionDetector = ({
+  role,
+  fanMeetingId,
+  idolName,
+  sessionId,
+  partnerPose,
+  username,
+}: Props) => {
+  const audio = new Audio("/mp3/camera9.mp3");
+
+  /* Ref */
   const webcamRef = useRef(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const labelContainerRef = useRef<HTMLDivElement>(null);
-  const [poseAPrediction, setPoseAPrediction] = useState<number>(0);
-  const [poseBPrediction, setPoseBPrediction] = useState<number>(0);
-  const [valueChanged, setValueChanged] = useState<boolean>(false);
+
+  /* State*/
+  const [hasCaptured, setHasCaptured] = useState<boolean>(false);
+  const [myPose, setMyPose] = useState<boolean>(false);
+
   let model, maxPredictions;
+  let model2, maxPredictions2;
   let hasDetected = false;
+
+  const onCapture = () => {
+    const targetElement = document.getElementById("video-container");
+    if (targetElement) {
+      html2canvas(targetElement)
+        .then((canvas) => {
+          audio.play();
+          const imageDataUrl = canvas.toDataURL("image/png");
+          uploadImage(imageDataUrl);
+        })
+        .catch((error) => {
+          console.error("html2canvas error:", error);
+        });
+    } else {
+      console.error("Target element not found");
+    }
+  };
+
+  const uploadImage = (imageDataUrl) => {
+    const blobImage = dataURLtoBlob(imageDataUrl);
+    // Blob을 파일로 변환
+    const imageFile = new File([blobImage], "image.png", { type: "image/png" });
+
+    const formData = new FormData();
+    formData.append("file", imageFile);
+
+    if (fanMeetingId) {
+      backend_api()
+        .post(`/captures/upload/${fanMeetingId}/${idolName}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((response) => {
+          console.log("Image uploaded successfully:", response.data);
+        })
+        .catch((error) => {
+          console.error("Image upload failed:", error);
+        });
+    }
+  };
+
+  function dataURLtoBlob(dataURL) {
+    let arr = dataURL.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new Blob([u8arr], { type: mime });
+  }
+
+  const signalPoseDetected = useCallback(async () => {
+    console.log("🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶", username);
+    if (username !== "") {
+      await openvidu_api.post(`/openvidu/api/signal`, {
+        session: sessionId,
+        type: "signal:pose_detected",
+        data: username,
+      });
+      setMyPose(true);
+    }
+  }, [username, sessionId]);
 
   useEffect(() => {
     console.log("MotionDetector component mounted!");
@@ -49,12 +132,19 @@ const MotionDetector = ({ handleDetected, role, idolPose }: Props) => {
   }, []);
 
   const init = async () => {
-    const URL = "/my-pose-model/";
+    const URL = "/my-pose-model2/";
     const modelURL = URL + "model.json";
     const metadataURL = URL + "metadata.json";
 
+    // const URL2 = "/my-pose-model2/";
+    // const modelURL2 = URL2 + "model.json";
+    // const metadataURL2 = URL2 + "metadata.json";
+
     model = await tmPose.load(modelURL, metadataURL);
+    // model2 = await tmPose.load(modelURL2, metadataURL2);
+
     maxPredictions = model.getTotalClasses();
+    // maxPredictions2 = model2.getTotalClasses();
 
     const size = 200;
     const flip = true;
@@ -62,23 +152,16 @@ const MotionDetector = ({ handleDetected, role, idolPose }: Props) => {
     await webcam.setup();
     await webcam.play();
 
-    // if (webcamRef.current) {
     // @ts-ignore
     webcamRef.current = webcam;
-    // }
 
-    // if (canvasRef.current) {
     canvasRef.current.width = size;
     canvasRef.current.height = size;
-    // }
 
-    // if (labelContainerRef.current) {
     labelContainerRef.current.innerHTML = ""; // 레이블 컨테이너 초기화
     for (let i = 0; i < maxPredictions; i++) {
       labelContainerRef.current.appendChild(document.createElement("div"));
     }
-    // }
-
     window.requestAnimationFrame(loop);
   };
 
@@ -87,22 +170,91 @@ const MotionDetector = ({ handleDetected, role, idolPose }: Props) => {
       const webcam = webcamRef.current;
       if (webcam) {
         webcam.update();
+        // if (motionType === "bigHeart") {
+        //   predict();
+        // } else if (motionType === "halfHeart") {
         predict();
+        // }
         window.requestAnimationFrame(loop);
       }
     }
   };
 
-  const predict = async () => {
+  // useEffect(() => {
+  //   if (partnerPose && myPose && !hasCaptured) {
+  //     console.log("📸📸 사진촬영!!!!!📸📸", myPose);
+  //     onCapture();
+  //     setHasCaptured(true);
+  //   }
+  // }, [partnerPose, myPose]);
+  useEffect(() => {
+    if (partnerPose && myPose && !hasCaptured) {
+      console.log("📸📸 사진촬영!!!!!📸📸", myPose);
+      onCapture();
+      setHasCaptured(true);
+    }
+  }, [partnerPose, myPose, hasCaptured]);
+
+  // const predict2 = useCallback(async () => {
+  //   const webcam = webcamRef.current;
+  //
+  //   if (model2 && webcam) {
+  //     try {
+  //       const { pose, posenetOutput } = await model2.estimatePose(
+  //         webcam.canvas,
+  //       );
+  //
+  //       const prediction = await model2.predict(posenetOutput);
+  //       let detected = false;
+  //
+  //       for (let i = 0; i < maxPredictions2; i++) {
+  //         const classPrediction =
+  //           prediction[i].className +
+  //           ": " +
+  //           prediction[i].probability.toFixed(2);
+  //
+  //         // @ts-ignore
+  //         labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
+  //
+  //         if (
+  //           role === Role.FAN &&
+  //           prediction[i].className == "Class 1" &&
+  //           prediction[i].probability > 0.9
+  //         ) {
+  //           detected = true;
+  //         } else if (
+  //           role === Role.IDOL &&
+  //           prediction[i].className == "Class 2" &&
+  //           prediction[i].probability > 0.9
+  //         ) {
+  //           detected = true;
+  //         }
+  //       }
+  //       // if (detected) {
+  //       //   console.log(`🔔 포즈가 감지되었습니다`);
+  //       //   if (!myPose) {
+  //       //     await signalPoseDetected().then(() => {
+  //       //       console.log("📣 포즈 감지 신호를 보냈습니다.");
+  //       //     });
+  //       //   }
+  //       // }
+  //       if (detected && !myPose) {
+  //         await signalPoseDetected();
+  //       }
+  //     } catch (error) {
+  //       console.error("Prediction error:", error);
+  //     }
+  //   } else {
+  //     console.log("Model or webcam is not available!");
+  //   }
+  // }, [model2, webcamRef, labelContainerRef, maxPredictions2, myPose]);
+
+  const predict = useCallback(async () => {
     const webcam = webcamRef.current;
-    console.log("Predict function started...");
 
     if (model && webcam) {
-      console.log("Model and webcam are available!");
-
       try {
         const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
-        console.log("Pose estimation successful!");
 
         const prediction = await model.predict(posenetOutput);
         let detected = false;
@@ -112,25 +264,41 @@ const MotionDetector = ({ handleDetected, role, idolPose }: Props) => {
             prediction[i].className +
             ": " +
             prediction[i].probability.toFixed(2);
-          // if (labelContainerRef.current) {
+
           // @ts-ignore
           labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
-          // }
 
-          // O 모양이 80% 이상일 때 콘솔 이벤트 발생
+          // if (
+          //   prediction[i].className == "Class 1" &&
+          //   prediction[i].probability > 0.9
+          // ) {
+          //   detected = true;
+          // }
           if (
+            role === Role.FAN &&
             prediction[i].className == "Class 1" &&
-            prediction[i].probability > 0.8
+            prediction[i].probability > 0.9
+          ) {
+            detected = true;
+          } else if (
+            role === Role.IDOL &&
+            prediction[i].className == "Class 2" &&
+            prediction[i].probability > 0.9
           ) {
             detected = true;
           }
         }
-        if (detected) {
-          console.log("포즈가 감지되었습니다!");
-          if (!hasDetected) {
-            handleDetected(role, idolPose);
-            hasDetected = true;
-          }
+
+        // if (detected) {
+        //   console.log(`🔔 포즈가 감지되었습니다`);
+        //   if (!myPose) {
+        //     await signalPoseDetected().then(() => {
+        //       console.log("📣 포즈 감지 신호를 보냈습니다.");
+        //     });
+        //   }
+        // }
+        if (detected && !myPose) {
+          await signalPoseDetected();
         }
       } catch (error) {
         console.error("Prediction error:", error);
@@ -138,14 +306,14 @@ const MotionDetector = ({ handleDetected, role, idolPose }: Props) => {
     } else {
       console.log("Model or webcam is not available!");
     }
-  };
+  }, [model, webcamRef, labelContainerRef, maxPredictions, myPose]);
 
   return (
     <div>
       <div hidden={true}>
         <canvas ref={canvasRef}></canvas>
       </div>
-      <div ref={labelContainerRef}></div>
+      <div hidden={true} ref={labelContainerRef}></div>
     </div>
   );
 };

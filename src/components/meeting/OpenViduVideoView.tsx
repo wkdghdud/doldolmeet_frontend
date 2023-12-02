@@ -6,10 +6,18 @@ import { Typography } from "@mui/material";
 interface Props {
   name: string | undefined;
   streamManager: StreamManager | Publisher | Subscriber;
+  left: boolean;
+  showOverlay: boolean;
   mirror?: boolean;
 }
 
-const OpenViduVideoView = ({ name, streamManager, mirror }: Props) => {
+const OpenViduVideoView = ({
+  name,
+  streamManager,
+  mirror,
+  left,
+  showOverlay,
+}: Props) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -51,7 +59,6 @@ const OpenViduVideoView = ({ name, streamManager, mirror }: Props) => {
             maxWidth: "95%",
             height: "70vh",
             objectFit: "cover",
-            transform: "rotateY(180deg)",
           }}
         />
       ) : (
@@ -63,6 +70,22 @@ const OpenViduVideoView = ({ name, streamManager, mirror }: Props) => {
             maxWidth: "95%",
             height: "70vh",
             objectFit: "cover",
+            transform: "rotateY(180deg)",
+          }}
+        />
+      )}
+      {showOverlay && (
+        <img
+          src={left ? "/left_heart.png" : "/right_heart.png"}
+          alt="gradient"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "95%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 300,
           }}
         />
       )}

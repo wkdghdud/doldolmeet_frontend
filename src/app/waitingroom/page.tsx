@@ -38,6 +38,7 @@ const WaitingRoom = () => {
   const [connection, setConnection] = useState<Connection | undefined>(
     undefined,
   );
+  const [pepleAhead, setPeopleAhead] = useState<number>(0);
 
   const token = useJwtToken();
 
@@ -111,6 +112,11 @@ const WaitingRoom = () => {
         setPopupOpen(true);
       },
     );
+
+    eventSource.addEventListener("numberOfPeopleAhead", (e: MessageEvent) => {
+      console.log("🥹 numberOfPeopleAhead: ", JSON.parse(e.data));
+      setPeopleAhead(JSON.parse(e.data));
+    });
 
     eventSource.addEventListener("moveToIdolRoom", (e: MessageEvent) => {
       console.log("🥹 moveToIdolRoom: ", JSON.parse(e.data));
@@ -205,7 +211,7 @@ const WaitingRoom = () => {
                   marginBottom: 10,
                 }}
               >
-                🙋‍♀️ 나의 순서 53번 | 👋 현재 52번째 팬까지 입장
+                😡😡😡 내앞에 {pepleAhead}명 남았어요!😡😡😡
               </Typography>
               <img
                 src={"/waiting_dino.gif"}

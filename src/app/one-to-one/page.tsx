@@ -6,12 +6,13 @@ import {
   Session,
   StreamManager,
 } from "openvidu-browser";
-import { Grid, Stack } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { Button, Grid, Stack } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
   createOpenViduConnection,
+  // createOpenViduSession,
 } from "@/utils/openvidu";
 import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
@@ -24,8 +25,11 @@ import PartnerStreamView from "@/components/meeting/PartnerStreamView";
 import ChatAndMemo from "@/components/ChatAndMemo";
 import EndAlertBar from "@/components/Timer";
 import { backend_api, openvidu_api, SPRING_URL } from "@/utils/api";
-import MotionDetector from "@/components/MotionDetector";
 import html2canvas from "html2canvas";
+import * as tmPose from "@teachablemachine/pose";
+import MotionDetector from "@/components/MotionDetector";
+
+import { fetchFanMeeting } from "@/hooks/fanmeeting";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -48,7 +52,7 @@ const OneToOnePage = () => {
     StreamManager | undefined
   >();
 
-  /* TODO: 닉네임 */
+  /* 닉네임 */
   const [myNickName, setMyNickName] = useState<string | undefined>(undefined);
   const [partnerNickName, setPartnerNickName] = useState<string | undefined>(
     undefined,
@@ -64,7 +68,7 @@ const OneToOnePage = () => {
   const [chatRoomId, setChatRoomId] = useState<string | undefined>();
 
   /* 팬미팅 종료 임박 Alert */
-  const [alertBarOpen, setAlertBarOpen] = useState<boolean>(false);
+  const [endSoon, setEndSoon] = useState<boolean>(false);
 
   /* 녹화를 위한 recordingid */
   const [forceRecordingId, setForceRecordingId] = useState("");
@@ -80,9 +84,10 @@ const OneToOnePage = () => {
 
   /* Camera 효과음 */
   const [shutter, setShutter] = useState<HTMLAudioElement>();
-  const [idolPose, setIdolPose] = useState<boolean>(false);
+  const [partnerPose, setPartnerPose] = useState<boolean>(false);
 
-  const audio = new Audio("/mp3/camera9.mp3");
+  /* FanMeeting 이름 */
+  const [fanMeetingName, setFanMeetingName] = useState<string | undefined>();
 
   useEffect(() => {
     token.then((res) => {
@@ -170,9 +175,13 @@ const OneToOnePage = () => {
       });
 
       mySession.on("signal:pose_detected", (event) => {
-        console.log("👋 아이돌이 포즈를 취했어요.", event.data);
-        setIdolPose(true);
+        if (event.data !== userName) {
+          console.log("👋 상대방이 포즈를 취했어요.", event.data);
+          setPartnerPose(true);
+        }
       });
+
+      // await createOpenViduSession(sessionId);
 
       const connection = await createOpenViduConnection(sessionId);
       if (connection) {
@@ -190,6 +199,13 @@ const OneToOnePage = () => {
             chatRoomId: _chatRoomId,
             nickname: myNickName,
           }),
+          kurentoOptions: {
+            allowedFilters: [
+              "FaceOverlayFilter",
+              "ChromaFilter",
+              "GStreamerFilter",
+            ],
+          },
         })
         .then(() => {
           if (role === Role.FAN) {
@@ -216,7 +232,18 @@ const OneToOnePage = () => {
         frameRate: 30,
         insertMode: "APPEND",
         mirror: false,
+        // @ts-ignore
+        // filter: {
+        //   type: "GStreamerFilter",
+        //   options: {
+        //     command:
+        //       // 'textoverlay text="Photo Time!" valignment=center halignment=center font-desc="Cantarell 25" draw-shadow=true',
+        //       "chromahold target-r=50 target-g=0 target-b=50 tolerance=90",
+        //   },
+        // },
       });
+
+      newPublisher.subscribeToRemote();
       mySession.publish(newPublisher);
       setSession(mySession);
       setMyStream(newPublisher);
@@ -239,7 +266,7 @@ const OneToOnePage = () => {
 
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
       console.log("🥹 통화가 곧 종료 됩니다.", JSON.parse(e.data));
-      setAlertBarOpen(true);
+      setEndSoon(true);
     });
 
     eventSource.onopen = () => {
@@ -304,83 +331,38 @@ const OneToOnePage = () => {
     }
   };
 
-  const onCapture = () => {
-    const targetElement = document.getElementById("video-container");
-    if (targetElement) {
-      html2canvas(targetElement)
-        .then((canvas) => {
-          // onSavaAs(canvas.toDataURL("image/png"), "image-download.png");
-          // shutter?.play(); // 찰칵 소리
-          audio.play();
-          const imageDataUrl = canvas.toDataURL("image/png");
-          uploadImage(imageDataUrl);
-        })
-        .catch((error) => {
-          console.error("html2canvas error:", error);
-        });
-    } else {
-      console.error("Target element not found");
-    }
-  };
+  // TODO: 이미지 필터 처리
+  // const onClickFilter = () => {
+  //   myStream?.stream.applyFilter("FaceOverlayFilter", {}).then((f) => {
+  //     if (f.type === "FaceOverlayFilter") {
+  //       f.execMethod("setOverlayedImage", {
+  //         uri: "https://cdn.pixabay.com/photo/2017/09/30/09/29/cowboy-hat-2801582_960_720.png",
+  //         offsetXPercent: "-0.1F",
+  //         offsetYPercent: "-0.8F",
+  //         widthPercent: "1.5F",
+  //         heightPercent: "1.0F",
+  //       });
+  //     }
+  //   });
+  // };
 
-  const uploadImage = (imageDataUrl) => {
-    const blobImage = dataURLtoBlob(imageDataUrl);
-    // Blob을 파일로 변환
-    const imageFile = new File([blobImage], "image.png", { type: "image/png" });
+  const fetchFanMeetingTitle = async () => {
+    try {
+      const fanMeeting = await fetchFanMeeting(fanMeetingId);
+      console.log("🚀 fanMeeting fetched!", fanMeeting);
 
-    const formData = new FormData();
-    formData.append("file", imageFile);
-
-    if (fanMeetingId) {
-      backend_api()
-        .post(`/captures/upload/${fanMeetingId}/${idolName}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then((response) => {
-          console.log("Image uploaded successfully:", response.data);
-        })
-        .catch((error) => {
-          console.error("Image upload failed:", error);
-        });
-    }
-  };
-
-  function dataURLtoBlob(dataURL) {
-    let arr = dataURL.split(","),
-      mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[1]),
-      n = bstr.length,
-      u8arr = new Uint8Array(n);
-
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-
-    return new Blob([u8arr], { type: mime });
-  }
-
-  const signalPoseDetected = async () => {
-    await openvidu_api.post(`/openvidu/api/signal`, {
-      session: sessionId,
-      type: "signal:pose_detected",
-      data: "true",
-    });
-  };
-
-  const handleDetected = (role: Role | undefined, idolPose: boolean) => {
-    console.log("👋 handleDetected role: ", role);
-    if (role === Role.FAN) {
-      // 아이돌도 포즈, 나도 포즈
-      if (idolPose) {
-        console.log("👋 아이돌이 포즈를 취했습니다.");
-        onCapture();
-      } else {
-        console.log("👋 아이돌이 포즈를 취하지 않았습니다.");
+      if (fanMeeting) {
+        setFanMeetingName(fanMeeting.title);
       }
-    } else if (role === Role.IDOL) {
-      signalPoseDetected();
+    } catch (error) {
+      console.error("FanMeeting fetch error:", error);
     }
   };
+
+  // fanMeetingId가 존재할 때에만 fetchFanMeetingTitle 호출
+  if (fanMeetingId) {
+    fetchFanMeetingTitle();
+  }
 
   return (
     <Grid container spacing={2}>
@@ -412,7 +394,7 @@ const OneToOnePage = () => {
               }}
             >
               <Typography variant={"h4"}>
-                {"💜 Aespa Drama 발매 기념 팬미팅"}
+                {fanMeetingName && `💜 ${fanMeetingName} 💜`}
               </Typography>
               <LinearTimerBar />
               <DeviceControlButton
@@ -420,6 +402,7 @@ const OneToOnePage = () => {
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
+              {/*<Button onClick={onClickFilter}>필터</Button>*/}
             </Stack>
           </Grid>
           <Grid
@@ -434,12 +417,16 @@ const OneToOnePage = () => {
                 <MyStreamView
                   name={`😎 ${idolName ?? "아이돌"}`}
                   stream={myStream}
+                  left={true}
+                  showOverlay={endSoon}
                 />
               ) : (
                 <PartnerStreamView
                   name={`😎 ${idolName ?? "아이돌"}`}
                   stream={partnerStream}
                   partnerRole={Role.IDOL}
+                  left={true}
+                  showOverlay={endSoon}
                 />
               )}
             </Grid>
@@ -448,12 +435,16 @@ const OneToOnePage = () => {
                 <MyStreamView
                   name={`😍 ${myNickName ?? "팬"}`}
                   stream={myStream}
+                  left={false}
+                  showOverlay={endSoon}
                 />
               ) : (
                 <PartnerStreamView
                   name={`😍 ${partnerNickName ?? "팬"}`}
                   stream={partnerStream}
                   partnerRole={Role.FAN}
+                  left={false}
+                  showOverlay={endSoon}
                 />
               )}
             </Grid>
@@ -474,15 +465,17 @@ const OneToOnePage = () => {
           <ChatAndMemo chatRoomId={chatRoomId} height={"75vh"} />
         </Grid>
       )}
-      <EndAlertBar
-        open={alertBarOpen}
-        handleClose={() => setAlertBarOpen(false)}
-      />
-      <MotionDetector
-        handleDetected={handleDetected}
-        role={role}
-        idolPose={idolPose}
-      />
+      <EndAlertBar open={endSoon} handleClose={() => setEndSoon(false)} />
+      {fanMeetingId && idolName && sessionId && userName && (
+        <MotionDetector
+          role={role}
+          fanMeetingId={fanMeetingId}
+          idolName={idolName}
+          sessionId={sessionId}
+          partnerPose={partnerPose}
+          username={userName}
+        />
+      )}
     </Grid>
   );
 };
