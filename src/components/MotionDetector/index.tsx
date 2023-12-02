@@ -95,6 +95,7 @@ const MotionDetector = ({
   }
 
   const signalPoseDetected = async () => {
+    console.log("🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶", username);
     if (username !== "") {
       await openvidu_api.post(`/openvidu/api/signal`, {
         session: sessionId,
