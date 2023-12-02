@@ -6,12 +6,13 @@ import {
   Session,
   StreamManager,
 } from "openvidu-browser";
-import { Grid, Stack } from "@mui/material";
+import { Button, Grid, Stack } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
   createOpenViduConnection,
+  // createOpenViduSession,
 } from "@/utils/openvidu";
 import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
@@ -27,6 +28,8 @@ import { backend_api, openvidu_api, SPRING_URL } from "@/utils/api";
 import html2canvas from "html2canvas";
 import * as tmPose from "@teachablemachine/pose";
 import MotionDetector from "@/components/MotionDetector";
+
+import { fetchFanMeeting } from "@/hooks/fanmeeting";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -82,6 +85,9 @@ const OneToOnePage = () => {
   /* Camera 효과음 */
   const [shutter, setShutter] = useState<HTMLAudioElement>();
   const [partnerPose, setPartnerPose] = useState<boolean>(false);
+
+  /* FanMeeting 이름 */
+  const [fanMeetingName, setFanMeetingName] = useState<string | undefined>();
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -190,6 +196,8 @@ const OneToOnePage = () => {
           setPartnerPose(true);
         }
       });
+
+      // await createOpenViduSession(sessionId);
 
       const connection = await createOpenViduConnection(sessionId);
       if (connection) {
@@ -339,6 +347,39 @@ const OneToOnePage = () => {
     }
   };
 
+  // TODO: 이미지 필터 처리
+  // const onClickFilter = () => {
+  //   myStream?.stream.applyFilter("FaceOverlayFilter", {}).then((f) => {
+  //     if (f.type === "FaceOverlayFilter") {
+  //       f.execMethod("setOverlayedImage", {
+  //         uri: "https://cdn.pixabay.com/photo/2017/09/30/09/29/cowboy-hat-2801582_960_720.png",
+  //         offsetXPercent: "-0.1F",
+  //         offsetYPercent: "-0.8F",
+  //         widthPercent: "1.5F",
+  //         heightPercent: "1.0F",
+  //       });
+  //     }
+  //   });
+  // };
+
+  const fetchFanMeetingTitle = async () => {
+    try {
+      const fanMeeting = await fetchFanMeeting(fanMeetingId);
+      console.log("🚀 fanMeeting fetched!", fanMeeting);
+
+      if (fanMeeting) {
+        setFanMeetingName(fanMeeting.title);
+      }
+    } catch (error) {
+      console.error("FanMeeting fetch error:", error);
+    }
+  };
+
+  // fanMeetingId가 존재할 때에만 fetchFanMeetingTitle 호출
+  if (fanMeetingId) {
+    fetchFanMeetingTitle();
+  }
+
   return (
     <Grid container spacing={2}>
       <Grid
@@ -369,7 +410,7 @@ const OneToOnePage = () => {
               }}
             >
               <Typography variant={"h4"}>
-                {"💜 Aespa Drama 발매 기념 팬미팅"}
+                {fanMeetingName && `💜 ${fanMeetingName} 💜`}
               </Typography>
               <LinearTimerBar />
               <DeviceControlButton
@@ -377,6 +418,7 @@ const OneToOnePage = () => {
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
+              {/*<Button onClick={onClickFilter}>필터</Button>*/}
             </Stack>
           </Grid>
           <Grid
