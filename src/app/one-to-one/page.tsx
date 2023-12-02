@@ -485,7 +485,7 @@ const OneToOnePage = () => {
         }
         if (detected) {
           console.log(`🔔 포즈가 감지되었습니다`);
-          if (!hasDetected) {
+          if (!hasDetected && userName !== "" && sessionId !== "") {
             await signalPoseDetected().then(() => {
               console.log("📣 포즈 감지 신호를 보냈습니다.");
             });
