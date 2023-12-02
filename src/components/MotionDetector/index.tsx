@@ -30,8 +30,9 @@ const MotionDetector = ({
   const [poseBPrediction, setPoseBPrediction] = useState<number>(0);
   const [valueChanged, setValueChanged] = useState<boolean>(false);
   let model, maxPredictions;
-  let hasDetected = false;
+  let hasCaptured = false;
   const [detectedCnt, setDetectedCnt] = useState<number>(0);
+  const [myPose, setMyPose] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("👀 MotionDetector role changed!", role);
@@ -191,6 +192,14 @@ const MotionDetector = ({
     // }
   };
 
+  useEffect(() => {
+    if (partnerPose && myPose && !hasCaptured) {
+      console.log("📸📸 사진촬영!!!!!📸📸", myPose);
+      onCapture();
+      hasCaptured = true;
+    }
+  }, [partnerPose, myPose]);
+
   const predict = async () => {
     const webcam = webcamRef.current;
     // console.log("Predict function started...");
@@ -224,13 +233,14 @@ const MotionDetector = ({
           }
         }
         if (detected) {
-          console.log(
-            `🔔 포즈가 감지되었습니다 => role: ${role} / partnerPose: ${partnerPose}`,
-          );
-          // if (!hasDetected) {
-          // handleDetected(role, partnerPose);
-          // hasDetected = false;
-          setDetectedCnt(detectedCnt + 1);
+          console.log(`🔔 포즈가 감지되었습니다`);
+
+          setMyPose(true);
+          //   if (!hasDetected) {
+          //   handleDetected(role, partnerPose);
+          //   hasDetected = false;
+          //   setDetectedCnt(detectedCnt + 1);
+          // }
         }
       } catch (error) {
         console.error("Prediction error:", error);
