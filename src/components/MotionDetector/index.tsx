@@ -96,7 +96,7 @@ const MotionDetector = ({
       });
       setMyPose(true);
     }
-  }, [username, sessionId, setMyPose]);
+  }, [username, sessionId]);
 
   useEffect(() => {
     console.log("MotionDetector component mounted!");
@@ -165,13 +165,20 @@ const MotionDetector = ({
     }
   };
 
+  // useEffect(() => {
+  //   if (partnerPose && myPose && !hasCaptured) {
+  //     console.log("📸📸 사진촬영!!!!!📸📸", myPose);
+  //     onCapture();
+  //     setHasCaptured(true);
+  //   }
+  // }, [partnerPose, myPose]);
   useEffect(() => {
     if (partnerPose && myPose && !hasCaptured) {
       console.log("📸📸 사진촬영!!!!!📸📸", myPose);
       onCapture();
       setHasCaptured(true);
     }
-  }, [partnerPose, myPose]);
+  }, [partnerPose, myPose, hasCaptured]);
 
   const predict = useCallback(async () => {
     const webcam = webcamRef.current;
@@ -199,13 +206,16 @@ const MotionDetector = ({
             detected = true;
           }
         }
-        if (detected) {
-          console.log(`🔔 포즈가 감지되었습니다`);
-          if (!myPose) {
-            await signalPoseDetected().then(() => {
-              console.log("📣 포즈 감지 신호를 보냈습니다.");
-            });
-          }
+        // if (detected) {
+        //   console.log(`🔔 포즈가 감지되었습니다`);
+        //   if (!myPose) {
+        //     await signalPoseDetected().then(() => {
+        //       console.log("📣 포즈 감지 신호를 보냈습니다.");
+        //     });
+        //   }
+        // }
+        if (detected && !myPose) {
+          await signalPoseDetected();
         }
       } catch (error) {
         console.error("Prediction error:", error);
