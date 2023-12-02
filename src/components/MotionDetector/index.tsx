@@ -9,7 +9,7 @@ interface Props {
   idolName: string | null | undefined;
   sessionId: string | null | undefined;
   partnerPose: boolean;
-  usernameProps: string;
+  username: string;
 }
 
 const MotionDetector = ({
@@ -17,7 +17,7 @@ const MotionDetector = ({
   idolName,
   sessionId,
   partnerPose,
-  usernameProps,
+  username,
 }: Props) => {
   const audio = new Audio("/mp3/camera9.mp3");
 
@@ -29,15 +29,10 @@ const MotionDetector = ({
   /* State*/
   const [hasCaptured, setHasCaptured] = useState<boolean>(false);
   const [myPose, setMyPose] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>("");
 
+  /* variables */
   let model, maxPredictions;
   let hasDetected = false;
-
-  useEffect(() => {
-    console.log("usernameProps:", usernameProps);
-    setUsername(usernameProps);
-  }, [usernameProps]);
 
   const onCapture = () => {
     const targetElement = document.getElementById("video-container");
@@ -206,12 +201,11 @@ const MotionDetector = ({
         }
         if (detected) {
           console.log(`🔔 포즈가 감지되었습니다`);
-          if (!hasDetected && username && sessionId) {
+          if (!myPose) {
             await signalPoseDetected().then(() => {
               console.log("📣 포즈 감지 신호를 보냈습니다.");
             });
             setMyPose(true);
-            hasDetected = true;
           }
         }
       } catch (error) {

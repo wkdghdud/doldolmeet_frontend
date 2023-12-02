@@ -431,7 +431,7 @@ const OneToOnePage = () => {
           idolName={idolName}
           sessionId={sessionId}
           partnerPose={partnerPose}
-          usernameProps={userName}
+          username={userName}
         />
       )}
     </Grid>
