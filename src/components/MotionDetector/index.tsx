@@ -131,7 +131,7 @@ const MotionDetector = ({ handleDetected, role, partnerPose }: Props) => {
           );
           if (!hasDetected) {
             handleDetected(role, partnerPose);
-            hasDetected = true;
+            hasDetected = false;
           }
         }
       } catch (error) {
