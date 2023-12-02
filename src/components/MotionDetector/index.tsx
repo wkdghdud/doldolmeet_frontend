@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as tmPose from "@teachablemachine/pose";
 import { Role } from "@/types";
 import html2canvas from "html2canvas";
@@ -100,7 +100,7 @@ const MotionDetector = ({
     });
   };
 
-  const handleDetected = async () => {
+  const handleDetected = useCallback(async () => {
     console.log("👋 handleDetected role: ", role);
 
     await signalPoseDetected().then(() => {
@@ -115,7 +115,7 @@ const MotionDetector = ({
         console.log("👋 아이돌이 포즈를 취하지 않았습니다.");
       }
     }
-  };
+  }, [role, partnerPose]);
 
   useEffect(() => {
     console.log("MotionDetector component mounted!");
@@ -193,14 +193,14 @@ const MotionDetector = ({
 
   const predict = async () => {
     const webcam = webcamRef.current;
-    console.log("Predict function started...");
+    // console.log("Predict function started...");
 
     if (model && webcam) {
-      console.log("Model and webcam are available!");
+      // console.log("Model and webcam are available!");
 
       try {
         const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
-        console.log("Pose estimation successful!");
+        // console.log("Pose estimation successful!");
 
         const prediction = await model.predict(posenetOutput);
         let detected = false;
