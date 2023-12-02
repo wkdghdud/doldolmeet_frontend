@@ -11,7 +11,7 @@ interface Props {
   sessionId: string | null | undefined;
   role: Role | undefined;
   partnerPose: boolean;
-  username: string | undefined;
+  usernameProps: string;
 }
 
 const MotionDetector = ({
@@ -20,7 +20,7 @@ const MotionDetector = ({
   sessionId,
   role,
   partnerPose,
-  username,
+  usernameProps,
 }: Props) => {
   const audio = new Audio("/mp3/camera9.mp3");
 
@@ -32,8 +32,14 @@ const MotionDetector = ({
   /* State*/
   const [hasCaptured, setHasCaptured] = useState<boolean>(false);
   const [myPose, setMyPose] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>("");
+
   let model, maxPredictions;
   let hasDetected = false;
+
+  useEffect(() => {
+    setUsername(usernameProps);
+  }, [usernameProps]);
 
   const onCapture = () => {
     const targetElement = document.getElementById("video-container");

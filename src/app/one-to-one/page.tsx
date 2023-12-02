@@ -407,7 +407,7 @@ const OneToOnePage = () => {
         fanMeetingId={fanMeetingId}
         sessionId={sessionId}
         idolName={idolName}
-        username={userName}
+        usernameProps={userName}
       />
     </Grid>
   );
