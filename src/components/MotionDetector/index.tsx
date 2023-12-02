@@ -195,10 +195,12 @@ const MotionDetector = ({
         }
         if (detected) {
           console.log(`🔔 포즈가 감지되었습니다`);
-          await signalPoseDetected().then(() => {
-            console.log("📣 포즈 감지 신호를 보냈습니다.");
-          });
-          setMyPose(true);
+          if (!myPose) {
+            await signalPoseDetected().then(() => {
+              console.log("📣 포즈 감지 신호를 보냈습니다.");
+            });
+            setMyPose(true);
+          }
         }
       } catch (error) {
         console.error("Prediction error:", error);
