@@ -32,7 +32,9 @@ const MotionDetector = ({
   const [username, setUsername] = useState<string>("");
 
   let model, maxPredictions;
-  let hasDetected = false;
+  // let hasDetected = false;
+
+  const [hasDetected, setHasDetected] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("usernameProps:", usernameProps);
@@ -174,9 +176,9 @@ const MotionDetector = ({
     if (partnerPose && myPose && !hasCaptured) {
       console.log("📸📸 사진촬영!!!!!📸📸", myPose);
       onCapture();
-      setHasCaptured(true);
+      setHasCaptured(false);
     }
-  }, [partnerPose, myPose]);
+  }, [partnerPose, myPose, hasCaptured]);
 
   const predict = async () => {
     const webcam = webcamRef.current;
@@ -204,15 +206,20 @@ const MotionDetector = ({
             detected = true;
           }
         }
-        if (detected) {
-          console.log(`🔔 포즈가 감지되었습니다`);
-          if (!hasDetected && username && sessionId) {
-            await signalPoseDetected().then(() => {
-              console.log("📣 포즈 감지 신호를 보냈습니다.");
-            });
-            setMyPose(true);
-            hasDetected = true;
-          }
+        // if (detected) {
+        //   console.log(`🔔 포즈가 감지되었습니다`);
+        //   if (!hasDetected && username && sessionId) {
+        //     await signalPoseDetected().then(() => {
+        //       console.log("📣 포즈 감지 신호를 보냈습니다.");
+        //     });
+        //     setMyPose(true);
+        //     hasDetected = true;
+        //   }
+        // }
+        if (detected && !hasDetected && username && sessionId) {
+          await signalPoseDetected();
+          setHasDetected(true); // 상태 업데이트
+          console.log("📣 포즈 감지 신호를 보냈습니다.");
         }
       } catch (error) {
         console.error("Prediction error:", error);

@@ -84,13 +84,28 @@ const OneToOnePage = () => {
   const [partnerPose, setPartnerPose] = useState<boolean>(false);
 
   useEffect(() => {
-    token.then((res) => {
-      console.log("🚀 token role changed!", res);
-      setRole(res?.auth);
-      setUserName(res?.sub ?? "");
-      setMyNickName(res?.nickname ?? "");
-    });
+    const fetchToken = async () => {
+      try {
+        const res = await token;
+        console.log("🚀 token role changed!", res);
+        setRole(res?.auth);
+        setUserName(res?.sub ?? "");
+        setMyNickName(res?.nickname ?? "");
+      } catch (error) {
+        console.error("Token fetch error:", error);
+      }
+    };
+    fetchToken();
   }, [token]);
+
+  // useEffect(() => {
+  //   token.then((res) => {
+  //     console.log("🚀 token role changed!", res);
+  //     setRole(res?.auth);
+  //     setUserName(res?.sub ?? "");
+  //     setMyNickName(res?.nickname ?? "");
+  //   });
+  // }, [token]);
 
   useEffect(() => {
     async function init() {
