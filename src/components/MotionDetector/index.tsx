@@ -100,10 +100,7 @@ const MotionDetector = ({
     });
   };
 
-  const handleDetected = async (
-    role: Role | undefined,
-    partnerPose: boolean,
-  ) => {
+  const handleDetected = async () => {
     console.log("👋 handleDetected role: ", role);
 
     await signalPoseDetected().then(() => {
@@ -245,7 +242,7 @@ const MotionDetector = ({
 
   useEffect(() => {
     // if (hasDetected) {
-    handleDetected(role, partnerPose);
+    handleDetected();
     // }
   }, [detectedCnt]);
 
