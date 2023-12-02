@@ -211,7 +211,7 @@ const WaitingRoom = () => {
                   marginBottom: 10,
                 }}
               >
-                🙋‍♀️ 나의 순서 53번 | 👋 현재 52번째 팬까지 입장
+                😡😡😡 내앞에 {pepleAhead}명 남았어요!😡😡😡
               </Typography>
               <img
                 src={"/waiting_dino.gif"}
