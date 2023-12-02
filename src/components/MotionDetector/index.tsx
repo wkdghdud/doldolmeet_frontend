@@ -30,6 +30,7 @@ const MotionDetector = ({
   // let hasCaptured = false;
   const [hasCaptured, setHasCaptured] = useState<boolean>(false);
   const [myPose, setMyPose] = useState<boolean>(false);
+  let hasDetected = false;
 
   const onCapture = () => {
     const targetElement = document.getElementById("video-container");
@@ -195,11 +196,12 @@ const MotionDetector = ({
         }
         if (detected) {
           console.log(`🔔 포즈가 감지되었습니다`);
-          if (!myPose) {
+          if (!hasDetected) {
             await signalPoseDetected().then(() => {
               console.log("📣 포즈 감지 신호를 보냈습니다.");
             });
             setMyPose(true);
+            hasDetected = true;
           }
         }
       } catch (error) {
