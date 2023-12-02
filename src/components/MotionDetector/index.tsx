@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as tmPose from "@teachablemachine/pose";
 import { Role } from "@/types";
 import html2canvas from "html2canvas";
@@ -95,7 +95,7 @@ const MotionDetector = ({
     return new Blob([u8arr], { type: mime });
   }
 
-  const signalPoseDetected = async () => {
+  const signalPoseDetected = useCallback(async () => {
     console.log("🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶", username);
     if (username !== "") {
       await openvidu_api.post(`/openvidu/api/signal`, {
@@ -104,7 +104,7 @@ const MotionDetector = ({
         data: username,
       });
     }
-  };
+  }, [username, sessionId]);
 
   useEffect(() => {
     console.log("MotionDetector component mounted!");
