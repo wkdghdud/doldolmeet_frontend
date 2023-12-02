@@ -306,8 +306,6 @@ const OneToOnePage = () => {
     }
   };
 
-  
-
   return (
     <Grid container spacing={2}>
       <Grid
@@ -404,16 +402,15 @@ const OneToOnePage = () => {
         open={alertBarOpen}
         handleClose={() => setAlertBarOpen(false)}
       />
-      { fanMeetingId && idolName && sessionId && userName && (
-      <MotionDetector 
-        fanMeetingId={fanMeetingId} 
-        idolName={idolName} 
-        sessionId={sessionId} 
-        partnerPose={partnerPose} 
-        usernameProps={userName}     
-      />
+      {fanMeetingId && idolName && sessionId && userName && (
+        <MotionDetector
+          fanMeetingId={fanMeetingId}
+          idolName={idolName}
+          sessionId={sessionId}
+          partnerPose={partnerPose}
+          usernameProps={userName}
+        />
       )}
-
     </Grid>
   );
 };
