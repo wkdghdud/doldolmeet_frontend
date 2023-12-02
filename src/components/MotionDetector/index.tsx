@@ -38,6 +38,7 @@ const MotionDetector = ({
   let hasDetected = false;
 
   useEffect(() => {
+    console.log("usernameProps:", usernameProps);
     setUsername(usernameProps);
   }, [usernameProps]);
 
