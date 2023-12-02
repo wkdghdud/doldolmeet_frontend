@@ -468,6 +468,7 @@ const OneToOnePage = () => {
       <EndAlertBar open={endSoon} handleClose={() => setEndSoon(false)} />
       {fanMeetingId && idolName && sessionId && userName && (
         <MotionDetector
+          role={role}
           fanMeetingId={fanMeetingId}
           idolName={idolName}
           sessionId={sessionId}

@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as tmPose from "@teachablemachine/pose";
 import html2canvas from "html2canvas";
 import { backend_api, openvidu_api } from "@/utils/api";
+import { Role } from "@/types";
 
 interface Props {
   fanMeetingId: string | null | undefined;
@@ -10,9 +11,11 @@ interface Props {
   sessionId: string | null | undefined;
   partnerPose: boolean;
   username: string;
+  role: string | undefined;
 }
 
 const MotionDetector = ({
+  role,
   fanMeetingId,
   idolName,
   sessionId,
@@ -31,6 +34,7 @@ const MotionDetector = ({
   const [myPose, setMyPose] = useState<boolean>(false);
 
   let model, maxPredictions;
+  let model2, maxPredictions2;
   let hasDetected = false;
 
   const onCapture = () => {
@@ -132,8 +136,15 @@ const MotionDetector = ({
     const modelURL = URL + "model.json";
     const metadataURL = URL + "metadata.json";
 
+    const URL2 = "/my-pose-model2/";
+    const modelURL2 = URL2 + "model.json";
+    const metadataURL2 = URL2 + "metadata.json";
+
     model = await tmPose.load(modelURL, metadataURL);
+    model2 = await tmPose.load(modelURL2, metadataURL2);
+
     maxPredictions = model.getTotalClasses();
+    maxPredictions2 = model2.getTotalClasses();
 
     const size = 200;
     const flip = true;
@@ -159,7 +170,11 @@ const MotionDetector = ({
       const webcam = webcamRef.current;
       if (webcam) {
         webcam.update();
-        predict();
+        // if (motionType === "bigHeart") {
+        //   predict();
+        // } else if (motionType === "halfHeart") {
+        predict2();
+        // }
         window.requestAnimationFrame(loop);
       }
     }
@@ -179,6 +194,60 @@ const MotionDetector = ({
       setHasCaptured(true);
     }
   }, [partnerPose, myPose, hasCaptured]);
+
+  const predict2 = useCallback(async () => {
+    const webcam = webcamRef.current;
+
+    if (model2 && webcam) {
+      try {
+        const { pose, posenetOutput } = await model2.estimatePose(
+          webcam.canvas,
+        );
+
+        const prediction = await model2.predict(posenetOutput);
+        let detected = false;
+
+        for (let i = 0; i < maxPredictions2; i++) {
+          const classPrediction =
+            prediction[i].className +
+            ": " +
+            prediction[i].probability.toFixed(2);
+
+          // @ts-ignore
+          labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
+
+          if (
+            role === Role.FAN &&
+            prediction[i].className == "Class 1" &&
+            prediction[i].probability > 0.9
+          ) {
+            detected = true;
+          } else if (
+            role === Role.IDOL &&
+            prediction[i].className == "Class 2" &&
+            prediction[i].probability > 0.9
+          ) {
+            detected = true;
+          }
+        }
+        // if (detected) {
+        //   console.log(`🔔 포즈가 감지되었습니다`);
+        //   if (!myPose) {
+        //     await signalPoseDetected().then(() => {
+        //       console.log("📣 포즈 감지 신호를 보냈습니다.");
+        //     });
+        //   }
+        // }
+        if (detected && !myPose) {
+          await signalPoseDetected();
+        }
+      } catch (error) {
+        console.error("Prediction error:", error);
+      }
+    } else {
+      console.log("Model or webcam is not available!");
+    }
+  }, [model2, webcamRef, labelContainerRef, maxPredictions2, myPose]);
 
   const predict = useCallback(async () => {
     const webcam = webcamRef.current;
