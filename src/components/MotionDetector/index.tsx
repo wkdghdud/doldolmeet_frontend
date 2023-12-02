@@ -172,7 +172,7 @@ const MotionDetector = ({
     }
   }, [partnerPose, myPose]);
 
-  const predict = async () => {
+  const predict = useCallback(async () => {
     const webcam = webcamRef.current;
 
     if (model && webcam) {
@@ -200,11 +200,9 @@ const MotionDetector = ({
         }
         if (detected) {
           console.log(`🔔 포즈가 감지되었습니다`);
-          let flag = false;
-          if (!myPose && !flag) {
+          if (!myPose) {
             await signalPoseDetected().then(() => {
               console.log("📣 포즈 감지 신호를 보냈습니다.");
-              flag = true;
             });
             setMyPose(true);
           }
@@ -215,7 +213,7 @@ const MotionDetector = ({
     } else {
       console.log("Model or webcam is not available!");
     }
-  };
+  }, [model, webcamRef, labelContainerRef, maxPredictions, myPose]);
 
   return (
     <div>
