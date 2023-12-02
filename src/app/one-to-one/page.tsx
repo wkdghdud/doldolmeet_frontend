@@ -82,8 +82,6 @@ const OneToOnePage = () => {
   const [shutter, setShutter] = useState<HTMLAudioElement>();
   const [partnerPose, setPartnerPose] = useState<boolean>(false);
 
-  const audio = new Audio("/mp3/camera9.mp3");
-
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -304,89 +302,6 @@ const OneToOnePage = () => {
     }
   };
 
-  const onCapture = () => {
-    const targetElement = document.getElementById("video-container");
-    if (targetElement) {
-      html2canvas(targetElement)
-        .then((canvas) => {
-          // onSavaAs(canvas.toDataURL("image/png"), "image-download.png");
-          // shutter?.play(); // 찰칵 소리
-          audio.play();
-          const imageDataUrl = canvas.toDataURL("image/png");
-          uploadImage(imageDataUrl);
-        })
-        .catch((error) => {
-          console.error("html2canvas error:", error);
-        });
-    } else {
-      console.error("Target element not found");
-    }
-  };
-
-  const uploadImage = (imageDataUrl) => {
-    const blobImage = dataURLtoBlob(imageDataUrl);
-    // Blob을 파일로 변환
-    const imageFile = new File([blobImage], "image.png", { type: "image/png" });
-
-    const formData = new FormData();
-    formData.append("file", imageFile);
-
-    if (fanMeetingId) {
-      backend_api()
-        .post(`/captures/upload/${fanMeetingId}/${idolName}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then((response) => {
-          console.log("Image uploaded successfully:", response.data);
-        })
-        .catch((error) => {
-          console.error("Image upload failed:", error);
-        });
-    }
-  };
-
-  function dataURLtoBlob(dataURL) {
-    let arr = dataURL.split(","),
-      mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[1]),
-      n = bstr.length,
-      u8arr = new Uint8Array(n);
-
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-
-    return new Blob([u8arr], { type: mime });
-  }
-
-  const signalPoseDetected = async () => {
-    await openvidu_api.post(`/openvidu/api/signal`, {
-      session: sessionId,
-      type: "signal:pose_detected",
-      data: "true",
-    });
-  };
-
-  const handleDetected = async (
-    role: Role | undefined,
-    partnerPose: boolean,
-  ) => {
-    console.log("👋 handleDetected role: ", role);
-
-    await signalPoseDetected().then(() => {
-      console.log("📣 포즈 감지 신호를 보냈습니다.");
-    });
-
-    if (role === Role.FAN) {
-      if (partnerPose) {
-        console.log("👋 아이돌도 포즈를 취했습니다.");
-        onCapture();
-      } else {
-        console.log("👋 아이돌이 포즈를 취하지 않았습니다.");
-      }
-    }
-  };
-
   return (
     <Grid container spacing={2}>
       <Grid
@@ -484,9 +399,11 @@ const OneToOnePage = () => {
         handleClose={() => setAlertBarOpen(false)}
       />
       <MotionDetector
-        handleDetected={handleDetected}
         role={role}
         partnerPose={partnerPose}
+        fanMeetingId={fanMeetingId}
+        sessionId={sessionId}
+        idolName={idolName}
       />
     </Grid>
   );
