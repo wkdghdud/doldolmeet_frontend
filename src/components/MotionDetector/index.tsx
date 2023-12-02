@@ -1,7 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as tmPose from "@teachablemachine/pose";
-import { Role } from "@/types";
 import html2canvas from "html2canvas";
 import { backend_api, openvidu_api } from "@/utils/api";
 
@@ -9,7 +8,6 @@ interface Props {
   fanMeetingId: string | null | undefined;
   idolName: string | null | undefined;
   sessionId: string | null | undefined;
-  role: Role | undefined;
   partnerPose: boolean;
   usernameProps: string;
 }
@@ -18,7 +16,6 @@ const MotionDetector = ({
   fanMeetingId,
   idolName,
   sessionId,
-  role,
   partnerPose,
   usernameProps,
 }: Props) => {
