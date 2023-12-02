@@ -89,11 +89,13 @@ const MotionDetector = ({
   }
 
   const signalPoseDetected = async () => {
-    await openvidu_api.post(`/openvidu/api/signal`, {
-      session: sessionId,
-      type: "signal:pose_detected",
-      data: username,
-    });
+    if (username !== "") {
+      await openvidu_api.post(`/openvidu/api/signal`, {
+        session: sessionId,
+        type: "signal:pose_detected",
+        data: username,
+      });
+    }
   };
 
   useEffect(() => {
