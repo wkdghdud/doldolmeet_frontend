@@ -84,6 +84,14 @@ const OneToOnePage = () => {
   const [partnerPose, setPartnerPose] = useState<boolean>(false);
 
   useEffect(() => {
+    token.then((res) => {
+      setRole(res?.auth);
+      setUserName(res?.sub ?? "");
+      setMyNickName(res?.nickname ?? "");
+    });
+  }, [token]);
+
+  useEffect(() => {
     async function init() {
       if (role === Role.FAN) {
         await fetchSSE();
