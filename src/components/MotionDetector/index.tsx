@@ -18,6 +18,7 @@ const MotionDetector = ({ handleDetected, role, partnerPose }: Props) => {
   const [valueChanged, setValueChanged] = useState<boolean>(false);
   let model, maxPredictions;
   let hasDetected = false;
+  const [detectedCnt, setDetectedCnt] = useState<number>(0);
 
   useEffect(() => {
     console.log("MotionDetector component mounted!");
@@ -83,14 +84,14 @@ const MotionDetector = ({ handleDetected, role, partnerPose }: Props) => {
   };
 
   const loop = () => {
-    if (!hasDetected) {
-      const webcam = webcamRef.current;
-      if (webcam) {
-        webcam.update();
-        predict();
-        window.requestAnimationFrame(loop);
-      }
+    // if (!hasDetected) {
+    const webcam = webcamRef.current;
+    if (webcam) {
+      webcam.update();
+      predict();
+      window.requestAnimationFrame(loop);
     }
+    // }
   };
 
   const predict = async () => {
@@ -129,10 +130,10 @@ const MotionDetector = ({ handleDetected, role, partnerPose }: Props) => {
           console.log(
             `🔔 포즈가 감지되었습니다 => role: ${role} / partnerPose: ${partnerPose}`,
           );
-          if (!hasDetected) {
-            handleDetected(role, partnerPose);
-            hasDetected = false;
-          }
+          // if (!hasDetected) {
+          // handleDetected(role, partnerPose);
+          // hasDetected = false;
+          setDetectedCnt(detectedCnt + 1);
         }
       } catch (error) {
         console.error("Prediction error:", error);
@@ -141,6 +142,12 @@ const MotionDetector = ({ handleDetected, role, partnerPose }: Props) => {
       console.log("Model or webcam is not available!");
     }
   };
+
+  useEffect(() => {
+    // if (hasDetected) {
+    handleDetected(role, partnerPose);
+    // }
+  }, [detectedCnt]);
 
   return (
     <div>
