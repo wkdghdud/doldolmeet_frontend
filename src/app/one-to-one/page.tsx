@@ -114,6 +114,7 @@ const OneToOnePage = () => {
     async function init() {
       if (role === Role.IDOL) {
         await fetchSSE_idol();
+        await joinSession();
       } else if (role === Role.FAN) {
         await fetchSSE();
         const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
