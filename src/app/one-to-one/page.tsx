@@ -112,7 +112,9 @@ const OneToOnePage = () => {
 
   useEffect(() => {
     async function init() {
-      if (role === Role.FAN) {
+      if (role === Role.IDOL) {
+        await fetchSSE_idol();
+      } else if (role === Role.FAN) {
         await fetchSSE();
         const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
         setChatRoomId(fanToFanMeeting?.chatRoomId);
@@ -220,6 +222,7 @@ const OneToOnePage = () => {
             chatRoomId: _chatRoomId,
             nickname: myNickName,
             gameType: gameType,
+            idolName: idolName,
           }),
           kurentoOptions: {
             allowedFilters: [
@@ -323,6 +326,42 @@ const OneToOnePage = () => {
     return true;
   };
 
+  const fetchSSE_idol = async () => {
+    const eventSource = new EventSource(
+      `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
+    );
+
+    eventSource.addEventListener("gameStart", (e: MessageEvent) => {
+      console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
+      setGameStart(true);
+    });
+
+    eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
+      console.log("🥹 game이 종료됐습니다.!!!.", JSON.parse(e.data));
+      setGameEnd(true);
+    });
+
+    eventSource.onopen = () => {
+      console.log("📣 SSE 연결되었습니다.");
+    };
+
+    eventSource.onerror = (e) => {
+      // 종료 또는 에러 발생 시 할 일
+      console.log("error");
+      console.log(e);
+      eventSource.close();
+
+      if (e.error) {
+        // 에러 발생 시 할 일
+      }
+
+      if (e.target.readyState === EventSource.CLOSED) {
+        // 종료 시 할 일
+      }
+    };
+
+    return true;
+  };
   // 세션을 나가면서 정리
   const leaveSession = async () => {
     if (sessionId && myConnection?.connectionId) {
