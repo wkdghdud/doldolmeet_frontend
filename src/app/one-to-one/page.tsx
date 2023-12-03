@@ -435,6 +435,12 @@ const OneToOnePage = () => {
                 {fanMeetingName && `💜 ${fanMeetingName} 💜`}
               </Typography>
               <LinearTimerBar />
+              <GameSecond
+                sessionId={sessionId}
+                username={userName}
+                role={role}
+                partnerChoice={partnerChoice}
+              />
               <DeviceControlButton
                 publisher={myStream}
                 fullScreen={fullScreen}
@@ -520,12 +526,12 @@ const OneToOnePage = () => {
         handleclose={handleclose}
         fanMeetingId={fanMeetingId}
       />
-      <GameSecond
-        sessionId={sessionId}
-        username={userName}
-        role={role}
-        partnerChoice={partnerChoice}
-      />
+      {/*<GameSecond*/}
+      {/*  sessionId={sessionId}*/}
+      {/*  username={userName}*/}
+      {/*  role={role}*/}
+      {/*  partnerChoice={partnerChoice}*/}
+      {/*/>*/}
     </Grid>
   );
 };
