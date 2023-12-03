@@ -287,7 +287,7 @@ const MotionDetector = ({
   const predict2 = useCallback(async () => {
     const webcam = webcamRef.current;
 
-    if (model2 && webcam) {
+    if (model2 && webcam && labelContainerRef2.current) {
       try {
         const { pose, posenetOutput } = await model2.estimatePose(
           webcam.canvas,
