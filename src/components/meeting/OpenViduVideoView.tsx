@@ -60,6 +60,8 @@ const OpenViduVideoView = ({
             maxWidth: "95%",
             height: "70vh",
             objectFit: "cover",
+            transform: "rotateY(180deg)",
+            WebkitTransform: "rotateY(180deg)",
           }}
         />
       ) : (
@@ -72,7 +74,6 @@ const OpenViduVideoView = ({
             maxWidth: "95%",
             height: "70vh",
             objectFit: "cover",
-            transform: "rotateY(180deg)",
           }}
         />
       )}
