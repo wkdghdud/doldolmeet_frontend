@@ -386,9 +386,9 @@ const OneToOnePage = () => {
     setGameStart(false);
   };
 
-  const onClickFilter = () => {
-    setGameStart(true);
-  };
+  // const onClickFilter = () => {
+  //   setGameStart(true);
+  // };
 
   return (
     <Grid container spacing={2}>
@@ -428,7 +428,7 @@ const OneToOnePage = () => {
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
-              <Button onClick={onClickFilter}>필터</Button>
+              {/*<Button onClick={onClickFilter}>필터</Button>*/}
             </Stack>
           </Grid>
           <Grid
