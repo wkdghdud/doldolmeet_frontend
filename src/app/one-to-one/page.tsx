@@ -30,6 +30,7 @@ import * as tmPose from "@teachablemachine/pose";
 import MotionDetector from "@/components/MotionDetector";
 
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
+import Game from "@/components/Game";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -89,6 +90,12 @@ const OneToOnePage = () => {
 
   /* FanMeeting 이름 */
   const [fanMeetingName, setFanMeetingName] = useState<string | undefined>();
+
+  /* 게임시작 */
+  const [gameStart, setGameStart] = useState<boolean>(false);
+
+  /* 게임종료 */
+  const [gameEnd, setGameEnd] = useState<boolean>(false);
 
   useEffect(() => {
     token.then((res) => {
@@ -270,6 +277,16 @@ const OneToOnePage = () => {
       setEndSoon(true);
     });
 
+    eventSource.addEventListener("gameStart", (e: MessageEvent) => {
+      console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
+      setGameStart(true);
+    });
+
+    eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
+      console.log("🥹 game이 종료됐습니다.!!!.", JSON.parse(e.data));
+      setGameEnd(true);
+    });
+
     eventSource.onopen = () => {
       console.log("📣 SSE 연결되었습니다.");
     };
@@ -364,6 +381,14 @@ const OneToOnePage = () => {
   if (fanMeetingId) {
     fetchFanMeetingTitle();
   }
+
+  const handleclose = () => {
+    setGameStart(false);
+  };
+
+  // const onClickFilter = () => {
+  //   setGameStart(true);
+  // };
 
   return (
     <Grid container spacing={2}>
@@ -478,6 +503,11 @@ const OneToOnePage = () => {
           motionType={motionType}
         />
       )}
+      <Game
+        open={gameStart}
+        handleclose={handleclose}
+        fanMeetingId={fanMeetingId}
+      />
     </Grid>
   );
 };
