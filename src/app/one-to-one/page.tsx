@@ -232,7 +232,7 @@ const OneToOnePage = () => {
         resolution: "640x480",
         frameRate: 30,
         insertMode: "APPEND",
-        mirror: false,
+        mirror: true,
         // @ts-ignore
         // filter: {
         //   type: "GStreamerFilter",

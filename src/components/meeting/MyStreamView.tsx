@@ -18,7 +18,7 @@ const MyStreamView = ({ name, stream, left, showOverlay }: Props) => {
         <OpenViduVideoView
           name={name}
           streamManager={stream}
-          mirror={false}
+          mirror={true}
           left={left}
           showOverlay={showOverlay}
         />
