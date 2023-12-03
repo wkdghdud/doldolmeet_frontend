@@ -5,7 +5,6 @@ import html2canvas from "html2canvas";
 import { backend_api, openvidu_api } from "@/utils/api";
 import PhotoFrame from "@/components/PhotoFrame";
 import { Role } from "@/types";
-import { motion } from "framer-motion";
 
 interface Props {
   fanMeetingId: string | null | undefined;
@@ -45,6 +44,51 @@ const MotionDetector = ({
   const [idolImgSrc, setidolImgSrc] = useState<string>("");
   const [fanImgSrc, setFanImgSrc] = useState<string>("");
 
+  /* videoElement가 화면에 보이는 상태대로 canvasElement에 복사하여 이미지의 data url을 반환하는 함수 */
+  const createImageDataUrl = (
+    videoElement: HTMLVideoElement,
+    canvasElement: HTMLCanvasElement,
+  ) => {
+    const aspectRatio = videoElement.clientWidth / videoElement.clientHeight;
+
+    canvasElement.width = videoElement.clientWidth;
+    canvasElement.height = canvasElement.width / aspectRatio;
+
+    const ctx = canvasElement.getContext("2d");
+
+    if (ctx) {
+      // Clear canvas
+      ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+      // Calculate scaling factor based on objectFit: 'cover'
+      const scale = Math.max(
+        canvasElement.width / videoElement.videoWidth,
+        canvasElement.height / videoElement.videoHeight,
+      );
+
+      // Calculate positioning to center the content on the canvas
+      const xOffset =
+        (canvasElement.width - videoElement.videoWidth * scale) / 2;
+      const yOffset =
+        (canvasElement.height - videoElement.videoHeight * scale) / 2;
+
+      // Draw the video content on the canvas
+      ctx.drawImage(
+        videoElement,
+        xOffset,
+        yOffset,
+        videoElement.videoWidth * scale,
+        videoElement.videoHeight * scale,
+      );
+
+      // Return the created image data URL
+      return canvasElement.toDataURL("image/png");
+    } else {
+      console.error("2D context not supported");
+      return "";
+    }
+  };
+
   const onCapture = async () => {
     const idolElement: HTMLVideoElement = document.getElementById(
       "idol-video-container",
@@ -61,37 +105,10 @@ const MotionDetector = ({
     ) as HTMLCanvasElement;
 
     if (idolElement && fanElement) {
-      // 아이돌 캔버스에 캡처 이미지 넣기
-      idolCanvas.width = idolElement.videoWidth;
-      idolCanvas.height = idolElement.videoHeight;
-      idolCanvas
-        .getContext("2d")
-        ?.drawImage(
-          idolElement,
-          0,
-          0,
-          idolElement.videoWidth,
-          idolElement.videoHeight,
-        );
-
-      // 팬 캔버스에 캡처 이미지 넣기
-      fanCanvas.width = fanElement.videoWidth;
-      fanCanvas.height = fanElement.videoHeight;
-      fanCanvas
-        .getContext("2d")
-        ?.drawImage(
-          fanElement,
-          0,
-          0,
-          fanElement.videoWidth,
-          fanElement.videoHeight,
-        );
-
-      audio.play(); // 찰칵 소리
-      const idolImageDataUrl = idolCanvas.toDataURL("image/png");
+      const idolImageDataUrl = createImageDataUrl(idolElement, idolCanvas);
       setidolImgSrc(idolImageDataUrl);
 
-      const fanImageDataUrl = fanCanvas.toDataURL("image/png");
+      const fanImageDataUrl = createImageDataUrl(fanElement, fanCanvas);
       setFanImgSrc(fanImageDataUrl);
     } else {
       console.error("Target element not found");

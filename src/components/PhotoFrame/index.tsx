@@ -22,7 +22,7 @@ const PhotoFrame = ({ idolImgSrc, fanImgSrc }: Props) => {
     >
       <Grid item xs={12}>
         <Typography
-          variant={"h2"}
+          variant={"h1"}
           sx={{ color: "#FFFFFF", marginBottom: 1, fontFamily: "Arial" }}
         >
           DOLDOLMEET FILM
@@ -34,7 +34,7 @@ const PhotoFrame = ({ idolImgSrc, fanImgSrc }: Props) => {
             src={idolImgSrc}
             alt="idol-img"
             style={{
-              width: "100%",
+              width: "auto",
               objectFit: "cover",
             }}
           />
@@ -42,7 +42,7 @@ const PhotoFrame = ({ idolImgSrc, fanImgSrc }: Props) => {
             src={fanImgSrc}
             alt="fan-img"
             style={{
-              width: "100%",
+              width: "auto",
               objectFit: "cover",
             }}
           />
