@@ -112,9 +112,11 @@ const OneToOnePage = () => {
 
   useEffect(() => {
     async function init() {
-      if (role === Role.IDOL) {
-        await fetchSSE_idol();
-      } else if (role === Role.FAN) {
+      // if (role === Role.IDOL) {
+      //   await fetchSSE_idol();
+      // }
+
+      if (role === Role.FAN) {
         await fetchSSE();
         const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
         setChatRoomId(fanToFanMeeting?.chatRoomId);
@@ -222,7 +224,7 @@ const OneToOnePage = () => {
             chatRoomId: _chatRoomId,
             nickname: myNickName,
             gameType: gameType,
-            idolName: idolName,
+            // idolName: idolName,
           }),
           kurentoOptions: {
             allowedFilters: [
