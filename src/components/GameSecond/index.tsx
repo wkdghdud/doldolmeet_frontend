@@ -15,17 +15,43 @@ interface Props {
   sessionId: string | null | undefined;
   role: string | undefined;
   partnerChoice: string | null | undefined;
+  open: boolean;
 }
 
-const GameSecond = ({ username, sessionId, role, partnerChoice }: Props) => {
+const GameSecond = ({
+  open,
+  username,
+  sessionId,
+  role,
+  partnerChoice,
+}: Props) => {
   const [userChoice, setUserChoice] = useState(null);
   const [score, setScore] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태
+  const [showCountdownModal, setShowCountdownModal] = useState(false);
+  const [showGameModal, setShowGameModal] = useState(false);
+  const [countdown, setCountdown] = useState(3);
   const options = ["짜장", "짬뽕"];
+  const decisionTimeLimit = 5; // 제한 시간 (5초)
+
+  useEffect(() => {
+    if (open) {
+      setShowCountdownModal(true);
+      const timer = setInterval(() => {
+        setCountdown((prevCount) => {
+          if (prevCount === 1) {
+            clearInterval(timer);
+            setShowCountdownModal(false);
+            setShowGameModal(true);
+            return 0;
+          }
+          return prevCount - 1;
+        });
+      }, 1000);
+    }
+  }, [open]);
 
   const signalChoiceDetected = useCallback(
     async (choice) => {
-      console.log("🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶", username);
       if (username !== "") {
         await openvidu_api.post(`/openvidu/api/signal`, {
           session: sessionId,
@@ -35,47 +61,58 @@ const GameSecond = ({ username, sessionId, role, partnerChoice }: Props) => {
             username: username,
           }),
         });
-        if (role === Role.FAN) {
-          setUserChoice(choice);
-        }
+        setUserChoice(choice);
+        setTimeout(() => {
+          if (partnerChoice === choice) {
+            setScore((prevScore) => prevScore + 1);
+          }
+        }, decisionTimeLimit * 1000);
       }
     },
-    [username, sessionId, role],
+    [username, sessionId, role, partnerChoice],
   );
 
   const handleUserChoice = (choice) => {
     signalChoiceDetected(choice);
-    setIsModalOpen(false);
-  };
-
-  useEffect(() => {
-    if (partnerChoice !== undefined) {
-      setIsModalOpen(true); // 파트너의 선택이 있으면 모달을 엽니다.
+    if (choice === partnerChoice) {
+      alert("정답을 맞췄습니다!");
+      setScore(score + 1);
+      setShowGameModal(false);
     }
-  }, [partnerChoice]);
+  };
 
   return (
     <div>
-      <button onClick={() => setIsModalOpen(true)}>이심전심 게임 시작</button>
-      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <DialogTitle>이심전심 게임</DialogTitle>
-        <DialogContent>
-          <div>
-            {options.map((option, idx) => (
-              <button key={option} onClick={() => handleUserChoice(option)}>
-                {option}
-              </button>
-            ))}
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <div>
-            <p>당신의 선택: {userChoice}</p>
-            <p>아이돌의 선택: {partnerChoice}</p>
-            <p>점수: {score}</p>
-          </div>
-        </DialogActions>
-      </Dialog>
+      {showCountdownModal && (
+        <Dialog open={showCountdownModal}>
+          <DialogTitle>게임 시작 카운트다운</DialogTitle>
+          <DialogContent>
+            <h2>{countdown}초 후에 게임이 시작됩니다...</h2>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {showGameModal && (
+        <Dialog open={showGameModal} onClose={() => setShowGameModal(false)}>
+          <DialogTitle>이심전심 게임</DialogTitle>
+          <DialogContent>
+            <div>
+              {options.map((option, idx) => (
+                <button key={option} onClick={() => handleUserChoice(option)}>
+                  {option}
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <div>
+              <p>당신의 선택: {userChoice}</p>
+              <p>아이돌의 선택: {partnerChoice}</p>
+              <p>점수: {score}</p>
+            </div>
+          </DialogActions>
+        </Dialog>
+      )}
     </div>
   );
 };

@@ -42,6 +42,7 @@ const OneToOnePage = () => {
   const sessionId = searchParams?.get("sessionId");
   const idolName = searchParams?.get("idolName");
   const motionType = searchParams?.get("motionType");
+  const gameType = searchParams?.get("gameType");
 
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();
@@ -218,6 +219,7 @@ const OneToOnePage = () => {
             type: "idolRoom",
             chatRoomId: _chatRoomId,
             nickname: myNickName,
+            gameType: gameType,
           }),
           kurentoOptions: {
             allowedFilters: [
@@ -521,17 +523,22 @@ const OneToOnePage = () => {
           motionType={motionType}
         />
       )}
-      <Game
-        open={gameStart}
-        handleclose={handleclose}
-        fanMeetingId={fanMeetingId}
-      />
-      {/*<GameSecond*/}
-      {/*  sessionId={sessionId}*/}
-      {/*  username={userName}*/}
-      {/*  role={role}*/}
-      {/*  partnerChoice={partnerChoice}*/}
-      {/*/>*/}
+      {gameType === "1" && (
+        <Game
+          open={gameStart}
+          handleclose={handleclose}
+          fanMeetingId={fanMeetingId}
+        />
+      )}
+      {gameType === "2" && (
+        <GameSecond
+          open={gameStart}
+          sessionId={sessionId}
+          username={userName}
+          role={role}
+          partnerChoice={partnerChoice}
+        />
+      )}
     </Grid>
   );
 };
