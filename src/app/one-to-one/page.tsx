@@ -31,6 +31,7 @@ import MotionDetector from "@/components/MotionDetector";
 
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import Game from "@/components/Game";
+import GameSecond from "@/components/GameSecond";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -96,6 +97,9 @@ const OneToOnePage = () => {
 
   /* 게임종료 */
   const [gameEnd, setGameEnd] = useState<boolean>(false);
+
+  /* 이심전심 선택 */
+  const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
 
   useEffect(() => {
     token.then((res) => {
@@ -186,6 +190,14 @@ const OneToOnePage = () => {
         if (event.data !== userName) {
           console.log("👋 상대방이 포즈를 취했어요.", event.data);
           setPartnerPose(true);
+        }
+      });
+
+      mySession.on("signal:choice_detected", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 상대방이 선택을 했어요.", event.data);
+          setPartnerChoice(data.choice);
         }
       });
 
@@ -507,6 +519,12 @@ const OneToOnePage = () => {
         open={gameStart}
         handleclose={handleclose}
         fanMeetingId={fanMeetingId}
+      />
+      <GameSecond
+        sessionId={sessionId}
+        username={userName}
+        role={role}
+        partnerChoice={partnerChoice}
       />
     </Grid>
   );
