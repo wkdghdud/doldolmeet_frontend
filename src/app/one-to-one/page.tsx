@@ -112,11 +112,9 @@ const OneToOnePage = () => {
 
   useEffect(() => {
     async function init() {
-      // if (role === Role.IDOL) {
-      //   await fetchSSE_idol();
-      // }
-
-      if (role === Role.FAN) {
+      if (role === Role.IDOL) {
+        await fetchSSE_idol();
+      } else if (role === Role.FAN) {
         await fetchSSE();
         const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
         setChatRoomId(fanToFanMeeting?.chatRoomId);
@@ -214,8 +212,8 @@ const OneToOnePage = () => {
       }
       const { token } = connection;
 
-      await mySession
-        .connect(token, {
+      if (role === Role.IDOL) {
+        await mySession.connect(token, {
           clientData: JSON.stringify({
             role: role,
             fanMeetingId: fanMeetingId,
@@ -224,7 +222,6 @@ const OneToOnePage = () => {
             chatRoomId: _chatRoomId,
             nickname: myNickName,
             gameType: gameType,
-            // idolName: idolName,
           }),
           kurentoOptions: {
             allowedFilters: [
@@ -233,12 +230,34 @@ const OneToOnePage = () => {
               "GStreamerFilter",
             ],
           },
-        })
-        .then(() => {
-          if (role === Role.FAN) {
-            startRecording();
-          }
         });
+      } else if (role === Role.FAN) {
+        await mySession
+          .connect(token, {
+            clientData: JSON.stringify({
+              role: role,
+              fanMeetingId: fanMeetingId,
+              userName: userName,
+              type: "idolRoom",
+              chatRoomId: _chatRoomId,
+              nickname: myNickName,
+              gameType: gameType,
+              idolName: idolName,
+            }),
+            kurentoOptions: {
+              allowedFilters: [
+                "FaceOverlayFilter",
+                "ChromaFilter",
+                "GStreamerFilter",
+              ],
+            },
+          })
+          .then(() => {
+            if (role === Role.FAN) {
+              startRecording();
+            }
+          });
+      }
 
       await ov.getUserMedia({
         audioSource: undefined,
