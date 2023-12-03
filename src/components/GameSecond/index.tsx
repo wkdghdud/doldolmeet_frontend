@@ -30,10 +30,10 @@ const GameSecond = ({ username, sessionId, role, partnerChoice }: Props) => {
         await openvidu_api.post(`/openvidu/api/signal`, {
           session: sessionId,
           type: "signal:choice_detected",
-          data: {
+          data: JSON.stringify({
             choice: choice,
             username: username,
-          },
+          }),
         });
         if (role === Role.FAN) {
           setUserChoice(choice);
@@ -45,7 +45,7 @@ const GameSecond = ({ username, sessionId, role, partnerChoice }: Props) => {
 
   const handleUserChoice = (choice) => {
     signalChoiceDetected(choice);
-    setIsModalOpen(false); // 사용자가 선택을 하면 모달을 닫습니다.
+    setIsModalOpen(false);
   };
 
   useEffect(() => {
