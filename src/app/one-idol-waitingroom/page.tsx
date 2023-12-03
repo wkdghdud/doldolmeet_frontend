@@ -177,8 +177,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   const joinNextRoom = async () => {
     await leaveWaitingRoom();
     router.push(
-      `/one-to-one?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}&idolName=${nextIdolName}&motionType=${motionType}
-       &gameType=${gameType}`,
+      `/one-to-one?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}&idolName=${nextIdolName}&motionType=${motionType}&gameType=${gameType}`,
     );
   };
 
