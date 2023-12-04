@@ -29,6 +29,7 @@ import MotionDetector from "@/components/MotionDetector";
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import Game from "@/components/Game";
 import GameSecond from "@/components/GameSecond";
+import { v4 as uuidv4 } from "uuid";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -134,13 +135,14 @@ const OneToOnePage = () => {
   }, [role, userName]);
 
   const startRecording = () => {
+    const recording_name = uuidv4();
+
     console.log("🎥 startRecording", {
       session: sessionId,
       fanMeetingId: fanMeetingId,
       fan: userName,
       idol: idolName,
-      name:
-        "fanmeetingId" + fanMeetingId + "fan" + userName + "idol" + idolName,
+      name: recording_name,
       hasAudio: true,
       hasVideo: true,
       outputMode: "COMPOSED",
@@ -155,24 +157,18 @@ const OneToOnePage = () => {
           fanMeetingId: fanMeetingId,
           fan: userName,
           idol: idolName,
-          name:
-            "fanmeetingId" +
-            fanMeetingId +
-            "fan" +
-            userName +
-            "idol" +
-            idolName,
+          name: recording_name,
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
         },
       )
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         setForceRecordingId(response.data.id);
       })
       .catch((error) => {
-        console.error("Start recording WRONG:", error);
+        // console.error("Start recording WRONG:", error);
       });
   };
 
@@ -317,6 +313,10 @@ const OneToOnePage = () => {
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
 
+    eventSource.addEventListener("connect", (e) => {
+      console.log("🥹 연결되었습니다.");
+    });
+
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
       console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
@@ -344,9 +344,8 @@ const OneToOnePage = () => {
 
     eventSource.onerror = (e) => {
       // 종료 또는 에러 발생 시 할 일
-      console.log("error");
-      console.log(e);
-      eventSource.close();
+      console.log("🥲 eventSource 에러가 발생했어요", e);
+      // eventSource.close();
 
       if (e.error) {
         // 에러 발생 시 할 일
@@ -365,7 +364,11 @@ const OneToOnePage = () => {
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
 
-    eventSource.addEventListener("gameStart", (e: MessageEvent) => {
+    eventSource.addEventListener("connect", (e) => {
+      console.log("🥹 아이돌 SSE 연결되었습니다.");
+    });
+
+    eventSource.addEventListener("idolGameStart", (e: MessageEvent) => {
       console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
       setGameStart(true);
     });
@@ -376,14 +379,13 @@ const OneToOnePage = () => {
     });
 
     eventSource.onopen = () => {
-      console.log("📣 SSE 연결되었습니다.");
+      console.log("📣 아이돌 SSE 연결되었습니다.");
     };
 
     eventSource.onerror = (e) => {
       // 종료 또는 에러 발생 시 할 일
-      console.log("error");
-      console.log(e);
-      eventSource.close();
+      console.log("🥲 eventSource 에러가 발생했어요", e);
+      // eventSource.close();
 
       if (e.error) {
         // 에러 발생 시 할 일
@@ -439,7 +441,6 @@ const OneToOnePage = () => {
   const fetchFanMeetingTitle = async () => {
     try {
       const fanMeeting = await fetchFanMeeting(fanMeetingId);
-      console.log("🚀 fanMeeting fetched!", fanMeeting);
 
       if (fanMeeting) {
         setFanMeetingName(fanMeeting.title);
@@ -449,10 +450,11 @@ const OneToOnePage = () => {
     }
   };
 
-  // fanMeetingId가 존재할 때에만 fetchFanMeetingTitle 호출
-  if (fanMeetingId) {
-    fetchFanMeetingTitle();
-  }
+  useEffect(() => {
+    if (fanMeetingId) {
+      fetchFanMeetingTitle();
+    }
+  }, [fanMeetingId]);
 
   const handleclose = () => {
     setGameStart(false);
@@ -510,12 +512,6 @@ const OneToOnePage = () => {
                 {fanMeetingName && `💜 ${fanMeetingName} 💜`}
               </Typography>
               <LinearTimerBar />
-              <GameSecond
-                sessionId={sessionId}
-                username={userName}
-                role={role}
-                partnerChoice={partnerChoice}
-              />
               <DeviceControlButton
                 publisher={myStream}
                 fullScreen={fullScreen}
