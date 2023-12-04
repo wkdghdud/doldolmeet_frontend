@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { openvidu_api } from "@/utils/api";
-import { Role } from "@/types";
+import { backend_api, openvidu_api } from "@/utils/api";
 import {
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Paper,
+  Typography,
 } from "@mui/material";
 
 interface Props {
@@ -30,9 +32,19 @@ const GameSecond = ({
   const [showCountdownModal, setShowCountdownModal] = useState(false);
   const [showGameModal, setShowGameModal] = useState(false);
   const [countdown, setCountdown] = useState(3);
-  const options = ["짜장", "짬뽕"];
+  // const options = ["짜장", "짬뽕"];
   const [gameCountdown, setGameCountdown] = useState(5); // 게임 제한 시간
   const decisionTimeLimit = 5; // 제한 시간 (5초)
+  const [quizes, setQuizes] = useState({});
+
+  useEffect(() => {
+    backend_api()
+      .get(`/game/sameminds`)
+      .then((res) => {
+        setQuizes(res.data);
+        console.log("😈😈😈😈😈😈😈", res.data);
+      });
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -61,10 +73,10 @@ const GameSecond = ({
       setShowGameModal(false); // 시간이 만료되면 모달을 닫습니다.
       if (userChoice && partnerChoice) {
         if (userChoice === partnerChoice) {
-          alert("정답을 맞췄습니다!");
+          alert("둘의 마음이 통했습니다.!");
           setScore((prevScore) => prevScore + 1);
         } else {
-          alert("다른 것을 선택했습니다!");
+          alert("둘의 마음이 통하지 않았습니다.!");
         }
       }
     }
@@ -96,43 +108,53 @@ const GameSecond = ({
   const handleUserChoice = (choice) => {
     signalChoiceDetected(choice);
     setUserChoice(choice);
-    // if (choice === partnerChoice) {
-    //   alert("정답을 맞췄습니다!");
-    //   setScore(score + 1);
-    //   setShowGameModal(false);
-    // }
   };
 
   return (
     <div>
+      {/* 카운트다운 모달 */}
       {showCountdownModal && (
         <Dialog open={showCountdownModal}>
           <DialogTitle>게임 시작 카운트다운</DialogTitle>
           <DialogContent>
-            <h2>{countdown}초 후에 게임이 시작됩니다...</h2>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              {countdown}초 후에 게임이 시작됩니다...
+            </Typography>
           </DialogContent>
         </Dialog>
       )}
 
+      {/* 게임 모달 */}
       {showGameModal && (
-        <Dialog open={showGameModal} onClose={() => setShowGameModal(false)}>
+        <Dialog
+          open={showGameModal}
+          onClose={() => setShowGameModal(false)}
+          fullWidth
+          maxWidth="sm"
+        >
           <DialogTitle>이심전심 게임</DialogTitle>
           <DialogContent>
-            <div>
-              {options.map((option, idx) => (
-                <button key={option} onClick={() => handleUserChoice(option)}>
+            <Paper sx={{ p: 2, my: 2, textAlign: "center" }}>
+              {options.map((option) => (
+                <Button
+                  key={option}
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleUserChoice(option)}
+                  sx={{ m: 1 }}
+                >
                   {option}
-                </button>
+                </Button>
               ))}
-            </div>
-            <p>제한 시간: {gameCountdown}초</p>
+              <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                제한 시간 {gameCountdown}초 안에 골라주세요 !
+              </Typography>
+            </Paper>
           </DialogContent>
           <DialogActions>
-            <div>
-              <p>당신의 선택: {userChoice}</p>
-              <p>아이돌의 선택: {partnerChoice}</p>
-              <p>점수: {score}</p>
-            </div>
+            <Typography variant="h6" sx={{ mx: "auto" }}>
+              점수: {score}
+            </Typography>
           </DialogActions>
         </Dialog>
       )}
