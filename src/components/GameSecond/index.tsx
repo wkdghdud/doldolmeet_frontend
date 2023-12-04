@@ -12,6 +12,13 @@ import {
   Typography,
 } from "@mui/material";
 
+interface Quiz {
+  id: number;
+  title: string;
+  choice1: string;
+  choice2: string;
+}
+
 interface Props {
   username: string;
   sessionId: string | null | undefined;
@@ -35,14 +42,13 @@ const GameSecond = ({
   // const options = ["짜장", "짬뽕"];
   const [gameCountdown, setGameCountdown] = useState(5); // 게임 제한 시간
   const decisionTimeLimit = 5; // 제한 시간 (5초)
-  const [quizes, setQuizes] = useState({});
+  const [quizes, setQuizes] = useState<Quiz[]>([]);
 
   useEffect(() => {
     backend_api()
       .get(`/game/sameminds`)
       .then((res) => {
-        setQuizes(res.data);
-        console.log("😈😈😈😈😈😈😈", res.data);
+        setQuizes(res.data.data); // data 프로퍼티에 접근하여 상태를 업데이트합니다.
       });
   }, []);
 
@@ -135,19 +141,30 @@ const GameSecond = ({
           <DialogTitle>이심전심 게임</DialogTitle>
           <DialogContent>
             <Paper sx={{ p: 2, my: 2, textAlign: "center" }}>
-              {options.map((option) => (
-                <Button
-                  key={option}
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleUserChoice(option)}
-                  sx={{ m: 1 }}
-                >
-                  {option}
-                </Button>
+              {/* quizes 배열을 순회하며 각 퀴즈를 렌더링합니다. */}
+              {quizes.map((quiz) => (
+                <div key={quiz.id}>
+                  <Typography variant="h6">{quiz.title}</Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleUserChoice(quiz.choice1)}
+                    sx={{ m: 1 }}
+                  >
+                    {quiz.choice1}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleUserChoice(quiz.choice2)}
+                    sx={{ m: 1 }}
+                  >
+                    {quiz.choice2}
+                  </Button>
+                </div>
               ))}
               <Typography variant="subtitle1" sx={{ mt: 2 }}>
-                제한 시간 {gameCountdown}초 안에 골라주세요 !
+                제한 시간 {gameCountdown}초 안에 골라주세요!
               </Typography>
             </Paper>
           </DialogContent>
