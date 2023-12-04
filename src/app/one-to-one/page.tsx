@@ -32,6 +32,7 @@ import MotionDetector from "@/components/MotionDetector";
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import Game from "@/components/Game";
 import GameSecond from "@/components/GameSecond";
+import SpeechRecognition from "@/components/SpeechRecognition";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -101,6 +102,7 @@ const OneToOnePage = () => {
 
   /* 이심전심 선택 */
   const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
+  const [partnerVoice, setPartnerVoice] = useState<string | undefined>();
 
   useEffect(() => {
     token.then((res) => {
@@ -214,6 +216,16 @@ const OneToOnePage = () => {
         if (data.username !== userName) {
           console.log("👋 상대방이 선택을 했어요.", event.data);
           setPartnerChoice(data.choice);
+        }
+      });
+
+      mySession.on("signal:voice_detected", (event) => {
+        const data = JSON.parse(event.data);
+        // console.log("!!!!!!!!!!!!", data.username, userName);
+        if (data.username !== userName) {
+          console.log("👋 상대방의 음성 인식.", event.data);
+
+          setPartnerVoice(data.translatedText);
         }
       });
 
@@ -568,6 +580,15 @@ const OneToOnePage = () => {
               )}
             </Grid>
           </Grid>
+          <SpeechRecognition
+            role={role}
+            fanMeetingId={fanMeetingId}
+            idolName={idolName}
+            sessionId={sessionId}
+            partnerVoice={partnerVoice}
+            username={userName}
+            motionType={motionType}
+          />
         </Grid>
       </Grid>
 
