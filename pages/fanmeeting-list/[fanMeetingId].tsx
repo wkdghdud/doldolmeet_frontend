@@ -14,7 +14,7 @@ import {
 import GradientButton from "@/components/GradientButton";
 import { Modal, Backdrop, Fade } from "@mui/material";
 import Link from "next/link";
-import LazyLoad from "react-lazyload";
+// import LazyLoad from "react-lazyload";
 
 const FanMeetingDetailPage = () => {
   const router = useRouter();
@@ -94,22 +94,22 @@ const FanMeetingDetailPage = () => {
       <Card>
         <Grid container>
           <Grid item xs={12}>
-            <LazyLoad height={200} offset={100}>
-              <img
-                src={
-                  fanMeetingInfo.imgUrl ??
-                  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwtP8HD6icOnned-S7izWwvhW4AHcNmOdREg&usqp=CAU"
-                }
-                alt={`fanMeetingInfo ${fanMeetingInfo.title} Image`}
-                style={{
-                  minWidth: 660,
-                  width: "100%",
-                  height: "auto",
-                  borderTopLeftRadius: "8px",
-                  borderTopRightRadius: "8px",
-                }}
-              />
-            </LazyLoad>
+            {/*<LazyLoad height={200} offset={100}>*/}
+            <img
+              src={
+                fanMeetingInfo.imgUrl ??
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwtP8HD6icOnned-S7izWwvhW4AHcNmOdREg&usqp=CAU"
+              }
+              alt={`fanMeetingInfo ${fanMeetingInfo.title} Image`}
+              style={{
+                minWidth: 660,
+                width: "100%",
+                height: "auto",
+                borderTopLeftRadius: "8px",
+                borderTopRightRadius: "8px",
+              }}
+            />
+            {/*</LazyLoad>*/}
           </Grid>
           <Grid item xs={12}>
             <CardContent>

@@ -84,7 +84,7 @@ const MotionDetector = ({
       // Return the created image data URL
       return canvasElement.toDataURL("image/png");
     } else {
-      console.error("2D context not supported");
+      // console.error("2D context not supported");
       return "";
     }
   };
@@ -111,7 +111,7 @@ const MotionDetector = ({
       const fanImageDataUrl = createImageDataUrl(fanElement, fanCanvas);
       setFanImgSrc(fanImageDataUrl);
     } else {
-      console.error("Target element not found");
+      // console.error("Target element not found");
     }
   };
 
@@ -135,7 +135,7 @@ const MotionDetector = ({
           uploadImage(imageDataUrl);
         })
         .catch((error) => {
-          console.error("html2canvas error:", error);
+          // console.error("html2canvas error:", error);
         });
     }
   }, [idolImgSrc, fanImgSrc]);
@@ -154,10 +154,10 @@ const MotionDetector = ({
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((response) => {
-          console.log("Image uploaded successfully:", response.data);
+          // console.log("Image uploaded successfully:", response.data);
         })
         .catch((error) => {
-          console.error("Image upload failed:", error);
+          // console.error("Image upload failed:", error);
         });
     }
   };
@@ -177,7 +177,7 @@ const MotionDetector = ({
   }
 
   const signalPoseDetected = useCallback(async () => {
-    console.log("🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶", username);
+    // console.log("🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶", username);
     if (username !== "") {
       await openvidu_api.post(`/openvidu/api/signal`, {
         session: sessionId,
@@ -212,10 +212,10 @@ const MotionDetector = ({
 
       // TensorFlow 및 Teachable Machine Pose 스크립트 로드 완료 후 초기화
       if (motionType === "bigHeart") {
-        console.log("😾😾😾😾😾😾😾motionType", motionType);
+        // console.log("😾😾😾😾😾😾😾motionType", motionType);
         init();
       } else if (motionType === "halfHeart") {
-        console.log("😾😾😾😾😾😾😾motionType", motionType);
+        // console.log("😾😾😾😾😾😾😾motionType", motionType);
         init2();
       }
     };
@@ -337,14 +337,14 @@ const MotionDetector = ({
           }
         }
         if (detected && !myPose) {
-          console.log("내가 시그널을 보냈어요", myPose);
+          // console.log("내가 시그널을 보냈어요", myPose);
           await signalPoseDetected();
         }
       } catch (error) {
-        console.error("Prediction error:", error);
+        // console.error("Prediction error:", error);
       }
     } else {
-      console.log("Model or webcam is not available!");
+      // console.log("Model or webcam is not available!");
     }
   }, [model2, webcamRef, labelContainerRef2, maxPredictions2, myPose]);
 
@@ -375,14 +375,14 @@ const MotionDetector = ({
           }
         }
         if (detected && !myPose) {
-          console.log("✊✊✊✊✊✊✊✊✊✊", myPose);
+          // console.log("✊✊✊✊✊✊✊✊✊✊", myPose);
           await signalPoseDetected();
         }
       } catch (error) {
-        console.error("Prediction error:", error);
+        // console.error("Prediction error:", error);
       }
     } else {
-      console.log("Model or webcam is not available!");
+      // console.log("Model or webcam is not available!");
     }
   }, [model, webcamRef, labelContainerRef, maxPredictions, myPose]);
 

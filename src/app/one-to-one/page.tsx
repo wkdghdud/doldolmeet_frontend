@@ -6,13 +6,12 @@ import {
   Session,
   StreamManager,
 } from "openvidu-browser";
-import { Button, Grid, Stack } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import { Grid, Stack } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
   createOpenViduConnection,
-  // createOpenViduSession,
 } from "@/utils/openvidu";
 import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
@@ -24,14 +23,14 @@ import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
 import ChatAndMemo from "@/components/ChatAndMemo";
 import EndAlertBar from "@/components/Timer";
-import { backend_api, openvidu_api, SPRING_URL } from "@/utils/api";
-import html2canvas from "html2canvas";
-import * as tmPose from "@teachablemachine/pose";
+import { backend_api, SPRING_URL } from "@/utils/api";
 import MotionDetector from "@/components/MotionDetector";
 
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import Game from "@/components/Game";
 import GameSecond from "@/components/GameSecond";
+import { v4 as uuidv4 } from "uuid";
+import SpeechRecognition from "@/components/SpeechRecognition";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -101,6 +100,10 @@ const OneToOnePage = () => {
 
   /* 이심전심 선택 */
   const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
+  const [partnerVoice, setPartnerVoice] = useState<string | undefined>();
+
+  /* 필터 On/Off */
+  const [filter, setFilter] = useState(false);
 
   useEffect(() => {
     token.then((res) => {
@@ -134,13 +137,14 @@ const OneToOnePage = () => {
   }, [role, userName]);
 
   const startRecording = () => {
+    const recording_name = uuidv4();
+
     console.log("🎥 startRecording", {
       session: sessionId,
       fanMeetingId: fanMeetingId,
       fan: userName,
       idol: idolName,
-      name:
-        "fanmeetingId" + fanMeetingId + "fan" + userName + "idol" + idolName,
+      name: recording_name,
       hasAudio: true,
       hasVideo: true,
       outputMode: "COMPOSED",
@@ -155,24 +159,18 @@ const OneToOnePage = () => {
           fanMeetingId: fanMeetingId,
           fan: userName,
           idol: idolName,
-          name:
-            "fanmeetingId" +
-            fanMeetingId +
-            "fan" +
-            userName +
-            "idol" +
-            idolName,
+          name: recording_name,
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
         },
       )
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         setForceRecordingId(response.data.id);
       })
       .catch((error) => {
-        console.error("Start recording WRONG:", error);
+        // console.error("Start recording WRONG:", error);
       });
   };
 
@@ -214,6 +212,16 @@ const OneToOnePage = () => {
         if (data.username !== userName) {
           console.log("👋 상대방이 선택을 했어요.", event.data);
           setPartnerChoice(data.choice);
+        }
+      });
+
+      mySession.on("signal:voice_detected", (event) => {
+        const data = JSON.parse(event.data);
+        // console.log("!!!!!!!!!!!!", data.username, userName);
+        if (data.username !== userName) {
+          console.log("👋 상대방의 음성 인식.", event.data);
+
+          setPartnerVoice(data.translatedText);
         }
       });
 
@@ -317,6 +325,10 @@ const OneToOnePage = () => {
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
 
+    eventSource.addEventListener("connect", (e) => {
+      console.log("🥹 연결되었습니다.");
+    });
+
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
       console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
@@ -344,9 +356,8 @@ const OneToOnePage = () => {
 
     eventSource.onerror = (e) => {
       // 종료 또는 에러 발생 시 할 일
-      console.log("error");
-      console.log(e);
-      eventSource.close();
+      console.log("🥲 eventSource 에러가 발생했어요", e);
+      // eventSource.close();
 
       if (e.error) {
         // 에러 발생 시 할 일
@@ -365,7 +376,11 @@ const OneToOnePage = () => {
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
 
-    eventSource.addEventListener("gameStart", (e: MessageEvent) => {
+    eventSource.addEventListener("connect", (e) => {
+      console.log("🥹 아이돌 SSE 연결되었습니다.");
+    });
+
+    eventSource.addEventListener("idolGameStart", (e: MessageEvent) => {
       console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
       setGameStart(true);
     });
@@ -376,14 +391,13 @@ const OneToOnePage = () => {
     });
 
     eventSource.onopen = () => {
-      console.log("📣 SSE 연결되었습니다.");
+      console.log("📣 아이돌 SSE 연결되었습니다.");
     };
 
     eventSource.onerror = (e) => {
       // 종료 또는 에러 발생 시 할 일
-      console.log("error");
-      console.log(e);
-      eventSource.close();
+      console.log("🥲 eventSource 에러가 발생했어요", e);
+      // eventSource.close();
 
       if (e.error) {
         // 에러 발생 시 할 일
@@ -436,25 +450,9 @@ const OneToOnePage = () => {
     }
   };
 
-  // TODO: 이미지 필터 처리
-  // const onClickFilter = () => {
-  //   myStream?.stream.applyFilter("FaceOverlayFilter", {}).then((f) => {
-  //     if (f.type === "FaceOverlayFilter") {
-  //       f.execMethod("setOverlayedImage", {
-  //         uri: "https://cdn.pixabay.com/photo/2017/09/30/09/29/cowboy-hat-2801582_960_720.png",
-  //         offsetXPercent: "-0.1F",
-  //         offsetYPercent: "-0.8F",
-  //         widthPercent: "1.5F",
-  //         heightPercent: "1.0F",
-  //       });
-  //     }
-  //   });
-  // };
-
   const fetchFanMeetingTitle = async () => {
     try {
       const fanMeeting = await fetchFanMeeting(fanMeetingId);
-      console.log("🚀 fanMeeting fetched!", fanMeeting);
 
       if (fanMeeting) {
         setFanMeetingName(fanMeeting.title);
@@ -464,18 +462,34 @@ const OneToOnePage = () => {
     }
   };
 
-  // fanMeetingId가 존재할 때에만 fetchFanMeetingTitle 호출
-  if (fanMeetingId) {
-    fetchFanMeetingTitle();
-  }
+  useEffect(() => {
+    if (fanMeetingId) {
+      fetchFanMeetingTitle();
+    }
+  }, [fanMeetingId]);
 
   const handleclose = () => {
     setGameStart(false);
   };
 
-  // const onClickFilter = () => {
-  //   setGameStart(true);
-  // };
+  const onClickFilter = () => {
+    if (myStream?.stream.filter) {
+      myStream?.stream.removeFilter();
+      setFilter(false);
+    } else {
+      myStream?.stream.applyFilter("FaceOverlayFilter", {}).then((filter) => {
+        filter.execMethod("setOverlayedImage", {
+          // uri: AWS_S3_URL + "/e7d8c009-1d9c-411e-9521-7837a6ec9c89.png",
+          uri: "https://cdn-icons-png.flaticon.com/512/6965/6965337.png",
+          offsetXPercent: -0.2,
+          offsetYPercent: -0.8,
+          widthPercent: 1.3,
+          heightPercent: 1.0,
+        });
+      });
+      setFilter(true);
+    }
+  };
 
   return (
     <Grid container spacing={2}>
@@ -510,18 +524,13 @@ const OneToOnePage = () => {
                 {fanMeetingName && `💜 ${fanMeetingName} 💜`}
               </Typography>
               <LinearTimerBar />
-              <GameSecond
-                sessionId={sessionId}
-                username={userName}
-                role={role}
-                partnerChoice={partnerChoice}
-              />
               <DeviceControlButton
                 publisher={myStream}
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
+                filterOn={filter}
+                onClickFilter={onClickFilter}
               />
-              {/*<Button onClick={onClickFilter}>필터</Button>*/}
             </Stack>
           </Grid>
           <Grid
@@ -568,6 +577,15 @@ const OneToOnePage = () => {
               )}
             </Grid>
           </Grid>
+          <SpeechRecognition
+            role={role}
+            fanMeetingId={fanMeetingId}
+            idolName={idolName}
+            sessionId={sessionId}
+            partnerVoice={partnerVoice}
+            username={userName}
+            motionType={motionType}
+          />
         </Grid>
       </Grid>
 
