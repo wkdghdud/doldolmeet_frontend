@@ -44,6 +44,15 @@ const GameSecond = ({
   const decisionTimeLimit = 5; // 제한 시간 (5초)
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0); // 현재 문제 인덱스
   const [quizes, setQuizes] = useState<Quiz[]>([]);
+  const audio = new Audio("/mp3/game.mp3");
+
+  useEffect(() => {
+    if (showCountdownModal) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  }, [showCountdownModal]);
 
   useEffect(() => {
     backend_api()
