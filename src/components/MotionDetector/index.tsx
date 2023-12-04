@@ -338,7 +338,7 @@ const MotionDetector = ({
         }
         if (detected && !myPose) {
           // console.log("내가 시그널을 보냈어요", myPose);
-          await signalPoseDetected();
+          // await signalPoseDetected();
         }
       } catch (error) {
         // console.error("Prediction error:", error);
@@ -376,7 +376,7 @@ const MotionDetector = ({
         }
         if (detected && !myPose) {
           // console.log("✊✊✊✊✊✊✊✊✊✊", myPose);
-          await signalPoseDetected();
+          // await signalPoseDetected();
         }
       } catch (error) {
         // console.error("Prediction error:", error);
