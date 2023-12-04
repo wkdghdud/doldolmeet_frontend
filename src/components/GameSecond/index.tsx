@@ -132,6 +132,14 @@ const GameSecond = ({
     //
   }, [showGameModal, gameCountdown]);
 
+  useEffect(() => {
+    if (resultGameModal) {
+      setTimeout(() => {
+        setResultGameModal(false);
+      }, 3000);
+    }
+  }, [resultGameModal]);
+
   const signalChoiceDetected = useCallback(
     async (choice) => {
       if (username !== "") {
@@ -143,7 +151,6 @@ const GameSecond = ({
             username: username,
           }),
         });
-        setUserChoice(choice);
         // setTimeout(() => {
         //   if (partnerChoice === choice) {
         //     setScore((prevScore) => prevScore + 1);
