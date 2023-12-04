@@ -578,13 +578,13 @@ const OneToOnePage = () => {
             </Grid>
           </Grid>
           <SpeechRecognition
-            role={role}
-            fanMeetingId={fanMeetingId}
-            idolName={idolName}
+            // role={role}
+            // fanMeetingId={fanMeetingId}
+            // idolName={idolName}
             sessionId={sessionId}
             partnerVoice={partnerVoice}
             username={userName}
-            motionType={motionType}
+            // motionType={motionType}
           />
         </Grid>
       </Grid>
@@ -627,6 +627,7 @@ const OneToOnePage = () => {
           sessionId={sessionId}
           username={userName}
           role={role}
+          fanMeetingId={fanMeetingId}
           partnerChoice={partnerChoice}
         />
       )}

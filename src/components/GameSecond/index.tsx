@@ -25,9 +25,11 @@ interface Props {
   role: string | undefined;
   partnerChoice: string | null | undefined;
   open: boolean;
+  fanMeetingId: string | undefined | null;
 }
 
 const GameSecond = ({
+  fanMeetingId,
   open,
   username,
   sessionId,
@@ -44,6 +46,17 @@ const GameSecond = ({
   const decisionTimeLimit = 5; // 제한 시간 (5초)
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0); // 현재 문제 인덱스
   const [quizes, setQuizes] = useState<Quiz[]>([]);
+  const audio = new Audio("/mp3/game.mp3");
+
+  const [resultGameModal, setResultGameModal] = useState(false);
+
+  useEffect(() => {
+    if (showCountdownModal) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  }, [showCountdownModal]);
 
   useEffect(() => {
     backend_api()
@@ -71,24 +84,61 @@ const GameSecond = ({
   }, [open]);
 
   useEffect(() => {
+    // 게임이
+    // 5초 지나면 정산
     let timer;
+
+    // 타이머 실행
     if (showGameModal && gameCountdown > 0) {
       timer = setTimeout(() => {
         setGameCountdown((prev) => prev - 1);
       }, 1000);
-    } else if (gameCountdown === 0) {
-      setShowGameModal(false); // 시간이 만료되면 모달을 닫습니다.
+    }
+
+    // 시간 다되면 한 퀴즈에 대한 결과 보여주기
+    else if (gameCountdown === 0) {
       if (userChoice && partnerChoice) {
         if (userChoice === partnerChoice) {
           alert("둘의 마음이 통했습니다.!");
           setScore((prevScore) => prevScore + 1);
+          backend_api()
+            .post(`/fanMeetings/${fanMeetingId}/gameScore`)
+            .then((res) => {
+              console.log(res);
+            });
         } else {
           alert("둘의 마음이 통하지 않았습니다.!");
         }
       }
+
+      // 아직 문제 남았으면 다음 문제로 인덱스 변경
+      if (currentQuizIndex < quizes.length - 1) {
+        setCurrentQuizIndex(currentQuizIndex + 1);
+        // 시간 초기화
+        setGameCountdown(5);
+      }
+      //마지막 문제였다면 게임 모달을 닫습니다.
+      else {
+        setShowGameModal(false);
+        setGameCountdown(5);
+        //결과창 수정
+        // alert("결과창 띄워주기");
+        setResultGameModal(true);
+      }
     }
+
     return () => clearTimeout(timer);
-  }, [showGameModal, gameCountdown, userChoice, partnerChoice]);
+
+    //
+  }, [showGameModal, gameCountdown]);
+
+  useEffect(() => {
+    if (resultGameModal) {
+      setTimeout(() => {
+        setResultGameModal(false);
+      }, 3000);
+    }
+  }, [resultGameModal]);
 
   const signalChoiceDetected = useCallback(
     async (choice) => {
@@ -101,12 +151,16 @@ const GameSecond = ({
             username: username,
           }),
         });
-        setUserChoice(choice);
-        setTimeout(() => {
-          if (partnerChoice === choice) {
-            setScore((prevScore) => prevScore + 1);
-          }
-        }, decisionTimeLimit * 1000);
+        // setTimeout(() => {
+        //   if (partnerChoice === choice) {
+        //     setScore((prevScore) => prevScore + 1);
+        //     backend_api()
+        //       .post(`/fanMeetings/${fanMeetingId}/gameScore`)
+        //       .then((res) => {
+        //         console.log(res);
+        //       });
+        //   }
+        // }, decisionTimeLimit * 1000);
       }
     },
     [username, sessionId, role, partnerChoice],
@@ -115,14 +169,6 @@ const GameSecond = ({
   const handleUserChoice = (choice) => {
     signalChoiceDetected(choice);
     setUserChoice(choice);
-
-    // 현재 문제에 대한 처리가 끝났다면 다음 문제로 넘어갑니다.
-    // 마지막 문제였다면 게임 모달을 닫습니다.
-    if (currentQuizIndex < quizes.length - 1) {
-      setCurrentQuizIndex(currentQuizIndex + 1);
-    } else {
-      setShowGameModal(false);
-    }
   };
 
   return (
@@ -138,7 +184,6 @@ const GameSecond = ({
           </DialogContent>
         </Dialog>
       )}
-
       {/* 게임 모달 */}
       {showGameModal && quizes.length > 0 && (
         <Dialog
@@ -186,6 +231,17 @@ const GameSecond = ({
               점수: {score}
             </Typography>
           </DialogActions>
+        </Dialog>
+      )}
+      {/* 결과 모달 */}
+      {resultGameModal && (
+        <Dialog open={resultGameModal}>
+          <DialogTitle>이심전심 게임 결과</DialogTitle>
+          <DialogContent>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              {score}점을 획득하셨습니다!
+            </Typography>
+          </DialogContent>
         </Dialog>
       )}
     </div>
