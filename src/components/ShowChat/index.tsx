@@ -2,13 +2,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { IconButton, MenuItem, Select, TextField } from "@mui/material";
+import {
+  IconButton,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  TextField,
+} from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import useJwtToken from "@/hooks/useJwtToken";
 import { WS_STOMP_URL } from "@/utils/api";
 import ChatBalloon from "@/components/chat/ChatBalloon";
 import { Box } from "@mui/system";
-import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -24,6 +30,7 @@ const MenuProps = {
 const SUPPORTED_TARGETS = [
   { code: "ja", label: "Japanese" },
   { code: "en", label: "English" },
+  { code: "zh-CN", label: "Chinese" },
   { code: "ko", label: "Korean" },
 ];
 const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
@@ -126,18 +133,28 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         height: "100%",
         backgroundColor: "#ffffff",
         borderRadius: 2,
+        position: "relative", // 추가: 상대 위치 설정
       }}
     >
       <div>
         {/* m - margin, mt - margin-top */}
-        <FormControl sx={{ width: 425, m: 3 }}>
+        <FormControl
+          sx={{
+            position: "absolute",
+            top: "0%", // 부모 요소 높이의 10% 위치
+            left: "65%", // 부모 요소 너비의 10% 위치
+            minWidth: 120,
+            mt: 3,
+          }}
+          size="small"
+        >
           {/* 언어 선택용 Select */}
           <Select
-            displayEmpty
+            labelId="demo-select-small-label"
+            id="demo-select-small"
             value={target}
             onChange={(e) => setTarget(e.target.value)}
-            variant="standard"
-            style={{ marginTop: "8px", textAlign: "right" }}
+            style={{ textAlign: "center" }}
           >
             <MenuItem disabled value="">
               <em>언어 선택</em>
