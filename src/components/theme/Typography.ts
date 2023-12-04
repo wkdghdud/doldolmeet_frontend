@@ -1,7 +1,19 @@
 import { TypographyOptions } from "@mui/material/styles/createTypography";
 
 const typography: TypographyOptions = {
-  fontFamily: "'Plus Jakarta Sans', sans-serif;",
+  fontFamily: [
+    "'Plus Jakarta Sans', sans-serif;",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    '"Segoe UI"',
+    "Roboto",
+    '"Helvetica Neue"',
+    "Arial",
+    "sans-serif",
+    '"Apple Color Emoji"',
+    '"Segoe UI Emoji"',
+    '"Segoe UI Symbol"',
+  ].join(","),
   h1: {
     fontWeight: 600,
     fontSize: "2.25rem",

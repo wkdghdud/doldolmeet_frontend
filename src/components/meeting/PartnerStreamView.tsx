@@ -27,7 +27,6 @@ const PartnerStreamView = ({
         <OpenViduVideoView
           name={name}
           streamManager={stream}
-          mirror={true}
           left={left}
           showOverlay={showOverlay}
         />

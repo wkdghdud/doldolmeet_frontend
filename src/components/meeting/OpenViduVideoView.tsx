@@ -8,13 +8,11 @@ interface Props {
   streamManager: StreamManager | Publisher | Subscriber;
   left: boolean;
   showOverlay: boolean;
-  mirror?: boolean;
 }
 
 const OpenViduVideoView = ({
   name,
   streamManager,
-  mirror,
   left,
   showOverlay,
 }: Props) => {
@@ -50,30 +48,27 @@ const OpenViduVideoView = ({
           {name}
         </Typography>
       )}
-      {mirror ? (
+
+      <div
+        style={{
+          transform: "rotateY(180deg)",
+          WebkitTransform: "rotateY(180deg)",
+          width: "95%",
+          margin: "auto",
+        }}
+      >
         <video
+          id={left ? "idol-video-container" : "fan-video-container"}
           autoPlay={true}
           ref={videoRef}
           style={{
             borderRadius: 20,
-            maxWidth: "95%",
+            maxWidth: "100%",
             height: "70vh",
             objectFit: "cover",
           }}
         />
-      ) : (
-        <video
-          autoPlay={true}
-          ref={videoRef}
-          style={{
-            borderRadius: 20,
-            maxWidth: "95%",
-            height: "70vh",
-            objectFit: "cover",
-            transform: "rotateY(180deg)",
-          }}
-        />
-      )}
+      </div>
       {showOverlay && (
         <img
           src={left ? "/left_heart.png" : "/right_heart.png"}
@@ -89,6 +84,7 @@ const OpenViduVideoView = ({
           }}
         />
       )}
+      <canvas hidden={true} id={left ? "idol-canvas" : "fan-canvas"} />
     </div>
   );
 };

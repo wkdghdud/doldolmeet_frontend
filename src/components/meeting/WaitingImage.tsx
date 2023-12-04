@@ -12,9 +12,10 @@ const WaitingImage = ({ waitingFor, name }: Props) => {
     <div
       style={{
         position: "relative",
+        width: "100%",
       }}
     >
-      <TypographyOnImage variant="h4">
+      <TypographyOnImage variant="h4" sx={{ width: "100%" }}>
         {waitingFor === Role.IDOL ? name + "님" : "팬"}이 들어올 때까지
         <br />
         조금만 기다려주세요!
