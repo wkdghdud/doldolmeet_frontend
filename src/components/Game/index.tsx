@@ -22,6 +22,7 @@ const Game = ({ open, handleclose, fanMeetingId }: Props) => {
   //가사보고 노래 맞추기 게임
   const [showQuizGame, setShowQuizGame] = useState(false);
   const [quizQuestionIndex, setQuizQuestionIndex] = useState(0);
+  const [firstGameCompleted, setFirstGameCompleted] = useState(false);
 
   const quizQuestions = [
     {
@@ -33,10 +34,10 @@ const Game = ({ open, handleclose, fanMeetingId }: Props) => {
   ];
 
   useEffect(() => {
-    if (!showGameModal && open) {
+    if (!showGameModal && firstGameCompleted) {
       setShowQuizGame(true);
     }
-  }, [showGameModal, open]);
+  }, [showGameModal, firstGameCompleted]);
 
   const handleQuizAnswer = (option) => {
     if (option === quizQuestions[quizQuestionIndex].answer) {
@@ -79,6 +80,7 @@ const Game = ({ open, handleclose, fanMeetingId }: Props) => {
   useEffect(() => {
     if (open) {
       setShowCountdownModal(true);
+      setFirstGameCompleted(false);
       const timer = setInterval(() => {
         setCountdown((prevCount) => {
           if (prevCount === 1) {
@@ -98,6 +100,7 @@ const Game = ({ open, handleclose, fanMeetingId }: Props) => {
     if (answer === correctAnswer) {
       alert("정답을 맞췄습니다!");
       setScore(score + 1);
+      setFirstGameCompleted(true);
       handleclose();
       backend_api()
         .post(`/fanMeetings/${fanMeetingId}/gameScore`)

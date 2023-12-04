@@ -317,6 +317,10 @@ const OneToOnePage = () => {
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
 
+    eventSource.addEventListener("connect", (e) => {
+      console.log("🥹 연결되었습니다.");
+    });
+
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
       console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
@@ -364,6 +368,10 @@ const OneToOnePage = () => {
     const eventSource = new EventSource(
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
+
+    eventSource.addEventListener("connect", (e) => {
+      console.log("🥹 연결되었습니다.");
+    });
 
     eventSource.addEventListener("gameStart", (e: MessageEvent) => {
       console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
