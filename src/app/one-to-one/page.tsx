@@ -473,9 +473,9 @@ const OneToOnePage = () => {
     setGameStart(false);
   };
 
-  // const onClickFilter = () => {
-  //   setGameStart(true);
-  // };
+  const onClickFilter = () => {
+    setGameStart(true);
+  };
 
   return (
     <Grid container spacing={2}>
@@ -510,18 +510,12 @@ const OneToOnePage = () => {
                 {fanMeetingName && `💜 ${fanMeetingName} 💜`}
               </Typography>
               <LinearTimerBar />
-              <GameSecond
-                sessionId={sessionId}
-                username={userName}
-                role={role}
-                partnerChoice={partnerChoice}
-              />
               <DeviceControlButton
                 publisher={myStream}
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
               />
-              {/*<Button onClick={onClickFilter}>필터</Button>*/}
+              <Button onClick={onClickFilter}>필터</Button>
             </Stack>
           </Grid>
           <Grid
