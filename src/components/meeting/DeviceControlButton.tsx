@@ -91,7 +91,7 @@ const DeviceControlButton = ({
         {isSubtitleActive ? (
           <ClosedCaptionIcon sx={{ color: "#FFAFCC" }} />
         ) : (
-          <ClosedCaptionDisabledIcon sx={{ color: "#bdbdbd" }} />
+          <ClosedCaptionDisabledIcon sx={{ color: "#000000" }} />
         )}
       </ToggleButton>
     </ToggleButtonGroup>
