@@ -42,6 +42,7 @@ const GameSecond = ({
   // const options = ["짜장", "짬뽕"];
   const [gameCountdown, setGameCountdown] = useState(5); // 게임 제한 시간
   const decisionTimeLimit = 5; // 제한 시간 (5초)
+  const [currentQuizIndex, setCurrentQuizIndex] = useState(0); // 현재 문제 인덱스
   const [quizes, setQuizes] = useState<Quiz[]>([]);
 
   useEffect(() => {
@@ -114,6 +115,14 @@ const GameSecond = ({
   const handleUserChoice = (choice) => {
     signalChoiceDetected(choice);
     setUserChoice(choice);
+
+    // 현재 문제에 대한 처리가 끝났다면 다음 문제로 넘어갑니다.
+    // 마지막 문제였다면 게임 모달을 닫습니다.
+    if (currentQuizIndex < quizes.length - 1) {
+      setCurrentQuizIndex(currentQuizIndex + 1);
+    } else {
+      setShowGameModal(false);
+    }
   };
 
   return (
@@ -131,7 +140,7 @@ const GameSecond = ({
       )}
 
       {/* 게임 모달 */}
-      {showGameModal && (
+      {showGameModal && quizes.length > 0 && (
         <Dialog
           open={showGameModal}
           onClose={() => setShowGameModal(false)}
@@ -141,28 +150,32 @@ const GameSecond = ({
           <DialogTitle>이심전심 게임</DialogTitle>
           <DialogContent>
             <Paper sx={{ p: 2, my: 2, textAlign: "center" }}>
-              {/* quizes 배열을 순회하며 각 퀴즈를 렌더링합니다. */}
-              {quizes.map((quiz) => (
-                <div key={quiz.id}>
-                  <Typography variant="h6">{quiz.title}</Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleUserChoice(quiz.choice1)}
-                    sx={{ m: 1 }}
-                  >
-                    {quiz.choice1}
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleUserChoice(quiz.choice2)}
-                    sx={{ m: 1 }}
-                  >
-                    {quiz.choice2}
-                  </Button>
-                </div>
-              ))}
+              {/* 현재 인덱스의 문제를 렌더링합니다. */}
+              <div key={quizes[currentQuizIndex].id}>
+                <Typography variant="h6">
+                  {quizes[currentQuizIndex].title}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() =>
+                    handleUserChoice(quizes[currentQuizIndex].choice1)
+                  }
+                  sx={{ m: 1 }}
+                >
+                  {quizes[currentQuizIndex].choice1}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() =>
+                    handleUserChoice(quizes[currentQuizIndex].choice2)
+                  }
+                  sx={{ m: 1 }}
+                >
+                  {quizes[currentQuizIndex].choice2}
+                </Button>
+              </div>
               <Typography variant="subtitle1" sx={{ mt: 2 }}>
                 제한 시간 {gameCountdown}초 안에 골라주세요!
               </Typography>
