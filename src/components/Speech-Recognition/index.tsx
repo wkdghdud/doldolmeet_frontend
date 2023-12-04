@@ -101,6 +101,7 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
             color="secondary"
             style={{
               backgroundColor: "rgba(0, 0, 0, 0.1)",
+              color: "#000000",
               padding: "8px",
               borderRadius: "4px",
             }}
