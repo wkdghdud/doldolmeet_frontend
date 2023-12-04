@@ -1,27 +1,49 @@
-"use client";
+"use client"; // 필요 없는 주석인지 확인 후 필요하면 사용하세요.
 
+// Import 부분 (필요한 모듈 및 컴포넌트 추가)
 import React, { useEffect, useState } from "react";
 import { backend_api } from "@/utils/api";
-import { Button, Grid, Tab, Tabs } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  Tab,
+  Tabs,
+  Link,
+  Avatar,
+  Typography,
+} from "@mui/material";
 import { useRouter } from "next/navigation";
 import useJwtToken from "@/hooks/useJwtToken";
+import SvgColor from "@/components/SvgColor";
+import GradientButton from "@/components/GradientButton";
 
-// TODO: 마이 페이지, 탭버튼 -> 팬 미팅 시작 전이면 예정, 하는 중이면, 진행, 끝났으면, 종료
+// FanMeeting 인터페이스 정의
+interface FanMeeting {
+  id: number;
+  imgUrl: string;
+  profileImgUrl: string;
+  title: string;
+  startTime: string;
+  fanMeetingStatus: string;
+}
 
+// MyPage 컴포넌트 정의
 const MyPage = () => {
-  const [fanmeetings, setFanMeetings] = useState([]);
-  const [openedFanMeetings, setOpenedFanMeetings] = useState([]);
-  const [closedFanMeetings, setClosedFanMeetings] = useState([]);
-  const [progressFanMeetings, setProgressFanMeetings] = useState([]);
-  const [selectedTab, setSelectedTab] = useState(0); // 현재 선택된 탭의 인덱스
+  const [fanmeetings, setFanMeetings] = useState<FanMeeting[]>([]);
   const [userName, setUserName] = useState<string>("");
-
   const router = useRouter();
   const token = useJwtToken();
+  const [filterOption, setFilterOption] = useState("opened"); // 기본 탭 설정 변경
+  const [filteredFanMeetings, setFilteredFanMeetings] = useState<FanMeeting[]>(
+    [],
+  );
 
   useEffect(() => {
     setFanMeeting();
-  }, []);
+  }, [filterOption]);
 
   useEffect(() => {
     token.then((res) => {
@@ -31,85 +53,45 @@ const MyPage = () => {
     });
   }, [token]);
 
+  const filterFanMeetings = (option: string) => {
+    setFilterOption(option);
+  };
+
   const setFanMeeting = () => {
     backend_api()
       .get("/fanMeetings/my", {
         params: {
-          option: "all",
+          option: filterOption,
         },
       })
       .then((response) => {
-        const fanMeetingsData = response.data.data || [];
+        const fanMeetingsData: FanMeeting[] = response.data.data || [];
         setFanMeetings(fanMeetingsData);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    backend_api()
-      .get("/fanMeetings/my", {
-        params: {
-          option: "opened",
-        },
-      })
-      .then((response) => {
-        const fanMeetingsData = response.data.data || [];
-        setOpenedFanMeetings(fanMeetingsData);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    backend_api()
-      .get("/fanMeetings/my", {
-        params: {
-          option: "closed",
-        },
-      })
-      .then((response) => {
-        const fanMeetingsData = response.data.data || [];
-        setClosedFanMeetings(fanMeetingsData);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    backend_api()
-      .get("/fanMeetings/my", {
-        params: {
-          option: "progress",
-        },
-      })
-      .then((response) => {
-        const fanMeetingsData = response.data.data || [];
-        setProgressFanMeetings(fanMeetingsData);
+        setFilteredFanMeetings(fanMeetingsData);
       })
       .catch((error) => {
         console.error(error);
       });
   };
 
-  const parseISODate = (isoDate) => {
-    const dateObject = new Date(isoDate);
+  const formatDate = (dateTimeString: string) => {
+    const options = {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    };
+    return new Date(dateTimeString).toLocaleDateString("ko-KR", options);
+  };
 
-    if (!isNaN(dateObject.getTime())) {
-      const formattedDate = dateObject.toLocaleDateString();
-      const formattedTime = dateObject.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-
-      return {
-        date: formattedDate,
-        time: formattedTime,
-      };
-    } else {
-      return {
-        date: "날짜 파싱 오류",
-        time: "시간 파싱 오류",
-      };
+  const handleTabChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newFilterOption: string,
+  ) => {
+    if (newFilterOption !== null) {
+      filterFanMeetings(newFilterOption);
     }
-  };
-
-  const handleTabChange = (event, newValue) => {
-    setSelectedTab(newValue);
   };
 
   const joinMemoryRoom = async (info) => {
@@ -119,150 +101,165 @@ const MyPage = () => {
 
   return (
     <>
-      <style jsx>{`
-        :root {
-          --border-color: #ddd;
-          --header-background-color: #f2f2f2;
-          --link-color: blue;
-          --link-hover-color: darkblue;
-        }
-
-        .fanmeetings-table {
-          border-collapse: collapse;
-          width: 100%;
-        }
-
-        .fanmeetings-table th,
-        .fanmeetings-table td {
-          border: 1px solid var(--border-color);
-          padding: 8px;
-          text-align: left;
-        }
-
-        .fanmeetings-table th {
-          background-color: var(--header-background-color);
-        }
-
-        .fanmeetings-link {
-          color: var(--link-color);
-          text-decoration: underline;
-          cursor: pointer;
-        }
-
-        .fanmeetings-link:hover {
-          color: var(--link-hover-color);
-        }
-      `}</style>
-
       <Grid
         container
         direction="column"
         justifyContent="center"
         alignItems="center"
       >
-        <Tabs value={selectedTab} onChange={handleTabChange} centered>
-          <Tab label="예정" />
-          <Tab label="진행" />
-          <Tab label="종료" />
+        <h1
+          style={{
+            marginBottom: "40px",
+            padding: "40px",
+            color: "#FFFFFF",
+            backgroundImage: "linear-gradient(to right, #ed6ea0, #ec8c69)",
+            fontWeight: 700,
+            boxShadow: "0 2px 5px 0 rgba(236, 116, 149, 0.75)",
+            letterSpacing: 3,
+            borderRadius: "10px",
+          }}
+        >
+          {userName}님의 팬미팅 정보 페이지
+        </h1>
+
+        <Tabs
+          value={filterOption}
+          onChange={handleTabChange}
+          sx={{
+            marginBottom: "20px",
+            marginTop: "8px",
+            position: "sticky",
+            top: 0,
+            zIndex: 1,
+          }}
+          centered
+          exclusive
+          aria-label="Filter options"
+        >
+          <Tab label="예정" value="opened" />
+          <Tab label="진행" value="progress" />
+          <Tab label="종료" value="closed" />
         </Tabs>
 
-        {Array.isArray(fanmeetings) && fanmeetings.length > 0 && (
-          <div>
-            <table
-              className="fanmeetings-table"
-              style={{ display: selectedTab === 0 ? "table" : "none" }}
-            >
-              {openedFanMeetings.length > 0 ? (
-                <>
-                  <thead>
-                    <tr>
-                      <th>State</th>
-                      <th>Title</th>
-                      <th>Team Name</th>
-                      <th>Date</th>
-                      <th>Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {openedFanMeetings.map((fanmeeting, idx) => (
-                      <tr key={idx}>
-                        <td>all</td>
-                        <td>{fanmeeting.title}</td>
-                        <td>{fanmeeting.teamName}</td>
-                        <td>{parseISODate(fanmeeting.startTime).date}</td>
-                        <td>{parseISODate(fanmeeting.startTime).time}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </>
-              ) : (
-                <caption>예정된 팬미팅이 없습니다.</caption>
-              )}
-            </table>
-
-            <table
-              className="fanmeetings-table"
-              style={{ display: selectedTab === 1 ? "table" : "none" }}
-            >
-              {progressFanMeetings.length > 0 ? (
-                <>
-                  <thead>
-                    <tr>
-                      <th>State</th>
-                      <th>Title</th>
-                      <th>Team Name</th>
-                      <th>Date</th>
-                      <th>Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {progressFanMeetings.map((fanmeeting, idx) => (
-                      <tr key={idx}>
-                        <td>all</td>
-                        <td>{fanmeeting.title}</td>
-                        <td>{fanmeeting.teamName}</td>
-                        <td>{parseISODate(fanmeeting.startTime).date}</td>
-                        <td>{parseISODate(fanmeeting.startTime).time}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </>
-              ) : (
-                <p>진행 중인 팬미팅이 없습니다.</p>
-              )}
-            </table>
-
-            <table
-              className="fanmeetings-table"
-              style={{ display: selectedTab === 2 ? "table" : "none" }}
-            >
-              <thead>
-                <tr>
-                  <th>State</th>
-                  <th>Title</th>
-                  <th>Team Name</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Move</th>
-                </tr>
-              </thead>
-              <tbody>
-                {closedFanMeetings.map((fanmeeting, idx) => (
-                  <tr key={idx}>
-                    <td>all</td>
-                    <td>{fanmeeting.title}</td>
-                    <td>{fanmeeting.teamName}</td>
-                    <td>{parseISODate(fanmeeting.startTime).date}</td>
-                    <td>{parseISODate(fanmeeting.startTime).time}</td>
-                    <td>
-                      <Button onClick={() => joinMemoryRoom(fanmeeting)}>
-                        추억보관함
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {filteredFanMeetings.length === 0 ? (
+          <Card
+            sx={{
+              width: "350px",
+              height: "150px",
+              marginBottom: "16px",
+              position: "relative",
+              backgroundColor: "#F8F8F8",
+              border: "none",
+              boxShadow: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+            }}
+          >
+            <h3>팬미팅이 없습니다.</h3>
+          </Card>
+        ) : (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+            {filteredFanMeetings.map((fanmeeting, idx) => (
+              <Card
+                key={idx}
+                sx={{
+                  width: "350px",
+                  marginBottom: "16px",
+                  position: "relative",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "relative",
+                    pt: "calc(100% * 3 / 4)",
+                  }}
+                >
+                  <SvgColor
+                    color="paper"
+                    src="/shape-avatar.svg"
+                    sx={{
+                      width: 80,
+                      height: 36,
+                      zIndex: 9,
+                      bottom: -15,
+                      position: "absolute",
+                      color: "background.paper",
+                    }}
+                  />
+                  <Avatar
+                    alt={fanmeeting.id.toString()}
+                    src={fanmeeting.profileImgUrl}
+                    sx={{
+                      zIndex: 9,
+                      width: 32,
+                      height: 32,
+                      position: "absolute",
+                      left: (theme) => theme.spacing(3),
+                      bottom: (theme) => theme.spacing(-2),
+                    }}
+                  />
+                  <Box
+                    component="img"
+                    alt={fanmeeting.title}
+                    src={fanmeeting.imgUrl}
+                    sx={{
+                      top: 0,
+                      width: 1,
+                      height: 1,
+                      objectFit: "cover",
+                      position: "absolute",
+                    }}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    p: (theme) => theme.spacing(4, 3, 3, 3),
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    component="div"
+                    sx={{
+                      mb: 2,
+                      color: "text.disabled",
+                    }}
+                  >
+                    {formatDate(fanmeeting.startTime)}
+                  </Typography>
+                  <Link
+                    color="inherit"
+                    variant="h6"
+                    underline="hover"
+                    sx={{
+                      height: 44,
+                      overflow: "hidden",
+                      WebkitLineClamp: 2,
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    {fanmeeting.title}
+                  </Link>
+                </Box>
+                {/* 종료된 팬미팅이 있을 때만 추억보관함으로 이동하는 버튼 추가 */}
+                {filterOption === "closed" && (
+                  <GradientButton
+                    onClick={() => joinMemoryRoom(fanmeeting)}
+                    sx={{
+                      width: "100%",
+                      // position: "absolute",
+                      bottom: 25,
+                      padding: "12px 12px",
+                      fontSize: "18px",
+                    }}
+                  >
+                    추억보관함
+                  </GradientButton>
+                )}
+              </Card>
+            ))}
           </div>
         )}
       </Grid>

@@ -119,13 +119,15 @@ export default function Home() {
           <Typography variant="h3" sx={{ color: "#ed6ea0", fontWeight: 800 }}>
             OPEN
           </Typography>
-          <GradientButton
-            variant="contained"
-            endIcon={<ForwardIcon />}
-            sx={{ borderRadius: "10px" }}
-          >
-            전체보기
-          </GradientButton>
+          <Link href={"/fanmeeting-list"}>
+            <GradientButton
+              variant="contained"
+              endIcon={<ForwardIcon />}
+              sx={{ borderRadius: "10px" }}
+            >
+              전체보기
+            </GradientButton>
+          </Link>
         </Stack>
       </Grid>
       {data &&
