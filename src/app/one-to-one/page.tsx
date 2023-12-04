@@ -368,7 +368,7 @@ const OneToOnePage = () => {
       console.log("🥹 아이돌 SSE 연결되었습니다.");
     });
 
-    eventSource.addEventListener("gameStart", (e: MessageEvent) => {
+    eventSource.addEventListener("idolGameStart", (e: MessageEvent) => {
       console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
       setGameStart(true);
     });
