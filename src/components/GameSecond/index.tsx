@@ -70,14 +70,46 @@ const GameSecond = ({
     }
   }, [open]);
 
+  // useEffect(() => {
+  //   let timer;
+  //
+  //   if (showGameModal && gameCountdown > 0) {
+  //     timer = setTimeout(() => {
+  //       setGameCountdown((prev) => prev - 1);
+  //     }, 1000);
+  //   }
+  //   else if (gameCountdown === 0) {
+  //     setShowGameModal(false); // 시간이 만료되면 모달을 닫습니다.
+  //
+  //     if (userChoice && partnerChoice) {
+  //       if (userChoice === partnerChoice) {
+  //         alert("둘의 마음이 통했습니다.!");
+  //         setScore((prevScore) => prevScore + 1);
+  //       }
+  //
+  //       else {
+  //         alert("둘의 마음이 통하지 않았습니다.!");
+  //       }
+  //     }
+  //   }
+  //
+  //   return () => clearTimeout(timer);
+  // }, [showGameModal, gameCountdown, userChoice, partnerChoice]);
+
   useEffect(() => {
+    // 게임이
+    // 5초 지나면 정산
     let timer;
+
+    // 타이머 실행
     if (showGameModal && gameCountdown > 0) {
       timer = setTimeout(() => {
         setGameCountdown((prev) => prev - 1);
       }, 1000);
-    } else if (gameCountdown === 0) {
-      setShowGameModal(false); // 시간이 만료되면 모달을 닫습니다.
+    }
+
+    // 시간 다되면 한 퀴즈에 대한 결과 보여주기
+    else if (gameCountdown === 0) {
       if (userChoice && partnerChoice) {
         if (userChoice === partnerChoice) {
           alert("둘의 마음이 통했습니다.!");
@@ -86,8 +118,23 @@ const GameSecond = ({
           alert("둘의 마음이 통하지 않았습니다.!");
         }
       }
+
+      // 아직 문제 남았으면 다음 문제로 인덱스 변경
+      if (currentQuizIndex < quizes.length - 1) {
+        setCurrentQuizIndex(currentQuizIndex + 1);
+        // 시간 초기화
+        setGameCountdown(5);
+      }
+      //마지막 문제였다면 게임 모달을 닫습니다.
+      else {
+        setShowGameModal(false);
+        alert("결과창 띄워주기");
+      }
     }
+
     return () => clearTimeout(timer);
+
+    //
   }, [showGameModal, gameCountdown, userChoice, partnerChoice]);
 
   const signalChoiceDetected = useCallback(
@@ -116,13 +163,12 @@ const GameSecond = ({
     signalChoiceDetected(choice);
     setUserChoice(choice);
 
-    // 현재 문제에 대한 처리가 끝났다면 다음 문제로 넘어갑니다.
     // 마지막 문제였다면 게임 모달을 닫습니다.
-    if (currentQuizIndex < quizes.length - 1) {
-      setCurrentQuizIndex(currentQuizIndex + 1);
-    } else {
-      setShowGameModal(false);
-    }
+    // if (currentQuizIndex < quizes.length - 1) {
+    // setCurrentQuizIndex(currentQuizIndex + 1);
+    // } else {
+    // setShowGameModal(false);
+    // }
   };
 
   return (
