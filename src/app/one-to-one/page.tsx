@@ -345,7 +345,7 @@ const OneToOnePage = () => {
     eventSource.onerror = (e) => {
       // 종료 또는 에러 발생 시 할 일
       console.log("🥲 eventSource 에러가 발생했어요", e);
-      eventSource.close();
+      // eventSource.close();
 
       if (e.error) {
         // 에러 발생 시 할 일
@@ -385,7 +385,7 @@ const OneToOnePage = () => {
     eventSource.onerror = (e) => {
       // 종료 또는 에러 발생 시 할 일
       console.log("🥲 eventSource 에러가 발생했어요", e);
-      eventSource.close();
+      // eventSource.close();
 
       if (e.error) {
         // 에러 발생 시 할 일
