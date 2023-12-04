@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { backend_api, openvidu_api } from "@/utils/api";
 import {
   Button,
@@ -26,6 +26,7 @@ interface Props {
   partnerChoice: string | null | undefined;
   open: boolean;
 }
+const audioFileUrl = "/mp3/game.mp3";
 
 const GameSecond = ({
   open,
@@ -44,6 +45,35 @@ const GameSecond = ({
   const decisionTimeLimit = 5; // 제한 시간 (5초)
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0); // 현재 문제 인덱스
   const [quizes, setQuizes] = useState<Quiz[]>([]);
+  const [selectedChoices, setSelectedChoices] = useState<string[] | undefined>(
+    [],
+  );
+  const [showResultModal, setShowResultModal] = useState(false);
+  const audioRef = useRef(new Audio(audioFileUrl));
+
+  useEffect(() => {
+    // 게임 모달이 열릴 때마다 오디오를 재생합니다.
+    if (showGameModal) {
+      audioRef.current.play();
+    } else {
+      audioRef.current.pause();
+    }
+  }, [showGameModal]);
+
+  useEffect(() => {
+    // 제한 시간이 만료되면 다음 문제로 이동하거나 결과 모달을 표시합니다.
+    if (gameCountdown === 0) {
+      const nextIndex = currentQuizIndex + 1;
+      setSelectedChoices((prev) => [...prev, userChoice]); // 사용자 선택 기록
+      if (nextIndex < quizes.length) {
+        setCurrentQuizIndex(nextIndex); // 다음 문제로 이동
+        setGameCountdown(5); // 시간 초기화
+      } else {
+        setShowGameModal(false); // 게임 모달 닫기
+        setShowResultModal(true); // 결과 모달 열기
+      }
+    }
+  }, [gameCountdown, currentQuizIndex, quizes.length, userChoice]);
 
   useEffect(() => {
     backend_api()
@@ -185,6 +215,46 @@ const GameSecond = ({
             <Typography variant="h6" sx={{ mx: "auto" }}>
               점수: {score}
             </Typography>
+          </DialogActions>
+        </Dialog>
+      )}
+      {/* 결과 모달 */}
+      {showResultModal && (
+        <Dialog
+          open={showResultModal}
+          onClose={() => setShowResultModal(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>게임 결과</DialogTitle>
+          <DialogContent>
+            <Paper sx={{ p: 2, textAlign: "center" }}>
+              {quizes.map((quiz, index) => (
+                <div key={quiz.id}>
+                  <Typography variant="h6">{quiz.title}</Typography>
+                  <Typography
+                    sx={{
+                      color:
+                        selectedChoices[index] === quiz.choice1
+                          ? "green"
+                          : "red",
+                    }}
+                  >
+                    당신의 선택: {selectedChoices[index]}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: partnerChoice === quiz.choice1 ? "green" : "red",
+                    }}
+                  >
+                    상대방의 선택: {partnerChoice}
+                  </Typography>
+                </div>
+              ))}
+            </Paper>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowResultModal(false)}>닫기</Button>
           </DialogActions>
         </Dialog>
       )}
