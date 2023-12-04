@@ -7,18 +7,22 @@ import MicIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import { Publisher } from "openvidu-browser";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
-import Capture from "@/components/Capture";
+import FaceRetouchingNaturalIcon from "@mui/icons-material/FaceRetouchingNatural";
 
 interface Props {
   publisher: Publisher | undefined;
   fullScreen: boolean;
   toggleFullScreen: () => void;
+  filterOn: boolean;
+  onClickFilter: () => void;
 }
 
 const DeviceControlButton = ({
   publisher,
   fullScreen,
   toggleFullScreen,
+  filterOn,
+  onClickFilter,
 }: Props) => {
   const [mic, setMic] = useState(true);
   const [camera, setCamera] = useState(true);
@@ -52,7 +56,16 @@ const DeviceControlButton = ({
           <VideocamOffIcon sx={{ color: "#bdbdbd" }} />
         )}
       </ToggleButton>
-      <Capture />
+      {/*<Capture />*/}
+      <ToggleButton
+        value="underlined"
+        aria-label="underlined"
+        onClick={onClickFilter}
+      >
+        <FaceRetouchingNaturalIcon
+          sx={{ color: filterOn ? "#FFAFCC" : "#bdbdbd" }}
+        />
+      </ToggleButton>
       <ToggleButton
         value="underlined"
         aria-label="underlined"
