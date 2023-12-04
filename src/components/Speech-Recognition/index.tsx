@@ -4,25 +4,17 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { backend_api, openvidu_api } from "@/utils/api";
+import Typography from "@mui/material/Typography";
+import { Grid } from "@mui/material";
 
 interface Props {
-  // role: string | undefined;
-  // fanMeetingId: string | null | undefined;
-  // idolName: string | null | undefined;
+  active: boolean;
   sessionId: string | null | undefined;
   partnerVoice: string | null | undefined;
   username: string;
-  // motionType: string | undefined | null;
 }
 
-const SpeechRecog = ({
-  // role,
-  // fanMeetingId,
-  // idolName,
-  sessionId,
-  partnerVoice,
-  username,
-}: Props) => {
+const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
   const {
     transcript,
     listening,
@@ -30,14 +22,12 @@ const SpeechRecog = ({
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  const [mic, setMic] = useState(false);
   const [translatedText, setTranslatedText] = useState("");
   const [isLanguage, setIsLanguage] = useState("en");
 
   const signalVoicesDetected = useCallback(
     async (text) => {
       if (username !== "") {
-        console.log("@@@@@@@@@@@@@", username);
         await openvidu_api
           .post(`/openvidu/api/signal`, {
             session: sessionId,
@@ -50,22 +40,20 @@ const SpeechRecog = ({
           .catch((err) =>
             console.error("Error in signal:voice_detected:", err),
           );
-        // setMyPose(true);
       }
     },
     [username, sessionId],
   );
 
-  const toggleMic = () => {
-    if (mic) {
-      SpeechRecognition.stopListening();
-    } else {
+  useEffect(() => {
+    if (active) {
       SpeechRecognition.startListening({
         continuous: true,
       });
+    } else {
+      SpeechRecognition.stopListening();
     }
-    setMic(!mic);
-  };
+  }, [active]);
 
   const fetchData = async () => {
     try {
@@ -76,8 +64,6 @@ const SpeechRecog = ({
             text: transcript,
           },
         );
-        // setTranslatedText(res.data.translatedText);
-        // console.log("API Response:", res);
         const translatedText = res.data.translatedText || ""; // Use an empty string if translatedText is undefined
         signalVoicesDetected(translatedText);
 
@@ -108,15 +94,21 @@ const SpeechRecog = ({
 
   return (
     <>
-      <div>
-        <p>마이크: {listening ? "켜짐" : "꺼짐"}</p>
-        <button onClick={toggleMic}>마이크 {mic ? "끄기" : "켜기"}</button>
+      <Grid item xs={11}>
         {translatedText !== null && (
-          <div>
-            <p>번역된 텍스트: {partnerVoice}</p>
-          </div>
+          <Typography
+            variant="subtitle1"
+            color="secondary"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.1)",
+              padding: "8px",
+              borderRadius: "4px",
+            }}
+          >
+            번역된 텍스트: {partnerVoice}
+          </Typography>
         )}
-      </div>
+      </Grid>
     </>
   );
 };

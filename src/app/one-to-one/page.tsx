@@ -30,7 +30,7 @@ import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import Game from "@/components/Game";
 import GameSecond from "@/components/GameSecond";
 import { v4 as uuidv4 } from "uuid";
-import SpeechRecognition from "@/components/SpeechRecognition";
+import SpeechRecog from "../../components/Speech-Recognition";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -78,7 +78,7 @@ const OneToOnePage = () => {
 
   /* 다음 아이돌의 대기실로 넘어가기 위해 필요한 state */
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
-  const [nextRoomId, setNextRoomId] = useState<string>("");
+  const [, setNextRoomId] = useState<string>("");
 
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
@@ -100,6 +100,8 @@ const OneToOnePage = () => {
 
   /* 이심전심 선택 */
   const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
+
+  /* 상대방 음성 인식 */
   const [partnerVoice, setPartnerVoice] = useState<string | undefined>();
 
   /* 필터 On/Off */
@@ -491,6 +493,8 @@ const OneToOnePage = () => {
     }
   };
 
+  const [isSubtitleActive, setSubtitleActive] = useState(false);
+
   return (
     <Grid container spacing={2}>
       <Grid
@@ -530,6 +534,8 @@ const OneToOnePage = () => {
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
                 filterOn={filter}
                 onClickFilter={onClickFilter}
+                toggleSubtitle={() => setSubtitleActive(!isSubtitleActive)}
+                isSubtitleActive={isSubtitleActive}
               />
             </Stack>
           </Grid>
@@ -577,15 +583,14 @@ const OneToOnePage = () => {
               )}
             </Grid>
           </Grid>
-          <SpeechRecognition
-            // role={role}
-            // fanMeetingId={fanMeetingId}
-            // idolName={idolName}
-            sessionId={sessionId}
-            partnerVoice={partnerVoice}
-            username={userName}
-            // motionType={motionType}
-          />
+          <Grid item xs={12}>
+            <SpeechRecog
+              sessionId={sessionId}
+              partnerVoice={partnerVoice}
+              username={userName}
+              active={isSubtitleActive}
+            />
+          </Grid>
         </Grid>
       </Grid>
 
