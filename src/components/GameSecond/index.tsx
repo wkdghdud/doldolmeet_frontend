@@ -45,15 +45,15 @@ const GameSecond = ({
   const [quizes, setQuizes] = useState<Quiz[]>([]);
   const [selectedChoices, setSelectedChoices] = useState<string[]>([]);
   const [showResultModal, setShowResultModal] = useState(false);
-  const audioRef = useRef(new Audio(audioFileUrl));
+  // const audioRef = useRef(new Audio(audioFileUrl));
 
-  useEffect(() => {
-    if (showGameModal) {
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
-    }
-  }, [showGameModal]);
+  // useEffect(() => {
+  //   if (showGameModal) {
+  //     audioRef.current.play();
+  //   } else {
+  //     audioRef.current.pause();
+  //   }
+  // }, [showGameModal]);
 
   useEffect(() => {
     if (gameCountdown === 0) {
