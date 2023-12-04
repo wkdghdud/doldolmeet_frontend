@@ -131,6 +131,29 @@ const OneToOnePage = () => {
     if (role && userName !== "") {
       init();
     }
+  }, []);
+
+  useEffect(() => {
+    async function init() {
+      if (role === Role.IDOL) {
+        await fetchSSE_idol();
+        await joinSession();
+      } else if (role === Role.FAN) {
+        await fetchSSE();
+        const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
+        setChatRoomId(fanToFanMeeting?.chatRoomId);
+        await joinSession(fanToFanMeeting?.chatRoomId);
+      } else {
+        await joinSession();
+      }
+
+      // 카메라 셔터 효과음
+      // setShutter(new Audio("/mp3/camera9.mp3"));
+    }
+
+    if (role && userName !== "") {
+      init();
+    }
   }, [role, userName]);
 
   const startRecording = () => {
@@ -370,7 +393,7 @@ const OneToOnePage = () => {
     );
 
     eventSource.addEventListener("connect", (e) => {
-      console.log("🥹 연결되었습니다.");
+      console.log("🥹 아이돌 SSE 연결되었습니다.");
     });
 
     eventSource.addEventListener("gameStart", (e: MessageEvent) => {
@@ -384,7 +407,7 @@ const OneToOnePage = () => {
     });
 
     eventSource.onopen = () => {
-      console.log("📣 SSE 연결되었습니다.");
+      console.log("📣 아이돌 SSE 연결되었습니다.");
     };
 
     eventSource.onerror = (e) => {
