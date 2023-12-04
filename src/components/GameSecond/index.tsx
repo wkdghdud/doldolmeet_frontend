@@ -128,6 +128,7 @@ const GameSecond = ({
       //마지막 문제였다면 게임 모달을 닫습니다.
       else {
         setShowGameModal(false);
+        setGameCountdown(5);
         alert("결과창 띄워주기");
       }
     }
@@ -135,7 +136,7 @@ const GameSecond = ({
     return () => clearTimeout(timer);
 
     //
-  }, [showGameModal, gameCountdown, userChoice, partnerChoice]);
+  }, [showGameModal, gameCountdown]);
 
   const signalChoiceDetected = useCallback(
     async (choice) => {
