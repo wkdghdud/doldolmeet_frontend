@@ -31,6 +31,7 @@ import MotionDetector from "@/components/MotionDetector";
 
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import Game from "@/components/Game";
+import GameSecond from "@/components/GameSecond";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -41,6 +42,7 @@ const OneToOnePage = () => {
   const sessionId = searchParams?.get("sessionId");
   const idolName = searchParams?.get("idolName");
   const motionType = searchParams?.get("motionType");
+  const gameType = searchParams?.get("gameType");
 
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();
@@ -97,6 +99,9 @@ const OneToOnePage = () => {
   /* 게임종료 */
   const [gameEnd, setGameEnd] = useState<boolean>(false);
 
+  /* 이심전심 선택 */
+  const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -107,7 +112,10 @@ const OneToOnePage = () => {
 
   useEffect(() => {
     async function init() {
-      if (role === Role.FAN) {
+      if (role === Role.IDOL) {
+        await fetchSSE_idol();
+        await joinSession();
+      } else if (role === Role.FAN) {
         await fetchSSE();
         const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
         setChatRoomId(fanToFanMeeting?.chatRoomId);
@@ -201,6 +209,14 @@ const OneToOnePage = () => {
         }
       });
 
+      mySession.on("signal:choice_detected", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 상대방이 선택을 했어요.", event.data);
+          setPartnerChoice(data.choice);
+        }
+      });
+
       // await createOpenViduSession(sessionId);
 
       const connection = await createOpenViduConnection(sessionId);
@@ -209,8 +225,8 @@ const OneToOnePage = () => {
       }
       const { token } = connection;
 
-      await mySession
-        .connect(token, {
+      if (role === Role.IDOL) {
+        await mySession.connect(token, {
           clientData: JSON.stringify({
             role: role,
             fanMeetingId: fanMeetingId,
@@ -218,6 +234,7 @@ const OneToOnePage = () => {
             type: "idolRoom",
             chatRoomId: _chatRoomId,
             nickname: myNickName,
+            gameType: gameType,
           }),
           kurentoOptions: {
             allowedFilters: [
@@ -226,12 +243,34 @@ const OneToOnePage = () => {
               "GStreamerFilter",
             ],
           },
-        })
-        .then(() => {
-          if (role === Role.FAN) {
-            startRecording();
-          }
         });
+      } else if (role === Role.FAN) {
+        await mySession
+          .connect(token, {
+            clientData: JSON.stringify({
+              role: role,
+              fanMeetingId: fanMeetingId,
+              userName: userName,
+              type: "idolRoom",
+              chatRoomId: _chatRoomId,
+              nickname: myNickName,
+              gameType: gameType,
+              idolName: idolName,
+            }),
+            kurentoOptions: {
+              allowedFilters: [
+                "FaceOverlayFilter",
+                "ChromaFilter",
+                "GStreamerFilter",
+              ],
+            },
+          })
+          .then(() => {
+            if (role === Role.FAN) {
+              startRecording();
+            }
+          });
+      }
 
       await ov.getUserMedia({
         audioSource: undefined,
@@ -321,6 +360,42 @@ const OneToOnePage = () => {
     return true;
   };
 
+  const fetchSSE_idol = async () => {
+    const eventSource = new EventSource(
+      `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
+    );
+
+    eventSource.addEventListener("gameStart", (e: MessageEvent) => {
+      console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
+      setGameStart(true);
+    });
+
+    eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
+      console.log("🥹 game이 종료됐습니다.!!!.", JSON.parse(e.data));
+      setGameEnd(true);
+    });
+
+    eventSource.onopen = () => {
+      console.log("📣 SSE 연결되었습니다.");
+    };
+
+    eventSource.onerror = (e) => {
+      // 종료 또는 에러 발생 시 할 일
+      console.log("error");
+      console.log(e);
+      eventSource.close();
+
+      if (e.error) {
+        // 에러 발생 시 할 일
+      }
+
+      if (e.target.readyState === EventSource.CLOSED) {
+        // 종료 시 할 일
+      }
+    };
+
+    return true;
+  };
   // 세션을 나가면서 정리
   const leaveSession = async () => {
     if (sessionId && myConnection?.connectionId) {
@@ -435,6 +510,12 @@ const OneToOnePage = () => {
                 {fanMeetingName && `💜 ${fanMeetingName} 💜`}
               </Typography>
               <LinearTimerBar />
+              <GameSecond
+                sessionId={sessionId}
+                username={userName}
+                role={role}
+                partnerChoice={partnerChoice}
+              />
               <DeviceControlButton
                 publisher={myStream}
                 fullScreen={fullScreen}
@@ -515,11 +596,22 @@ const OneToOnePage = () => {
           motionType={motionType}
         />
       )}
-      <Game
-        open={gameStart}
-        handleclose={handleclose}
-        fanMeetingId={fanMeetingId}
-      />
+      {gameType === "1" && (
+        <Game
+          open={gameStart}
+          handleclose={handleclose}
+          fanMeetingId={fanMeetingId}
+        />
+      )}
+      {gameType === "2" && (
+        <GameSecond
+          open={gameStart}
+          sessionId={sessionId}
+          username={userName}
+          role={role}
+          partnerChoice={partnerChoice}
+        />
+      )}
     </Grid>
   );
 };
