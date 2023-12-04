@@ -132,29 +132,6 @@ const OneToOnePage = () => {
     if (role && userName !== "") {
       init();
     }
-  }, []);
-
-  useEffect(() => {
-    async function init() {
-      if (role === Role.IDOL) {
-        await fetchSSE_idol();
-        await joinSession();
-      } else if (role === Role.FAN) {
-        await fetchSSE();
-        const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
-        setChatRoomId(fanToFanMeeting?.chatRoomId);
-        await joinSession(fanToFanMeeting?.chatRoomId);
-      } else {
-        await joinSession();
-      }
-
-      // 카메라 셔터 효과음
-      // setShutter(new Audio("/mp3/camera9.mp3"));
-    }
-
-    if (role && userName !== "") {
-      init();
-    }
   }, [role, userName]);
 
   const startRecording = () => {
@@ -187,11 +164,11 @@ const OneToOnePage = () => {
         },
       )
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         setForceRecordingId(response.data.id);
       })
       .catch((error) => {
-        console.error("Start recording WRONG:", error);
+        // console.error("Start recording WRONG:", error);
       });
   };
 
@@ -367,8 +344,7 @@ const OneToOnePage = () => {
 
     eventSource.onerror = (e) => {
       // 종료 또는 에러 발생 시 할 일
-      console.log("error");
-      console.log(e);
+      console.log("🥲 eventSource 에러가 발생했어요", e);
       eventSource.close();
 
       if (e.error) {
@@ -408,8 +384,7 @@ const OneToOnePage = () => {
 
     eventSource.onerror = (e) => {
       // 종료 또는 에러 발생 시 할 일
-      console.log("error");
-      console.log(e);
+      console.log("🥲 eventSource 에러가 발생했어요", e);
       eventSource.close();
 
       if (e.error) {
@@ -481,7 +456,6 @@ const OneToOnePage = () => {
   const fetchFanMeetingTitle = async () => {
     try {
       const fanMeeting = await fetchFanMeeting(fanMeetingId);
-      console.log("🚀 fanMeeting fetched!", fanMeeting);
 
       if (fanMeeting) {
         setFanMeetingName(fanMeeting.title);
@@ -491,10 +465,11 @@ const OneToOnePage = () => {
     }
   };
 
-  // fanMeetingId가 존재할 때에만 fetchFanMeetingTitle 호출
-  if (fanMeetingId) {
-    fetchFanMeetingTitle();
-  }
+  useEffect(() => {
+    if (fanMeetingId) {
+      fetchFanMeetingTitle();
+    }
+  }, [fanMeetingId]);
 
   const handleclose = () => {
     setGameStart(false);
