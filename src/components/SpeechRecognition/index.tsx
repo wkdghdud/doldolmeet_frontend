@@ -6,19 +6,19 @@ import SpeechRecognition, {
 import { backend_api, openvidu_api } from "@/utils/api";
 
 interface Props {
-  role: string | undefined;
-  fanMeetingId: string | null | undefined;
-  idolName: string | null | undefined;
+  // role: string | undefined;
+  // fanMeetingId: string | null | undefined;
+  // idolName: string | null | undefined;
   sessionId: string | null | undefined;
   partnerVoice: string | null | undefined;
   username: string;
-  motionType: string | undefined | null;
+  // motionType: string | undefined | null;
 }
 
 const SpeechRecog = ({
-  role,
-  fanMeetingId,
-  idolName,
+  // role,
+  // fanMeetingId,
+  // idolName,
   sessionId,
   partnerVoice,
   username,
