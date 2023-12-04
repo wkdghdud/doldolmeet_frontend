@@ -126,6 +126,18 @@ const OneToOnePage = () => {
   }, [role, userName]);
 
   const startRecording = () => {
+    console.log("🎥 startRecording", {
+      session: sessionId,
+      fanMeetingId: fanMeetingId,
+      fan: userName,
+      idol: idolName,
+      name:
+        "fanmeetingId" + fanMeetingId + "fan" + userName + "idol" + idolName,
+      hasAudio: true,
+      hasVideo: true,
+      outputMode: "COMPOSED",
+    });
+
     backend_api()
       .post(
         SPRING_URL + "/recording-java/api/recording/start",
