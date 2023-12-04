@@ -25,9 +25,11 @@ interface Props {
   role: string | undefined;
   partnerChoice: string | null | undefined;
   open: boolean;
+  fanMeetingId: string | undefined | null;
 }
 
 const GameSecond = ({
+  fanMeetingId,
   open,
   username,
   sessionId,
@@ -45,6 +47,8 @@ const GameSecond = ({
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0); // 현재 문제 인덱스
   const [quizes, setQuizes] = useState<Quiz[]>([]);
   const audio = new Audio("/mp3/game.mp3");
+
+  const [resultGameModal, setResultGameModal] = useState(false);
 
   useEffect(() => {
     if (showCountdownModal) {
@@ -79,32 +83,6 @@ const GameSecond = ({
     }
   }, [open]);
 
-  // useEffect(() => {
-  //   let timer;
-  //
-  //   if (showGameModal && gameCountdown > 0) {
-  //     timer = setTimeout(() => {
-  //       setGameCountdown((prev) => prev - 1);
-  //     }, 1000);
-  //   }
-  //   else if (gameCountdown === 0) {
-  //     setShowGameModal(false); // 시간이 만료되면 모달을 닫습니다.
-  //
-  //     if (userChoice && partnerChoice) {
-  //       if (userChoice === partnerChoice) {
-  //         alert("둘의 마음이 통했습니다.!");
-  //         setScore((prevScore) => prevScore + 1);
-  //       }
-  //
-  //       else {
-  //         alert("둘의 마음이 통하지 않았습니다.!");
-  //       }
-  //     }
-  //   }
-  //
-  //   return () => clearTimeout(timer);
-  // }, [showGameModal, gameCountdown, userChoice, partnerChoice]);
-
   useEffect(() => {
     // 게임이
     // 5초 지나면 정산
@@ -123,6 +101,11 @@ const GameSecond = ({
         if (userChoice === partnerChoice) {
           alert("둘의 마음이 통했습니다.!");
           setScore((prevScore) => prevScore + 1);
+          backend_api()
+            .post(`/fanMeetings/${fanMeetingId}/gameScore`)
+            .then((res) => {
+              console.log(res);
+            });
         } else {
           alert("둘의 마음이 통하지 않았습니다.!");
         }
@@ -138,7 +121,9 @@ const GameSecond = ({
       else {
         setShowGameModal(false);
         setGameCountdown(5);
-        alert("결과창 띄워주기");
+        //결과창 수정
+        // alert("결과창 띄워주기");
+        setResultGameModal(true);
       }
     }
 
@@ -159,11 +144,16 @@ const GameSecond = ({
           }),
         });
         setUserChoice(choice);
-        setTimeout(() => {
-          if (partnerChoice === choice) {
-            setScore((prevScore) => prevScore + 1);
-          }
-        }, decisionTimeLimit * 1000);
+        // setTimeout(() => {
+        //   if (partnerChoice === choice) {
+        //     setScore((prevScore) => prevScore + 1);
+        //     backend_api()
+        //       .post(`/fanMeetings/${fanMeetingId}/gameScore`)
+        //       .then((res) => {
+        //         console.log(res);
+        //       });
+        //   }
+        // }, decisionTimeLimit * 1000);
       }
     },
     [username, sessionId, role, partnerChoice],
@@ -172,13 +162,6 @@ const GameSecond = ({
   const handleUserChoice = (choice) => {
     signalChoiceDetected(choice);
     setUserChoice(choice);
-
-    // 마지막 문제였다면 게임 모달을 닫습니다.
-    // if (currentQuizIndex < quizes.length - 1) {
-    // setCurrentQuizIndex(currentQuizIndex + 1);
-    // } else {
-    // setShowGameModal(false);
-    // }
   };
 
   return (
@@ -194,7 +177,6 @@ const GameSecond = ({
           </DialogContent>
         </Dialog>
       )}
-
       {/* 게임 모달 */}
       {showGameModal && quizes.length > 0 && (
         <Dialog
@@ -242,6 +224,17 @@ const GameSecond = ({
               점수: {score}
             </Typography>
           </DialogActions>
+        </Dialog>
+      )}
+      {/* 결과 모달 */}
+      {resultGameModal && (
+        <Dialog open={resultGameModal}>
+          <DialogTitle>이심전심 게임 결과</DialogTitle>
+          <DialogContent>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              {score}점을 획득하셨습니다!
+            </Typography>
+          </DialogContent>
         </Dialog>
       )}
     </div>

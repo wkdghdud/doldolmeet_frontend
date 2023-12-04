@@ -627,6 +627,7 @@ const OneToOnePage = () => {
           sessionId={sessionId}
           username={userName}
           role={role}
+          fanMeetingId={fanMeetingId}
           partnerChoice={partnerChoice}
         />
       )}
