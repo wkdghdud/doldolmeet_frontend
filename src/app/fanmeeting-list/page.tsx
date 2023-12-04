@@ -134,7 +134,14 @@ const FanMeetingsPage = () => {
           </ToggleButton>
         </ToggleButtonGroup>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "16px",
+            justifyContent: "center",
+          }}
+        >
           {filteredFanMeetings.map((fanmeeting, idx) => (
             <Card
               key={idx}
