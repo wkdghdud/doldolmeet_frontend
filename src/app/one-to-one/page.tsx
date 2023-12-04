@@ -32,6 +32,7 @@ import MotionDetector from "@/components/MotionDetector";
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import Game from "@/components/Game";
 import GameSecond from "@/components/GameSecond";
+import { v4 as uuidv4 } from "uuid";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -134,13 +135,14 @@ const OneToOnePage = () => {
   }, [role, userName]);
 
   const startRecording = () => {
+    const recording_name = uuidv4();
+
     console.log("🎥 startRecording", {
       session: sessionId,
       fanMeetingId: fanMeetingId,
       fan: userName,
       idol: idolName,
-      name:
-        "fanmeetingId" + fanMeetingId + "fan" + userName + "idol" + idolName,
+      name: recording_name,
       hasAudio: true,
       hasVideo: true,
       outputMode: "COMPOSED",
@@ -155,13 +157,7 @@ const OneToOnePage = () => {
           fanMeetingId: fanMeetingId,
           fan: userName,
           idol: idolName,
-          name:
-            "fanmeetingId" +
-            fanMeetingId +
-            "fan" +
-            userName +
-            "idol" +
-            idolName,
+          name: recording_name,
           hasAudio: true,
           hasVideo: true,
           outputMode: "COMPOSED",
