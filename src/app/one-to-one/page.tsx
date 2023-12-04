@@ -6,13 +6,12 @@ import {
   Session,
   StreamManager,
 } from "openvidu-browser";
-import { Button, Grid, Stack } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import { Grid, Stack } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
   createOpenViduConnection,
-  // createOpenViduSession,
 } from "@/utils/openvidu";
 import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
@@ -24,9 +23,7 @@ import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
 import ChatAndMemo from "@/components/ChatAndMemo";
 import EndAlertBar from "@/components/Timer";
-import { backend_api, openvidu_api, SPRING_URL } from "@/utils/api";
-import html2canvas from "html2canvas";
-import * as tmPose from "@teachablemachine/pose";
+import { backend_api, SPRING_URL } from "@/utils/api";
 import MotionDetector from "@/components/MotionDetector";
 
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
@@ -101,6 +98,9 @@ const OneToOnePage = () => {
 
   /* 이심전심 선택 */
   const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
+
+  /* 필터 On/Off */
+  const [filter, setFilter] = useState(false);
 
   useEffect(() => {
     token.then((res) => {
@@ -436,21 +436,6 @@ const OneToOnePage = () => {
     }
   };
 
-  // TODO: 이미지 필터 처리
-  // const onClickFilter = () => {
-  //   myStream?.stream.applyFilter("FaceOverlayFilter", {}).then((f) => {
-  //     if (f.type === "FaceOverlayFilter") {
-  //       f.execMethod("setOverlayedImage", {
-  //         uri: "https://cdn.pixabay.com/photo/2017/09/30/09/29/cowboy-hat-2801582_960_720.png",
-  //         offsetXPercent: "-0.1F",
-  //         offsetYPercent: "-0.8F",
-  //         widthPercent: "1.5F",
-  //         heightPercent: "1.0F",
-  //       });
-  //     }
-  //   });
-  // };
-
   const fetchFanMeetingTitle = async () => {
     try {
       const fanMeeting = await fetchFanMeeting(fanMeetingId);
@@ -473,9 +458,24 @@ const OneToOnePage = () => {
     setGameStart(false);
   };
 
-  // const onClickFilter = () => {
-  //   setGameStart(true);
-  // };
+  const onClickFilter = () => {
+    if (myStream?.stream.filter) {
+      myStream?.stream.removeFilter();
+      setFilter(false);
+    } else {
+      myStream?.stream.applyFilter("FaceOverlayFilter", {}).then((filter) => {
+        filter.execMethod("setOverlayedImage", {
+          // uri: AWS_S3_URL + "/e7d8c009-1d9c-411e-9521-7837a6ec9c89.png",
+          uri: "https://cdn-icons-png.flaticon.com/512/6965/6965337.png",
+          offsetXPercent: -0.2,
+          offsetYPercent: -0.8,
+          widthPercent: 1.3,
+          heightPercent: 1.0,
+        });
+      });
+      setFilter(true);
+    }
+  };
 
   return (
     <Grid container spacing={2}>
@@ -520,8 +520,9 @@ const OneToOnePage = () => {
                 publisher={myStream}
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
+                filterOn={filter}
+                onClickFilter={onClickFilter}
               />
-              {/*<Button onClick={onClickFilter}>필터</Button>*/}
             </Stack>
           </Grid>
           <Grid
