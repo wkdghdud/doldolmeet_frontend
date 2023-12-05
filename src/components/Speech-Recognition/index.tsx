@@ -12,9 +12,16 @@ interface Props {
   sessionId: string | null | undefined;
   partnerVoice: string | null | undefined;
   username: string;
+  languageTarget: string;
 }
 
-const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
+const SpeechRecog = ({
+  active,
+  sessionId,
+  partnerVoice,
+  username,
+  languageTarget,
+}: Props) => {
   const {
     transcript,
     listening,
@@ -23,7 +30,6 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
   } = useSpeechRecognition();
 
   const [translatedText, setTranslatedText] = useState("");
-  const [isLanguage, setIsLanguage] = useState("en");
 
   const signalVoicesDetected = useCallback(
     async (text) => {
@@ -59,7 +65,7 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
     try {
       if (transcript.trim() !== "") {
         const res = await backend_api().post(
-          `/translate?target=${isLanguage}`,
+          `/translate?target=${languageTarget}`,
           {
             text: transcript,
           },
@@ -75,7 +81,7 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
 
   useEffect(() => {
     fetchData();
-  }, [transcript, isLanguage]);
+  }, [transcript, languageTarget]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {

@@ -32,6 +32,8 @@ import GameSecond from "@/components/GameSecond";
 import { v4 as uuidv4 } from "uuid";
 import SpeechRecog from "../../components/Speech-Recognition";
 import FilterSelectDialog from "@/components/FilterSelectDialog";
+import { useAtomValue } from "jotai/react";
+import { languageTargetAtom } from "@/atom";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -104,6 +106,7 @@ const OneToOnePage = () => {
 
   /* 상대방 음성 인식 */
   const [partnerVoice, setPartnerVoice] = useState<string | undefined>();
+  const langTarget = useAtomValue(languageTargetAtom);
 
   /* 필터 On/Off */
   const [filter, setFilter] = useState(false);
@@ -622,6 +625,7 @@ const OneToOnePage = () => {
               partnerVoice={partnerVoice}
               username={userName}
               active={isSubtitleActive}
+              languageTarget={langTarget}
             />
           </Grid>
         </Grid>
