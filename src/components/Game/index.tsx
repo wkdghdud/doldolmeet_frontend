@@ -14,6 +14,7 @@ interface Props {
   fanMeetingId: string | undefined | null;
   role: string | undefined | null;
   replaynum: number;
+  clickAnswer: number;
 }
 
 const Game = ({
@@ -24,6 +25,7 @@ const Game = ({
   username,
   sessionId,
   replaynum,
+  clickAnswer,
 }: Props) => {
   //첫번째 노래 맞추기 게임
   const [score, setScore] = useState(0);
@@ -159,8 +161,41 @@ const Game = ({
     }
   }, [username, sessionId]);
 
+  const handleAnswer = useCallback(
+    async (isAnswer) => {
+      if (username !== "") {
+        await openvidu_api.post(`/openvidu/api/signal`, {
+          session: sessionId,
+          type: "signal:click_answer",
+          data: JSON.stringify({
+            username: username,
+            isAnswer: isAnswer,
+          }),
+        });
+      }
+    },
+    [username, sessionId],
+  );
+
   useEffect(() => {
-    if (replaynum === 1) {
+    if (clickAnswer === 1) {
+      alert("정답을 맞췄습니다!");
+      setScore(score + 1);
+      setFirstGameCompleted(true);
+      handleclose();
+      backend_api()
+        .post(`/fanMeetings/${fanMeetingId}/gameScore`)
+        .then((res) => {
+          console.log(res);
+        });
+      setShowGameModal(false); // 게임 모달 닫기
+    } else if (clickAnswer === -1) {
+      alert("틀렸습니다.");
+    }
+  }, [clickAnswer]);
+
+  useEffect(() => {
+    if (replaynum >= 1) {
       audio.play();
       setTimeout(() => {
         audio.pause();
@@ -180,9 +215,17 @@ const Game = ({
             justifyContent="center"
           >
             {role === Role.IDOL && (
-              <GradientButton onClick={send_replay}>
-                다시 들려주기
-              </GradientButton>
+              <>
+                <GradientButton onClick={send_replay}>
+                  다시 들려주기
+                </GradientButton>
+                <GradientButton onClick={() => handleAnswer(1)}>
+                  정답
+                </GradientButton>
+                <GradientButton onClick={() => handleAnswer(-1)}>
+                  오답
+                </GradientButton>
+              </>
             )}
             <Grid item>
               <Typography variant="h5" gutterBottom>

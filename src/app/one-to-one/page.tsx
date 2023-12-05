@@ -109,6 +109,7 @@ const OneToOnePage = () => {
 
   /*노래 관련 게임*/
   const [replaynum, setReplaynum] = useState(0);
+  const [clickAnswer, setClickAnswer] = useState(0);
 
   useEffect(() => {
     token.then((res) => {
@@ -225,6 +226,14 @@ const OneToOnePage = () => {
         if (data.username !== userName) {
           console.log("👋 상대방이 리플레이를 했어요.", event.data);
           setReplaynum((prev) => prev + 1);
+        }
+      });
+
+      mySession.on("signal:click_answer", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 상대방이 리플레이를 했어요.", event.data);
+          setClickAnswer(data.isAnswer);
         }
       });
 
@@ -639,6 +648,7 @@ const OneToOnePage = () => {
           fanMeetingId={fanMeetingId}
           role={role}
           replaynum={replaynum}
+          clickAnswer={clickAnswer}
         />
       )}
       {gameType === "2" && (
