@@ -103,6 +103,7 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
               color: "#000000",
               padding: "8px",
               borderRadius: "4px",
+              marginTop: "5px",
             }}
           >
             번역된 텍스트: {partnerVoice}
