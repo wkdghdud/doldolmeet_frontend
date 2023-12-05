@@ -121,6 +121,9 @@ const OneToOnePage = () => {
   const [replaynum, setReplaynum] = useState(0);
   const [clickAnswer, setClickAnswer] = useState(0);
 
+  /* 남은 통화 시간 */
+  const [timeLimit, setTimeLimit] = useState(60);
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -382,6 +385,7 @@ const OneToOnePage = () => {
         `통화시간이 ${Math.floor(e.data / 1000)}초 남았습니다.`,
       );
       setSnackBarOpen(true);
+      setTimeLimit(Math.floor(e.data / 1000));
     });
 
     eventSource.addEventListener("gameStart", (e: MessageEvent) => {
@@ -564,7 +568,7 @@ const OneToOnePage = () => {
               <Typography variant={"h4"}>
                 {fanMeetingName && `💜 ${fanMeetingName} 💜`}
               </Typography>
-              <LinearTimerBar />
+              <LinearTimerBar timeLimit={timeLimit} />
               <DeviceControlButton
                 publisher={myStream}
                 fullScreen={fullScreen}

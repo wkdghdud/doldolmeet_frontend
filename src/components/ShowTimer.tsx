@@ -3,8 +3,12 @@ import { LinearProgress, Stack } from "@mui/material";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 
-const LinearTimerBar = () => {
-  const [seconds, setSeconds] = useState(30);
+interface Props {
+  timeLimit: number;
+}
+
+const LinearTimerBar = ({ timeLimit }: Props) => {
+  const [seconds, setSeconds] = useState(timeLimit);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
