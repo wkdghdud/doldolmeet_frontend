@@ -202,7 +202,7 @@ const Game = ({
 
   useEffect(() => {
     if (clickAnswer === 1) {
-      alert("정답을 맞췄습니다!");
+      // alert("정답을 맞췄습니다!");
       setScore(score + 1);
       setResultGameModal(true);
       setFirstGameCompleted(true);
@@ -214,7 +214,7 @@ const Game = ({
         });
       setShowGameModal(false); // 게임 모달 닫기
     } else if (clickAnswer === -1) {
-      alert("틀렸습니다.");
+      // alert("틀렸습니다.");
       setResultGameModal(true);
     }
   }, [clickAnswer]);
@@ -230,6 +230,16 @@ const Game = ({
 
   return (
     <div>
+      {showCountdownModal && (
+        <Dialog open={showCountdownModal}>
+          <DialogTitle>게임 시작 카운트다운</DialogTitle>
+          <DialogContent>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              {countdown}초 후에 게임이 시작됩니다...
+            </Typography>
+          </DialogContent>
+        </Dialog>
+      )}
       {showGameModal && (
         <Dialog open={showGameModal} PaperComponent={Paper}>
           <Grid
@@ -337,9 +347,16 @@ const Game = ({
         <Dialog open={resultGameModal}>
           <DialogTitle>노래 맞추기 게임 결과</DialogTitle>
           <DialogContent>
-            <Typography variant="h2" align="center" sx={{ my: 5 }}>
-              정답은 : 마종스 하입보이였습니다.
-            </Typography>
+            {clickAnswer === 1 && (
+              <Typography variant="h2" align="center" sx={{ my: 5 }}>
+                맞았습니다 .정답은 : 마종스 하입보이였습니다.
+              </Typography>
+            )}
+            {clickAnswer === -1 && (
+              <Typography variant="h2" align="center" sx={{ my: 5 }}>
+                틀렸습니다.정답은 : 마종스 하입보이였습니다.
+              </Typography>
+            )}
             <Typography variant="h2" align="center" sx={{ my: 5 }}>
               {score}점을 획득하셨습니다!
             </Typography>
