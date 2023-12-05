@@ -66,11 +66,11 @@ const Game = ({
     // 추가 문제들...
   ];
 
-  useEffect(() => {
-    if (!showGameModal && firstGameCompleted) {
-      setShowQuizGame(true);
-    }
-  }, [showGameModal, firstGameCompleted]);
+  // useEffect(() => {
+  //   if (!showGameModal && firstGameCompleted && resultGameModal) {
+  //     setShowQuizGame(true);
+  //   }
+  // }, [showGameModal, firstGameCompleted, resultGameModal]);
 
   const handleQuizAnswer = (option) => {
     if (option === quizQuestions[quizQuestionIndex].answer) {
@@ -129,6 +129,15 @@ const Game = ({
       }, 1000);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (resultGameModal) {
+      setTimeout(() => {
+        setResultGameModal(false);
+        setShowQuizGame(true);
+      }, 3000);
+    }
+  }, [resultGameModal]);
 
   // 정답 제출 함수
   const handleSubmit = (answer) => {
