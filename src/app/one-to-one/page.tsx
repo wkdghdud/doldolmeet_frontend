@@ -31,7 +31,7 @@ import Game from "@/components/Game";
 import GameSecond from "@/components/GameSecond";
 import { v4 as uuidv4 } from "uuid";
 import SpeechRecog from "../../components/Speech-Recognition";
-import { useAtomValue } from "jotai/react/useAtomValue";
+import { useAtomValue } from "jotai/react";
 import { languageTargetAtom } from "@/atom";
 
 const OneToOnePage = () => {
