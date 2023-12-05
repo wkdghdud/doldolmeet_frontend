@@ -51,6 +51,7 @@ const Game = ({
   const [musicTime, setMusicTime] = useState(false);
 
   const [resultGameModal, setResultGameModal] = useState(false);
+  const [showCountdownModal2, setShowCountdownModal2] = useState(false);
 
   const quizQuestions = [
     {
@@ -122,7 +123,7 @@ const Game = ({
             clearInterval(timer);
             setShowCountdownModal(false);
             setShowGameModal(true);
-            return 0;
+            setCountdown(3);
           }
           return prevCount - 1;
         });
@@ -134,10 +135,26 @@ const Game = ({
     if (resultGameModal) {
       setTimeout(() => {
         setResultGameModal(false);
-        setShowQuizGame(true);
+        setShowCountdownModal2(true);
       }, 3000);
     }
   }, [resultGameModal]);
+
+  useEffect(() => {
+    if (showCountdownModal2) {
+      const timer = setInterval(() => {
+        setCountdown((prevCount) => {
+          if (prevCount === 1) {
+            clearInterval(timer);
+            setShowCountdownModal2(false);
+            setShowQuizGame(true);
+            return 0;
+          }
+          return prevCount - 1;
+        });
+      }, 1000);
+    }
+  }, [showCountdownModal2]);
 
   // 정답 제출 함수
   const handleSubmit = (answer) => {
@@ -233,6 +250,16 @@ const Game = ({
       {showCountdownModal && (
         <Dialog open={showCountdownModal}>
           <DialogTitle>게임 시작 카운트다운</DialogTitle>
+          <DialogContent>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              {countdown}초 후에 게임이 시작됩니다...
+            </Typography>
+          </DialogContent>
+        </Dialog>
+      )}
+      {showCountdownModal2 && (
+        <Dialog open={showCountdownModal2}>
+          <DialogTitle>띵곡 받아 쓰기 게임 시작</DialogTitle>
           <DialogContent>
             <Typography variant="h2" align="center" sx={{ my: 5 }}>
               {countdown}초 후에 게임이 시작됩니다...
