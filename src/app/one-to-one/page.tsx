@@ -323,7 +323,7 @@ const OneToOnePage = () => {
         publishAudio: true,
         publishVideo: true,
         resolution: "640x480",
-        frameRate: 30,
+        frameRate: 60,
         insertMode: "APPEND",
         mirror: false,
         // @ts-ignore
