@@ -55,14 +55,14 @@ export default function ChatBalloon({
       });
   };
 
-  const toggleTarget = () => {
-    // 현재 target의 인덱스를 찾아서 다음 target으로 변경
-    const currentIndex = SUPPORTED_TARGETS.findIndex(
-      (item) => item.code === target,
-    );
-    const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
-    setTarget(SUPPORTED_TARGETS[nextIndex].code);
-  };
+  // const toggleTarget = () => {
+  //   // 현재 target의 인덱스를 찾아서 다음 target으로 변경
+  //   const currentIndex = SUPPORTED_TARGETS.findIndex(
+  //     (item) => item.code === target,
+  //   );
+  //   const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
+  //   setTarget(SUPPORTED_TARGETS[nextIndex].code);
+  // };
 
   return (
     <Stack
