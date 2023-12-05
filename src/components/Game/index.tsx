@@ -8,6 +8,7 @@ import {
   DialogTitle,
   Grid,
   Paper,
+  TextField,
   Typography,
 } from "@mui/material";
 import { backend_api, openvidu_api } from "@/utils/api";
@@ -47,11 +48,41 @@ const Game = ({
   const [showQuizGame, setShowQuizGame] = useState(false);
   const [quizQuestionIndex, setQuizQuestionIndex] = useState(0);
   const [firstGameCompleted, setFirstGameCompleted] = useState(false);
-
   const [musicTime, setMusicTime] = useState(false);
-
   const [resultGameModal, setResultGameModal] = useState(false);
   const [showCountdownModal2, setShowCountdownModal2] = useState(false);
+
+  //띵곡 받아쓰기 게임
+  const [lyricsInput, setLyricsInput] = useState("");
+  const [isLyricsCorrect, setIsLyricsCorrect] = useState(false);
+  const audio2 = new Audio("/mp3/idolsong2.mp3");
+
+  const lyrics = ["가사1", "가사2", "가사3"];
+  const [lyricsIndex, setLyricsIndex] = useState(0);
+  const handleLyricsChange = (e) => {
+    setLyricsInput(e.target.value);
+  };
+
+  const checkLyrics = () => {
+    // 여기서는 예시로 간단한 문자열 비교를 사용합니다
+    // 실제로는 더 정교한 비교 로직이 필요할 수 있습니다
+    if (lyricsInput.trim() === "여기에 정답 가사 입력") {
+      setIsLyricsCorrect(true);
+      setScore(score + 1);
+      alert("정답입니다!");
+    } else {
+      alert("틀렸습니다.");
+    }
+  };
+
+  useEffect(() => {
+    if (showQuizGame) {
+      audio2.play();
+      setInterval(() => {
+        setLyricsIndex(lyricsIndex + 1);
+      }, 1000);
+    }
+  }, [showQuizGame]);
 
   const quizQuestions = [
     {
@@ -66,12 +97,6 @@ const Game = ({
     },
     // 추가 문제들...
   ];
-
-  // useEffect(() => {
-  //   if (!showGameModal && firstGameCompleted && resultGameModal) {
-  //     setShowQuizGame(true);
-  //   }
-  // }, [showGameModal, firstGameCompleted, resultGameModal]);
 
   const handleQuizAnswer = (option) => {
     if (option === quizQuestions[quizQuestionIndex].answer) {
@@ -112,7 +137,6 @@ const Game = ({
     };
   }, [showGameModal]);
 
-  useEffect(() => {}, []);
   //게임 시작 카운트 다운
   useEffect(() => {
     if (open) {
@@ -351,34 +375,25 @@ const Game = ({
 
       {showQuizGame && (
         <Dialog open={showQuizGame} PaperComponent={Paper}>
-          <Grid
-            container
-            spacing={2}
-            direction="column"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Grid item>
-              <Typography variant="h5" gutterBottom>
-                퀴즈 게임
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography gutterBottom>
-                {quizQuestions[quizQuestionIndex].question}
-              </Typography>
-            </Grid>
-            {quizQuestions[quizQuestionIndex].options.map((option, index) => (
-              <Grid item xs={12} key={index}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={() => handleQuizAnswer(option)}
-                >
-                  {option}
-                </Button>
-              </Grid>
-            ))}
+          <Grid item>
+            <TextField
+              fullWidth
+              label="가사를 입력하세요"
+              variant="outlined"
+              value={lyricsInput}
+              onChange={handleLyricsChange}
+            />
+          </Grid>
+          <Typography variant="h5" gutterBottom>
+            {lyrics[lyricsIndex]}
+          </Typography>
+          <Grid item>
+            <Button variant="contained" color="primary" onClick={checkLyrics}>
+              가사 제출
+            </Button>
+          </Grid>
+          <Grid item>
+            <Typography>현재 점수: {score}</Typography>
           </Grid>
         </Dialog>
       )}
