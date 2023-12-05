@@ -406,29 +406,52 @@ const Game = ({
           </Grid>
         </Dialog>
       )}
-
       {showQuizGame && (
-        <Dialog open={showQuizGame} PaperComponent={Paper}>
-          <Grid item>
-            <TextField
-              fullWidth
-              label="가사를 입력하세요"
-              variant="outlined"
-              value={lyricsInput}
-              onChange={handleLyricsChange}
-            />
-          </Grid>
-          <Typography variant="h5" gutterBottom>
-            {lyrics[lyricsIndex]}
-          </Typography>
-          <Grid item>
-            <Button variant="contained" color="primary" onClick={checkLyrics}>
-              가사 제출
-            </Button>
-          </Grid>
-          <Grid item>
-            <Typography>현재 점수: {score}</Typography>
-          </Grid>
+        <Dialog open={showQuizGame} PaperComponent={Paper} sx={{ p: 3 }}>
+          <DialogTitle>띵곡 받아쓰기 게임</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} direction="column" alignItems="center">
+              <Grid item>
+                <TextField
+                  fullWidth
+                  label="가사를 입력하세요"
+                  variant="outlined"
+                  value={lyricsInput}
+                  onChange={handleLyricsChange}
+                  sx={{ mb: 2 }}
+                />
+              </Grid>
+              <Grid item>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ fontWeight: "bold" }}
+                >
+                  현재 가사: {lyrics[lyricsIndex]}
+                </Typography>
+                {lyricsIndex < lyrics.length - 1 && (
+                  <Typography variant="subtitle1" gutterBottom>
+                    다음 가사: {lyrics[lyricsIndex + 1]}
+                  </Typography>
+                )}
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={checkLyrics}
+                  sx={{ mt: 2, mb: 1, fontSize: "1rem" }}
+                >
+                  가사 제출
+                </Button>
+              </Grid>
+              <Grid item>
+                <Typography variant="h5" sx={{ color: "secondary.main" }}>
+                  현재 점수: {score}
+                </Typography>
+              </Grid>
+            </Grid>
+          </DialogContent>
         </Dialog>
       )}
 
