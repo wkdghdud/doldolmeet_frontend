@@ -31,21 +31,25 @@ const SpeechRecog = ({
 
   const [translatedText, setTranslatedText] = useState("");
 
-  const signalVoicesDetected = useCallback(async () => {
-    if (username !== "") {
-      await openvidu_api
-        .post(`/openvidu/api/signal`, {
-          session: sessionId,
-          type: "signal:voice_detected",
-          data: JSON.stringify({
-            username: username,
-            translatedText: transcript,
-          }),
-        })
-
-        .catch((err) => console.error("Error in signal:voice_detected:", err));
+  useEffect(() => {
+    if (transcript && username !== "") {
+      const sendSignal = async () => {
+        try {
+          await openvidu_api.post(`/openvidu/api/signal`, {
+            session: sessionId,
+            type: "signal:voice_detected",
+            data: JSON.stringify({
+              username: username,
+              translatedText: transcript,
+            }),
+          });
+        } catch (err) {
+          console.error("Error in signal:voice_detected:", err);
+        }
+      };
+      sendSignal();
     }
-  }, [username, sessionId]);
+  }, [transcript, username, sessionId]);
 
   useEffect(() => {
     if (active) {
@@ -58,31 +62,32 @@ const SpeechRecog = ({
   }, [active]);
 
   const fetchData = async (partnerVoice: string) => {
+    console.log("🎸🎸🎸🎸🎸🎸🎸🎸", partnerVoice);
     try {
-      if (partnerVoice == "") {
-        const res = await backend_api().post(
-          `/translate?target=${languageTarget}`,
-          {
-            text: partnerVoice,
-          },
-        );
-        const translatedText = res.data.translatedText || ""; // Use an empty string if translatedText is undefined
-        setTranslatedText(translatedText); // 있어야 되나?
-      }
+      const res = await backend_api()
+        .post(`/translate?target=${languageTarget}`, {
+          text: partnerVoice,
+        })
+        .then((res) => {
+          console.log("🎲🎲🎲🎲🎲🎲🎲🎲", res.data.translatedText);
+          const translatedText = res.data.translatedText || ""; // Use an empty string if translatedText is undefined
+          setTranslatedText(translatedText); // 있어야 되나?
+        });
     } catch (error) {
       console.error("Error fetching translation:", error);
     }
   };
 
   useEffect(() => {
+    console.log("🧩🧩🧩🧩🧩🧩🧩", partnerVoice); // 출력 확인
     if (partnerVoice) {
       fetchData(partnerVoice);
     }
   }, [partnerVoice]);
 
-  useEffect(() => {
-    signalVoicesDetected();
-  }, [transcript, languageTarget]);
+  // useEffect(() => {
+  //   signalVoicesDetected();
+  // }, [transcript, languageTarget]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -114,7 +119,6 @@ const SpeechRecog = ({
             }}
           >
             번역된 텍스트: {translatedText}
-            v2: {transcript}
           </Typography>
         )}
       </Grid>
