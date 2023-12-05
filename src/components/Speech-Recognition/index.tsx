@@ -93,7 +93,7 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
 
   return (
     <>
-      <Grid item xs={11}>
+      <Grid item xs={12}>
         {translatedText !== null && (
           <Typography
             variant="subtitle1"
