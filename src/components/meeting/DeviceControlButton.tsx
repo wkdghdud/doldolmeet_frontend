@@ -73,14 +73,6 @@ const DeviceControlButton = ({
           sx={{ color: filterOn ? "#FFAFCC" : "#bdbdbd" }}
         />
       </ToggleButton>
-      <ToggleButton
-        value="underlined"
-        aria-label="underlined"
-        onClick={toggleFullScreen}
-      >
-        <FullscreenIcon sx={{ color: fullScreen ? "#FFAFCC" : "#bdbdbd" }} />
-      </ToggleButton>
-
       {/* 자막 켜기 / 끄기 */}
       <ToggleButton
         value="underlined"
@@ -93,6 +85,13 @@ const DeviceControlButton = ({
         ) : (
           <ClosedCaptionDisabledIcon sx={{ color: "#bdbdbd" }} />
         )}
+      </ToggleButton>
+      <ToggleButton
+        value="underlined"
+        aria-label="underlined"
+        onClick={toggleFullScreen}
+      >
+        <FullscreenIcon sx={{ color: fullScreen ? "#FFAFCC" : "#bdbdbd" }} />
       </ToggleButton>
     </ToggleButtonGroup>
   );

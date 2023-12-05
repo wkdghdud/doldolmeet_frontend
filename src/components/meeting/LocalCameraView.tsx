@@ -71,7 +71,7 @@ const LocalCameraView = ({ name }: Props) => {
         style={{
           borderRadius: 20,
           maxWidth: "95%",
-          height: "70vh",
+          height: "68vh",
           objectFit: "cover",
           transform: "rotateY(180deg)",
         }}

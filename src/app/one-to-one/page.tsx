@@ -625,13 +625,15 @@ const OneToOnePage = () => {
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            <SpeechRecog
-              sessionId={sessionId}
-              partnerVoice={partnerVoice}
-              username={userName}
-              active={isSubtitleActive}
-              languageTarget={langTarget}
-            />
+            {isSubtitleActive && (
+              <SpeechRecog
+                sessionId={sessionId}
+                partnerVoice={partnerVoice}
+                username={userName}
+                active={isSubtitleActive}
+                languageTarget={langTarget}
+              />
+            )}
           </Grid>
         </Grid>
       </Grid>

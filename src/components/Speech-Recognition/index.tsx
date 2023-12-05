@@ -62,14 +62,12 @@ const SpeechRecog = ({
   }, [active]);
 
   const fetchData = async (partnerVoice: string) => {
-    console.log("🎸🎸🎸🎸🎸🎸🎸🎸", partnerVoice);
     try {
       const res = await backend_api()
         .post(`/translate?target=${languageTarget}`, {
           text: partnerVoice,
         })
         .then((res) => {
-          console.log("🎲🎲🎲🎲🎲🎲🎲🎲", res.data.translatedText);
           const translatedText = res.data.translatedText || ""; // Use an empty string if translatedText is undefined
           setTranslatedText(translatedText); // 있어야 되나?
         });
@@ -79,15 +77,10 @@ const SpeechRecog = ({
   };
 
   useEffect(() => {
-    console.log("🧩🧩🧩🧩🧩🧩🧩", partnerVoice); // 출력 확인
     if (partnerVoice) {
       fetchData(partnerVoice);
     }
   }, [partnerVoice]);
-
-  // useEffect(() => {
-  //   signalVoicesDetected();
-  // }, [transcript, languageTarget]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -100,7 +93,7 @@ const SpeechRecog = ({
   }, []);
 
   if (!browserSupportsSpeechRecognition) {
-    return <span>브라우저가 음성 인식을 지원하지 않습니다.</span>;
+    return null;
   }
 
   return (
@@ -108,17 +101,21 @@ const SpeechRecog = ({
       <Grid item xs={12}>
         {translatedText !== null && (
           <Typography
-            variant="subtitle1"
             color="secondary"
+            align={"center"}
             style={{
               backgroundColor: "rgba(0, 0, 0, 0.1)",
               color: "#000000",
-              padding: "8px",
-              borderRadius: "4px",
+              padding: 15,
+              borderRadius: "8px",
               marginTop: "5px",
+              width: "95%",
+              fontSize: 20,
+              fontWeight: 600,
+              minHeight: 24,
             }}
           >
-            번역된 텍스트: {translatedText}
+            {translatedText}
           </Typography>
         )}
       </Grid>

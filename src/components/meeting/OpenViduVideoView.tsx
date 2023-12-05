@@ -64,7 +64,7 @@ const OpenViduVideoView = ({
           style={{
             borderRadius: 20,
             maxWidth: "100%",
-            height: "70vh",
+            height: "68vh",
             objectFit: "cover",
           }}
         />

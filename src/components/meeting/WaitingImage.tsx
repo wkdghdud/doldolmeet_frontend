@@ -25,7 +25,7 @@ const WaitingImage = ({ waitingFor, name }: Props) => {
         alt="조금만 기다려주세요"
         style={{
           maxWidth: "95%",
-          height: "70vh",
+          height: "68vh",
           borderRadius: 20,
           objectFit: "cover",
           position: "relative",
