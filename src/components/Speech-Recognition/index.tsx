@@ -31,25 +31,21 @@ const SpeechRecog = ({
 
   const [translatedText, setTranslatedText] = useState("");
 
-  const signalVoicesDetected = useCallback(
-    async (text) => {
-      if (username !== "") {
-        await openvidu_api
-          .post(`/openvidu/api/signal`, {
-            session: sessionId,
-            type: "signal:voice_detected",
-            data: JSON.stringify({
-              username: username,
-              translatedText: text,
-            }),
-          })
-          .catch((err) =>
-            console.error("Error in signal:voice_detected:", err),
-          );
-      }
-    },
-    [username, sessionId],
-  );
+  const signalVoicesDetected = useCallback(async () => {
+    if (username !== "") {
+      await openvidu_api
+        .post(`/openvidu/api/signal`, {
+          session: sessionId,
+          type: "signal:voice_detected",
+          data: JSON.stringify({
+            username: username,
+            translatedText: transcript,
+          }),
+        })
+
+        .catch((err) => console.error("Error in signal:voice_detected:", err));
+    }
+  }, [username, sessionId]);
 
   useEffect(() => {
     if (active) {
@@ -61,18 +57,17 @@ const SpeechRecog = ({
     }
   }, [active]);
 
-  const fetchData = async () => {
+  const fetchData = async (partnerVoice: string) => {
     try {
-      if (transcript.trim() !== "") {
+      if (partnerVoice == "") {
         const res = await backend_api().post(
           `/translate?target=${languageTarget}`,
           {
-            text: transcript,
+            text: partnerVoice,
           },
         );
         const translatedText = res.data.translatedText || ""; // Use an empty string if translatedText is undefined
-        signalVoicesDetected(translatedText);
-        setTranslatedText(translatedText);
+        setTranslatedText(translatedText); // 있어야 되나?
       }
     } catch (error) {
       console.error("Error fetching translation:", error);
@@ -80,7 +75,13 @@ const SpeechRecog = ({
   };
 
   useEffect(() => {
-    fetchData();
+    if (partnerVoice) {
+      fetchData(partnerVoice);
+    }
+  }, [partnerVoice]);
+
+  useEffect(() => {
+    signalVoicesDetected();
   }, [transcript, languageTarget]);
 
   useEffect(() => {
@@ -112,7 +113,8 @@ const SpeechRecog = ({
               marginTop: "5px",
             }}
           >
-            번역된 텍스트: {partnerVoice}
+            번역된 텍스트: {translatedText}
+            v2: {transcript}
           </Typography>
         )}
       </Grid>
