@@ -212,8 +212,9 @@ const Game = ({
             isAnswer: isAnswer,
           }),
         });
-        setResultGameModal(true);
+        // setResultGameModal(true);
         // setShowQuizGame(true);
+        setShowQuizGame(true);
       }
     },
     [username, sessionId],
