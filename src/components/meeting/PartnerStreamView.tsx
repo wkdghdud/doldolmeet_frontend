@@ -10,6 +10,7 @@ interface Props {
   partnerRole: Role;
   left: boolean;
   showOverlay: boolean;
+  motionType: string | undefined | null;
 }
 
 const PartnerStreamView = ({
@@ -18,6 +19,7 @@ const PartnerStreamView = ({
   partnerRole,
   left,
   showOverlay,
+  motionType,
 }: Props) => {
   return (
     <>
@@ -29,6 +31,7 @@ const PartnerStreamView = ({
           streamManager={stream}
           left={left}
           showOverlay={showOverlay}
+          motionType={motionType}
         />
       )}
     </>

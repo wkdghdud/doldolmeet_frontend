@@ -7,9 +7,16 @@ interface Props {
   stream: StreamManager | Publisher | Subscriber | undefined;
   left: boolean;
   showOverlay: boolean;
+  motionType: string | undefined | null;
 }
 
-const MyStreamView = ({ name, stream, left, showOverlay }: Props) => {
+const MyStreamView = ({
+  name,
+  stream,
+  left,
+  showOverlay,
+  motionType,
+}: Props) => {
   return (
     <>
       {stream === undefined ? (
@@ -20,6 +27,7 @@ const MyStreamView = ({ name, stream, left, showOverlay }: Props) => {
           streamManager={stream}
           left={left}
           showOverlay={showOverlay}
+          motionType={motionType}
         />
       )}
     </>

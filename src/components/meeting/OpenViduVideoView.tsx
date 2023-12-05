@@ -8,6 +8,7 @@ interface Props {
   streamManager: StreamManager | Publisher | Subscriber;
   left: boolean;
   showOverlay: boolean;
+  motionType: string | undefined | null;
 }
 
 const OpenViduVideoView = ({
@@ -15,6 +16,7 @@ const OpenViduVideoView = ({
   streamManager,
   left,
   showOverlay,
+  motionType,
 }: Props) => {
   const videoRef = useRef(null);
 
@@ -71,8 +73,16 @@ const OpenViduVideoView = ({
       </div>
       {showOverlay && (
         <img
-          src={left ? "/left_heart.png" : "/right_heart.png"}
-          alt="gradient"
+          src={
+            motionType === "bigHeart"
+              ? "/big_heart.png"
+              : motionType === "halfHeart"
+              ? left
+                ? "/left_heart.png"
+                : "/right_heart.png"
+              : undefined
+          }
+          alt="overlay"
           style={{
             position: "absolute",
             top: 0,

@@ -595,6 +595,7 @@ const OneToOnePage = () => {
                   stream={myStream}
                   left={true}
                   showOverlay={endSoon}
+                  motionType={motionType}
                 />
               ) : (
                 <PartnerStreamView
@@ -603,6 +604,7 @@ const OneToOnePage = () => {
                   partnerRole={Role.IDOL}
                   left={true}
                   showOverlay={endSoon}
+                  motionType={motionType}
                 />
               )}
             </Grid>
@@ -613,6 +615,7 @@ const OneToOnePage = () => {
                   stream={myStream}
                   left={false}
                   showOverlay={endSoon}
+                  motionType={motionType}
                 />
               ) : (
                 <PartnerStreamView
@@ -621,6 +624,7 @@ const OneToOnePage = () => {
                   partnerRole={Role.FAN}
                   left={false}
                   showOverlay={endSoon}
+                  motionType={motionType}
                 />
               )}
             </Grid>
