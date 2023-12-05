@@ -54,6 +54,17 @@ export default function ShowDialog() {
     setOpen(false);
   };
 
+  const formatDate = (dateTimeString: string) => {
+    const options = {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    };
+    return new Date(dateTimeString).toLocaleDateString("ko-KR", options);
+  };
+
   return (
     <Dialog
       open={open}
@@ -92,12 +103,12 @@ export default function ShowDialog() {
             <img
               src={imgSrc}
               alt="이미지"
-              style={{ height: "100%", width: "auto" }}
+              style={{ height: "100%", width: "90%" }}
               onError={() => setImgSrc("/images/fanmeeting/riize_cover.jpeg")}
             />
           </DialogContent>
           <DialogTitle style={{ textAlign: "center" }}>
-            시작시간이 {todayMeeting?.data?.startTime} 입니다.
+            시작시간이 {formatDate(todayMeeting?.data?.startTime)} 입니다.
           </DialogTitle>
           <DialogContentText style={{ textAlign: "center" }}>
             당신의 아이돌을 만나기 위해{" "}
@@ -106,17 +117,19 @@ export default function ShowDialog() {
           </DialogContentText>
           <DialogTitle style={{ textAlign: "center" }}></DialogTitle>
           <DialogActions style={{ justifyContent: "space-between" }}>
-            <GradientButton sx={{ width: "100%", height: 40 }}>
-              <Link
-                href={`/waitingroom?id=${todayMeeting?.data?.id}`}
-                style={{
-                  textDecoration: "none",
-                  color: "inherit",
-                }}
-              >
+            <Link
+              href={`/waitingroom?id=${todayMeeting?.data?.id}`}
+              style={{
+                textDecoration: "none",
+                color: "inherit",
+                display: "block", // 링크를 블록 레벨 요소로 설정
+                width: "100%", // 전체 폭을 사용하도록 설정
+              }}
+            >
+              <GradientButton sx={{ width: "100%", height: 40 }}>
                 이동하기
-              </Link>
-            </GradientButton>
+              </GradientButton>
+            </Link>
           </DialogActions>
         </>
       )}
