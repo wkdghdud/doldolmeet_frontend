@@ -2,10 +2,11 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { AWS_S3_URL, backend_api } from "@/utils/api";
-import { Button, IconButton, Stack, Typography } from "@mui/material";
+import { Button, Grid, IconButton, Stack, Typography } from "@mui/material";
 import { GetApp, Twitter } from "@mui/icons-material";
 import Carousel from "react-material-ui-carousel";
 import axios from "axios";
+import ForwardIcon from "@mui/icons-material/Forward";
 
 const EndFanMeetingPage = () => {
   /* route query */
@@ -100,153 +101,193 @@ const EndFanMeetingPage = () => {
   };
 
   return (
-    <>
-      <Stack direction={"column"} justifyContent="flex-start">
-        <Typography
-          variant={"h2"}
-          sx={{ zIndex: 300, marginRight: 10, lineHeight: 2, color: "#212121" }}
-        >
-          팬미팅이 종료되었습니다. <br />
-          함께 찍은 사진과 영상을 공유해보세요 ☺️
-        </Typography>
-        <Button
-          variant={"contained"}
-          sx={{ zIndex: 300, width: 200, height: 40, marginTop: 3 }}
+    <Grid container alignItems={"center"}>
+      <Grid item xs={6}>
+        <Stack
+          direction={"column"}
+          justifyContent="flex-start"
+          sx={{ marginLeft: 10 }}
         >
           <Typography
-            variant={"button"}
-            sx={{ letterSpacing: 1.5, fontWeight: 600 }}
-            onClick={joinMemoryRoom}
+            variant={"h2"}
+            sx={{
+              zIndex: 300,
+              lineHeight: 2,
+              color: "#212121",
+            }}
           >
-            추억보관함 가기
+            팬미팅이 종료되었습니다. <br />
+            함께 찍은 사진과 영상을 공유해보세요 ☺️
           </Typography>
-        </Button>
-      </Stack>
-      <Carousel
-        sx={{ height: "100%", minWidth: "40%", minHeight: "70%" }}
-        animation={"fade"}
-        duration={1500}
-      >
-        {contents.map((url, index) => {
-          const isVideo = url.endsWith(".mp4");
-          return isVideo ? (
-            <div
-              key={index}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                position: "relative",
-              }}
-              onMouseOver={() => setIsHovering(true)}
-              onMouseOut={() => setIsHovering(false)}
+          <Button
+            variant={"contained"}
+            sx={{
+              zIndex: 300,
+              width: 200,
+              height: 50,
+              marginTop: 3,
+              borderRadius: 3,
+            }}
+            endIcon={<ForwardIcon />}
+          >
+            <Typography
+              variant={"button"}
+              sx={{ letterSpacing: 1.5, fontWeight: 600, fontSize: 16 }}
+              onClick={joinMemoryRoom}
             >
-              <video id={url} key={index} style={{ width: "100%" }} controls>
-                <source src={url} type="video/mp4" />
-              </video>
-              <Stack
-                direction="row"
-                spacing={4}
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                  display: isHovering ? "flex" : "none",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <IconButton
-                  onClick={() => handleDownload(url)}
-                  size="large"
-                  sx={{
-                    color: "#FFFFFF",
-                    transform: "scale(1.5)",
-                    "&:hover": {
-                      color: "#FFAFCC",
-                    },
-                  }}
-                >
-                  <GetApp fontSize={"inherit"} />
-                </IconButton>
-                <IconButton
-                  onClick={() => shareTwitter(url)}
-                  sx={{
-                    color: "#FFFFFF",
-                    transform: "scale(1.5)",
-                    "&:hover": {
-                      color: "#FFAFCC",
-                    },
-                  }}
-                >
-                  <Twitter />
-                </IconButton>
-              </Stack>
-            </div>
-          ) : (
-            <div
-              key={index}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                position: "relative",
-              }}
-              onMouseOver={() => setIsHovering(true)}
-              onMouseOut={() => setIsHovering(false)}
-            >
-              <img
+              추억보관함 가기
+            </Typography>
+          </Button>
+        </Stack>
+      </Grid>
+      <Grid item xs={6}>
+        <Carousel
+          sx={{
+            height: "70vh",
+            minWidth: "40%",
+          }}
+          animation={"fade"}
+          duration={1500}
+        >
+          {contents.map((url, index) => {
+            const isVideo = url.endsWith(".mp4");
+            return isVideo ? (
+              <div
                 key={index}
-                src={url}
-                alt={"banner"}
-                style={{ width: "100%" }}
-              />
-              <Stack
-                direction="row"
-                spacing={4}
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                  display: isHovering ? "flex" : "none",
+                style={{
+                  display: "flex",
+                  height: "70vh",
                   justifyContent: "center",
                   alignItems: "center",
+                  position: "relative",
                 }}
+                onMouseOver={() => setIsHovering(true)}
+                onMouseOut={() => setIsHovering(false)}
               >
-                <IconButton
-                  onClick={() => handleDownload(url)}
-                  size="large"
+                <video
+                  id={url}
+                  key={index}
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    marginTop: "auto",
+                    marginBottom: "auto",
+                  }}
+                  controls
+                >
+                  <source src={url} type="video/mp4" />
+                </video>
+                <Stack
+                  direction="row"
+                  spacing={4}
                   sx={{
-                    color: "#FFFFFF",
-                    transform: "scale(1.5)",
-                    "&:hover": {
-                      color: "#FFAFCC",
-                    },
+                    position: "absolute",
+                    top: "45%",
+                    left: "35%",
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "rgba(0,0,0,0.7)",
+                    display: isHovering ? "flex" : "none",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "28%",
+                    height: "12%",
+                    borderRadius: 10,
                   }}
                 >
-                  <GetApp fontSize={"inherit"} />
-                </IconButton>
-                <IconButton
-                  onClick={() => shareTwitter(url)}
+                  <IconButton
+                    onClick={() => handleDownload(url)}
+                    size="large"
+                    sx={{
+                      color: "#FFFFFF",
+                      transform: "scale(1.5)",
+                      "&:hover": {
+                        color: "#FFAFCC",
+                      },
+                    }}
+                  >
+                    <GetApp fontSize={"inherit"} />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => shareTwitter(url)}
+                    sx={{
+                      color: "#FFFFFF",
+                      transform: "scale(1.5)",
+                      "&:hover": {
+                        color: "#FFAFCC",
+                      },
+                    }}
+                  >
+                    <Twitter />
+                  </IconButton>
+                </Stack>
+              </div>
+            ) : (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  position: "relative",
+                }}
+                onMouseOver={() => setIsHovering(true)}
+                onMouseOut={() => setIsHovering(false)}
+              >
+                <img
+                  key={index}
+                  src={url}
+                  alt={"banner"}
+                  style={{ height: "70vh", objectFit: "cover" }}
+                />
+                <Stack
+                  direction="row"
+                  spacing={4}
                   sx={{
-                    color: "#FFFFFF",
-                    transform: "scale(1.5)",
-                    "&:hover": {
-                      color: "#FFAFCC",
-                    },
+                    position: "absolute",
+                    top: "45%",
+                    left: "35%",
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "rgba(0,0,0,0.7)",
+                    display: isHovering ? "flex" : "none",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "28%",
+                    height: "12%",
+                    borderRadius: 10,
                   }}
                 >
-                  <Twitter />
-                </IconButton>
-              </Stack>
-            </div>
-          );
-        })}
-      </Carousel>
+                  <IconButton
+                    onClick={() => handleDownload(url)}
+                    size="large"
+                    sx={{
+                      color: "#FFFFFF",
+                      transform: "scale(1.5)",
+                      "&:hover": {
+                        color: "#FFAFCC",
+                      },
+                    }}
+                  >
+                    <GetApp fontSize={"inherit"} />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => shareTwitter(url)}
+                    sx={{
+                      color: "#FFFFFF",
+                      transform: "scale(1.5)",
+                      "&:hover": {
+                        color: "#FFAFCC",
+                      },
+                    }}
+                  >
+                    <Twitter />
+                  </IconButton>
+                </Stack>
+              </div>
+            );
+          })}
+        </Carousel>
+      </Grid>
       <div
         style={{
           backgroundImage: "url('/album_poster.jpg')",
@@ -256,7 +297,7 @@ const EndFanMeetingPage = () => {
           height: "100vh",
         }}
       />
-    </>
+    </Grid>
   );
 };
 
