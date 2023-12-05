@@ -62,7 +62,7 @@ const Game = ({
     "But wait a minute while I make you mine make you mine",
     "떨리는 지금도 you're on my mind all the time",
     "I wanna tell you but I'm super shy, super shy",
-    "",
+    "이 부분 가사를 받아쓰기 해 주세요!",
   ];
   const [lyricsIndex, setLyricsIndex] = useState(0);
 
@@ -406,6 +406,7 @@ const Game = ({
           </Grid>
         </Dialog>
       )}
+
       {showQuizGame && (
         <Dialog open={showQuizGame} PaperComponent={Paper} sx={{ p: 3 }}>
           <DialogTitle>띵곡 받아쓰기 게임</DialogTitle>
@@ -427,7 +428,16 @@ const Game = ({
                   gutterBottom
                   sx={{ fontWeight: "bold" }}
                 >
-                  현재 가사: {lyrics[lyricsIndex]}
+                  현재 가사:
+                  <Typography
+                    component="span"
+                    sx={{
+                      color:
+                        lyricsIndex === lyrics.length - 1 ? "red" : "inherit", // 마지막 가사의 내용일 때만 빨간색으로 설정
+                    }}
+                  >
+                    {lyrics[lyricsIndex]}
+                  </Typography>
                 </Typography>
                 {lyricsIndex < lyrics.length - 1 && (
                   <Typography variant="subtitle1" gutterBottom>
