@@ -31,6 +31,7 @@ import Game from "@/components/Game";
 import GameSecond from "@/components/GameSecond";
 import { v4 as uuidv4 } from "uuid";
 import SpeechRecog from "../../components/Speech-Recognition";
+import FilterSelectDialog from "@/components/FilterSelectDialog";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -106,6 +107,7 @@ const OneToOnePage = () => {
 
   /* 필터 On/Off */
   const [filter, setFilter] = useState(false);
+  const [filterPopupOpen, setFilterPopupOpen] = useState(false);
 
   /*노래 관련 게임*/
   const [replaynum, setReplaynum] = useState(0);
@@ -494,23 +496,34 @@ const OneToOnePage = () => {
     setGameStart(false);
   };
 
-  const onClickFilter = () => {
-    if (myStream?.stream.filter) {
-      myStream?.stream.removeFilter();
+  const toggleFilter = async () => {
+    if (filter) {
+      await myStream?.stream.removeFilter();
       setFilter(false);
     } else {
-      myStream?.stream.applyFilter("FaceOverlayFilter", {}).then((filter) => {
+      setFilterPopupOpen(true);
+    }
+  };
+
+  const onClickApplyFilter = async (filterUrl: string, toPartner: boolean) => {
+    const targetStream = toPartner ? partnerStream : myStream;
+
+    await targetStream?.stream
+      .applyFilter("FaceOverlayFilter", {})
+      .then((filter) => {
         filter.execMethod("setOverlayedImage", {
-          // uri: AWS_S3_URL + "/e7d8c009-1d9c-411e-9521-7837a6ec9c89.png",
-          uri: "https://cdn-icons-png.flaticon.com/512/6965/6965337.png",
+          uri: filterUrl,
           offsetXPercent: -0.2,
           offsetYPercent: -0.8,
-          widthPercent: 1.3,
+          widthPercent: 1.4,
           heightPercent: 1.0,
         });
       });
+
+    if (!toPartner) {
       setFilter(true);
     }
+    setFilterPopupOpen(false);
   };
 
   const [isSubtitleActive, setSubtitleActive] = useState(false);
@@ -553,7 +566,7 @@ const OneToOnePage = () => {
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
                 filterOn={filter}
-                onClickFilter={onClickFilter}
+                onClickFilter={toggleFilter}
                 toggleSubtitle={() => setSubtitleActive(!isSubtitleActive)}
                 isSubtitleActive={isSubtitleActive}
               />
@@ -661,6 +674,11 @@ const OneToOnePage = () => {
           partnerChoice={partnerChoice}
         />
       )}
+      <FilterSelectDialog
+        popupOpen={filterPopupOpen}
+        onClose={() => setFilterPopupOpen(false)}
+        onClickApplyFilter={onClickApplyFilter}
+      />
     </Grid>
   );
 };
