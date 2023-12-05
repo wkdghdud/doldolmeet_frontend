@@ -107,7 +107,7 @@ const MyPage = () => {
         justifyContent="center"
         alignItems="center"
       >
-        <h1
+        <h3
           style={{
             marginBottom: "40px",
             padding: "40px",
@@ -120,7 +120,7 @@ const MyPage = () => {
           }}
         >
           {userName}님의 팬미팅 정보 페이지
-        </h1>
+        </h3>
 
         <Tabs
           value={filterOption}
