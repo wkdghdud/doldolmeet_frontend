@@ -214,7 +214,7 @@ const Game = ({
         });
         setFirstGameCompleted(true);
         setShowGameModal(false); // 게임 모달 닫기
-        setShowCountdownModal2(true);
+        // setShowCountdownModal2(true);
         setResultGameModal(true);
       }
     },
