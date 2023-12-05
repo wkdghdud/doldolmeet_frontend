@@ -52,10 +52,14 @@ const SpeechRecog = ({
   }, [transcript, username, sessionId]);
 
   useEffect(() => {
-    SpeechRecognition.startListening({
-      continuous: true,
-    });
-  }, []);
+    if (active) {
+      SpeechRecognition.startListening({
+        continuous: true,
+      });
+    } else {
+      SpeechRecognition.stopListening();
+    }
+  }, [active]);
 
   const fetchData = async (partnerVoice: string) => {
     try {

@@ -534,7 +534,7 @@ const OneToOnePage = () => {
     setFilterPopupOpen(false);
   };
 
-  const [isSubtitleActive, setSubtitleActive] = useState(false);
+  const [isSubtitleActive, setSubtitleActive] = useState(true);
 
   return (
     <Grid container spacing={2}>
