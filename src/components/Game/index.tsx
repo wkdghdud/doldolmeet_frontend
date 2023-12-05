@@ -31,7 +31,7 @@ const Game = ({
   const [showCountdownModal, setShowCountdownModal] = useState(false);
   const [showGameModal, setShowGameModal] = useState(false);
   const correctAnswer = "마종스 - 하입 보이";
-  const [timeLeft, setTimeLeft] = useState(5); // 5초 제한 시간
+  const [timeLeft, setTimeLeft] = useState(500); // 5초 제한 시간
 
   //가사보고 노래 맞추기 게임
   const [showQuizGame, setShowQuizGame] = useState(false);
@@ -80,7 +80,7 @@ const Game = ({
     if (showGameModal) {
       timer = setInterval(() => {
         setTimeLeft((prevTime) => {
-          if (prevTime === 1) {
+          if (prevTime === 5) {
             clearInterval(timer);
             alert("시간 초과!");
             handleclose();
