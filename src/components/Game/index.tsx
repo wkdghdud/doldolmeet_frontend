@@ -1,7 +1,15 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import DialogActions from "@mui/material/DialogActions/DialogActions";
-import { Button, Dialog, Grid, Paper, Typography } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { backend_api, openvidu_api } from "@/utils/api";
 import GradientButton from "@/components/GradientButton";
 import { Role } from "@/types";
@@ -41,6 +49,8 @@ const Game = ({
   const [firstGameCompleted, setFirstGameCompleted] = useState(false);
 
   const [musicTime, setMusicTime] = useState(false);
+
+  const [resultGameModal, setResultGameModal] = useState(false);
 
   const quizQuestions = [
     {
@@ -100,6 +110,8 @@ const Game = ({
       }
     };
   }, [showGameModal]);
+
+  //게임 시작 카운트 다운
   useEffect(() => {
     if (open) {
       setShowCountdownModal(true);
@@ -172,6 +184,8 @@ const Game = ({
             isAnswer: isAnswer,
           }),
         });
+        setResultGameModal(true);
+        // setShowQuizGame(true);
       }
     },
     [username, sessionId],
@@ -181,6 +195,7 @@ const Game = ({
     if (clickAnswer === 1) {
       alert("정답을 맞췄습니다!");
       setScore(score + 1);
+      setResultGameModal(true);
       setFirstGameCompleted(true);
       handleclose();
       backend_api()
@@ -191,6 +206,7 @@ const Game = ({
       setShowGameModal(false); // 게임 모달 닫기
     } else if (clickAnswer === -1) {
       alert("틀렸습니다.");
+      setResultGameModal(true);
     }
   }, [clickAnswer]);
 
@@ -305,6 +321,20 @@ const Game = ({
               </Grid>
             ))}
           </Grid>
+        </Dialog>
+      )}
+
+      {resultGameModal && (
+        <Dialog open={resultGameModal}>
+          <DialogTitle>노래 맞추기 게임 결과</DialogTitle>
+          <DialogContent>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              정답은 : 마종스 하입보이였습니다.
+            </Typography>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              {score}점을 획득하셨습니다!
+            </Typography>
+          </DialogContent>
         </Dialog>
       )}
     </div>
