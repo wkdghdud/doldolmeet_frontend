@@ -8,6 +8,7 @@ import {
   DialogTitle,
   Grid,
   Paper,
+  TextField,
   Typography,
 } from "@mui/material";
 import { backend_api, openvidu_api } from "@/utils/api";
@@ -47,45 +48,103 @@ const Game = ({
   const [showQuizGame, setShowQuizGame] = useState(false);
   const [quizQuestionIndex, setQuizQuestionIndex] = useState(0);
   const [firstGameCompleted, setFirstGameCompleted] = useState(false);
-
   const [musicTime, setMusicTime] = useState(false);
-
   const [resultGameModal, setResultGameModal] = useState(false);
   const [showCountdownModal2, setShowCountdownModal2] = useState(false);
 
-  const quizQuestions = [
-    {
-      question: "ㄴㄱ ㅁㄷ ㅋㅋ?",
-      options: [
-        "마종스 - 쿠키",
-        "마종스 - 슈퍼샤이",
-        "마종스 - 디토",
-        "마종스 - 하입 보이",
-      ],
-      answer: "마종스 - 쿠키",
-    },
-    // 추가 문제들...
+  //띵곡 받아쓰기 게임
+  const [lyricsInput, setLyricsInput] = useState("");
+  const [isLyricsCorrect, setIsLyricsCorrect] = useState(false);
+  const audio2 = new Audio("/mp3/idolsong2.mp3");
+
+  const lyrics = [
+    "I'm super shy, super shy",
+    "But wait a minute while I make you mine make you mine",
+    "떨리는 지금도 you're on my mind all the time",
+    "I wanna tell you but I'm super shy, super shy",
+    "",
   ];
+  const [lyricsIndex, setLyricsIndex] = useState(0);
 
-  // useEffect(() => {
-  //   if (!showGameModal && firstGameCompleted && resultGameModal) {
-  //     setShowQuizGame(true);
-  //   }
-  // }, [showGameModal, firstGameCompleted, resultGameModal]);
+  const handleLyricsChange = (e) => {
+    setLyricsInput(e.target.value);
+  };
 
-  const handleQuizAnswer = (option) => {
-    if (option === quizQuestions[quizQuestionIndex].answer) {
+  const checkLyrics = () => {
+    // 여기서는 예시로 간단한 문자열 비교를 사용합니다
+    // 실제로는 더 정교한 비교 로직이 필요할 수 있습니다
+    if (lyricsInput.trim() === "I'm super shy, super shy") {
+      setIsLyricsCorrect(true);
+      setScore(score + 1);
       alert("정답입니다!");
     } else {
-      alert("틀렸습니다!");
-    }
-    if (quizQuestionIndex < quizQuestions.length - 1) {
-      setQuizQuestionIndex(quizQuestionIndex + 1);
-    } else {
-      setShowQuizGame(false); // 마지막 문제이면 퀴즈 게임 종료
-      handleclose(); // 게임 전체를 종료
+      alert("틀렸습니다.");
     }
   };
+
+  useEffect(() => {
+    // 게임이 시작되었다.
+    if (showQuizGame) {
+      // 노래를 튼다.
+      audio2.play();
+      lyricsChangeAfter(2000, 3000, 4000);
+      // setInterval(() => {
+      //   setLyricsIndex((prevIndex) => prevIndex + 1);
+      // }, 1000);
+    }
+  }, [showQuizGame]);
+
+  const lyricsChangeAfter = (first, second, third) => {
+    setTimeout(() => {
+      setLyricsIndex(1);
+    }, first);
+
+    setTimeout(() => {
+      setLyricsIndex(2);
+    }, first + second);
+
+    setTimeout(
+      () => {
+        setLyricsIndex(3);
+      },
+      first + second + third,
+    );
+
+    setTimeout(
+      () => {
+        setLyricsIndex(4);
+      },
+      first + second + third + 3000,
+    );
+  };
+
+  // const quizQuestions = [
+  //   {
+  //     question: "ㄴㄱ ㅁㄷ ㅋㅋ?",
+  //     options: [
+  //       "마종스 - 쿠키",
+  //       "마종스 - 슈퍼샤이",
+  //       "마종스 - 디토",
+  //       "마종스 - 하입 보이",
+  //     ],
+  //     answer: "마종스 - 쿠키",
+  //   },
+  //   // 추가 문제들...
+  // ];
+
+  // const handleQuizAnswer = (option) => {
+  //   if (option === quizQuestions[quizQuestionIndex].answer) {
+  //     alert("정답입니다!");
+  //   } else {
+  //     alert("틀렸습니다!");
+  //   }
+  //   if (quizQuestionIndex < quizQuestions.length - 1) {
+  //     setQuizQuestionIndex(quizQuestionIndex + 1);
+  //   } else {
+  //     setShowQuizGame(false); // 마지막 문제이면 퀴즈 게임 종료
+  //     handleclose(); // 게임 전체를 종료
+  //   }
+  // };
 
   // 제한 시간 카운트다운 로직
   useEffect(() => {
@@ -112,7 +171,6 @@ const Game = ({
     };
   }, [showGameModal]);
 
-  useEffect(() => {}, []);
   //게임 시작 카운트 다운
   useEffect(() => {
     if (open) {
@@ -212,9 +270,10 @@ const Game = ({
             isAnswer: isAnswer,
           }),
         });
-        // setResultGameModal(true);
-        // setShowQuizGame(true);
-        setShowQuizGame(true);
+        setFirstGameCompleted(true);
+        setShowGameModal(false); // 게임 모달 닫기
+        // setShowCountdownModal2(true);
+        setResultGameModal(true);
       }
     },
     [username, sessionId],
@@ -242,6 +301,8 @@ const Game = ({
       setShowGameModal(false); // 게임 모달 닫기
     } else if (clickAnswer === -1) {
       // alert("틀렸습니다.");
+      setShowGameModal(false); // 게임 모달 닫기
+      setShowCountdownModal2(true);
       setResultGameModal(true);
     }
   }, [clickAnswer]);
@@ -348,34 +409,25 @@ const Game = ({
 
       {showQuizGame && (
         <Dialog open={showQuizGame} PaperComponent={Paper}>
-          <Grid
-            container
-            spacing={2}
-            direction="column"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Grid item>
-              <Typography variant="h5" gutterBottom>
-                퀴즈 게임
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography gutterBottom>
-                {quizQuestions[quizQuestionIndex].question}
-              </Typography>
-            </Grid>
-            {quizQuestions[quizQuestionIndex].options.map((option, index) => (
-              <Grid item xs={12} key={index}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={() => handleQuizAnswer(option)}
-                >
-                  {option}
-                </Button>
-              </Grid>
-            ))}
+          <Grid item>
+            <TextField
+              fullWidth
+              label="가사를 입력하세요"
+              variant="outlined"
+              value={lyricsInput}
+              onChange={handleLyricsChange}
+            />
+          </Grid>
+          <Typography variant="h5" gutterBottom>
+            {lyrics[lyricsIndex]}
+          </Typography>
+          <Grid item>
+            <Button variant="contained" color="primary" onClick={checkLyrics}>
+              가사 제출
+            </Button>
+          </Grid>
+          <Grid item>
+            <Typography>현재 점수: {score}</Typography>
           </Grid>
         </Dialog>
       )}
