@@ -123,13 +123,21 @@ const FanMeetingsPage = () => {
           aria-label="Filter options"
           sx={{ marginBottom: "16px" }}
         >
-          <ToggleButton value="opened" aria-label="Opened">
+          <ToggleButton
+            value="opened"
+            aria-label="Opened"
+            sx={{ width: "70px" }}
+          >
             Opend
           </ToggleButton>
-          <ToggleButton value="closed" aria-label="Closed">
+          <ToggleButton
+            value="closed"
+            aria-label="Closed"
+            sx={{ width: "70px" }}
+          >
             Closed
           </ToggleButton>
-          <ToggleButton value="all" aria-label="All">
+          <ToggleButton value="all" aria-label="All" sx={{ width: "70px" }}>
             All
           </ToggleButton>
         </ToggleButtonGroup>

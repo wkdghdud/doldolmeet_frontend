@@ -22,7 +22,7 @@ import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
 import ChatAndMemo from "@/components/ChatAndMemo";
-import EndAlertBar from "@/components/Timer";
+import AlertSnackBar from "@/components/Timer";
 import { backend_api, SPRING_URL } from "@/utils/api";
 import MotionDetector from "@/components/MotionDetector";
 
@@ -75,6 +75,11 @@ const OneToOnePage = () => {
 
   /* 팬미팅 종료 임박 Alert */
   const [endSoon, setEndSoon] = useState<boolean>(false);
+
+  /* SnackBar 상태 */
+  const [snackBarOpen, setSnackBarOpen] = useState(false);
+  const [snackBarTitle, setSnackBarTitle] = useState("");
+  const [snackBarContent, setSnackBarContent] = useState("");
 
   /* 녹화를 위한 recordingid */
   const [forceRecordingId, setForceRecordingId] = useState("");
@@ -365,6 +370,18 @@ const OneToOnePage = () => {
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
       console.log("🥹 통화가 곧 종료 됩니다.", JSON.parse(e.data));
       setEndSoon(true);
+      setSnackBarTitle("팬미팅이 종료되기까지 10초가 남았어요!");
+      setSnackBarContent("아쉽지만 통화를 마무리할 준비를 해주세요.");
+      setSnackBarOpen(true);
+    });
+
+    eventSource.addEventListener("reConnect", (e: MessageEvent) => {
+      console.log("🥹 재접속 되었습니다.", JSON.parse(e.data));
+      setSnackBarTitle("팬미팅에 재접속 되었습니다!");
+      setSnackBarContent(
+        `통화시간이 ${Math.floor(e.data / 1000)}초 남았습니다.`,
+      );
+      setSnackBarOpen(true);
     });
 
     eventSource.addEventListener("gameStart", (e: MessageEvent) => {
@@ -385,14 +402,6 @@ const OneToOnePage = () => {
       // 종료 또는 에러 발생 시 할 일
       console.log("🥲 eventSource 에러가 발생했어요", e);
       // eventSource.close();
-
-      if (e.error) {
-        // 에러 발생 시 할 일
-      }
-
-      if (e.target.readyState === EventSource.CLOSED) {
-        // 종료 시 할 일
-      }
     };
 
     return true;
@@ -425,14 +434,6 @@ const OneToOnePage = () => {
       // 종료 또는 에러 발생 시 할 일
       console.log("🥲 eventSource 에러가 발생했어요", e);
       // eventSource.close();
-
-      if (e.error) {
-        // 에러 발생 시 할 일
-      }
-
-      if (e.target.readyState === EventSource.CLOSED) {
-        // 종료 시 할 일
-      }
     };
 
     return true;
@@ -644,7 +645,12 @@ const OneToOnePage = () => {
           <ChatAndMemo chatRoomId={chatRoomId} height={"75vh"} />
         </Grid>
       )}
-      <EndAlertBar open={endSoon} handleClose={() => setEndSoon(false)} />
+      <AlertSnackBar
+        open={snackBarOpen}
+        handleClose={() => setSnackBarOpen(false)}
+        title={snackBarTitle}
+        content={snackBarContent}
+      />
       {fanMeetingId && idolName && sessionId && userName && (
         <MotionDetector
           role={role}

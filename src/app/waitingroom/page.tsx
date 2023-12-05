@@ -1,7 +1,11 @@
 "use client";
 import { Grid, Stack } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useFanMeeting, useMainWaitRoom } from "@/hooks/fanmeeting";
+import {
+  fetchFanMeeting,
+  useFanMeeting,
+  useMainWaitRoom,
+} from "@/hooks/fanmeeting";
 import React, { useEffect, useState } from "react";
 import ShowVideoStreaming from "@/components/ShowVideoStreaming";
 import { Connection, OpenVidu } from "openvidu-browser";
@@ -42,6 +46,9 @@ const WaitingRoom = () => {
 
   const token = useJwtToken();
 
+  /* FanMeeting 이름 */
+  const [fanMeetingName, setFanMeetingName] = useState<string | undefined>();
+
   useEffect(() => {
     if (userName) {
       fetchSSE();
@@ -62,6 +69,12 @@ const WaitingRoom = () => {
       joinSession(waitRoomId);
     }
   }, [waitRoomId, role, userName]);
+
+  useEffect(() => {
+    if (fanMeetingId) {
+      fetchFanMeetingTitle();
+    }
+  }, [fanMeetingId]);
 
   const joinSession = async (sessionId: string) => {
     try {
@@ -164,6 +177,18 @@ const WaitingRoom = () => {
     setPopupOpen(false);
   };
 
+  const fetchFanMeetingTitle = async () => {
+    try {
+      const fanMeeting = await fetchFanMeeting(fanMeetingId);
+
+      if (fanMeeting) {
+        setFanMeetingName(fanMeeting.title);
+      }
+    } catch (error) {
+      console.error("FanMeeting fetch error:", error);
+    }
+  };
+
   return (
     <>
       <Grid
@@ -171,8 +196,8 @@ const WaitingRoom = () => {
         direction="row"
         justifyContent="space-between"
         alignItems="stretch"
-        padding="30px"
         spacing={3}
+        sx={{ px: 2 }}
       >
         <Grid item xs={8} sx={{ width: "100%", height: "70%" }}>
           <Stack
@@ -180,8 +205,11 @@ const WaitingRoom = () => {
             justifyContent="center"
             alignItems="flex-start"
             sx={{ width: "100%" }}
-            spacing={1}
+            spacing={2}
           >
+            <Typography variant={"h4"}>
+              {fanMeetingName && `💜 ${fanMeetingName} 대기방 💜`}
+            </Typography>
             <div
               style={{
                 width: "100%",
@@ -211,7 +239,7 @@ const WaitingRoom = () => {
                   marginBottom: 10,
                 }}
               >
-                😡😡😡 내앞에 {pepleAhead}명 남았어요!😡😡😡
+                👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦내 앞에 {pepleAhead}명 남았어요!👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦
               </Typography>
               <img
                 src={"/waiting_dino.gif"}
@@ -229,7 +257,7 @@ const WaitingRoom = () => {
           </Stack>
         </Grid>
         <Grid item xs={4} sx={{ height: "70%" }}>
-          <ChatAndMemo chatRoomId={fanMeeting?.chatRoomId} height={"70vh"} />
+          <ChatAndMemo chatRoomId={fanMeeting?.chatRoomId} height={"75vh"} />
         </Grid>
       </Grid>
       <StartFanMeetingDialog

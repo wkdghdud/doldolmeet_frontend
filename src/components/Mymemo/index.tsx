@@ -195,7 +195,7 @@ const Memo = () => {
         borderRadius: 2,
       }}
     >
-      <div style={{ width: "100%", marginTop: 10 }}>
+      <div style={{ width: "100%", marginTop: 10, overflowY: "auto" }}>
         {mymemo.length > 0 &&
           mymemo.map((memomo) => (
             <div
