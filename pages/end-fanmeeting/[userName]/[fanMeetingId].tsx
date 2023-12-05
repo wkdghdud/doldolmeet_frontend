@@ -1,46 +1,20 @@
 "use client";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { backend_api } from "@/utils/api";
-import { Grid, IconButton, Paper, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { AWS_S3_URL, backend_api } from "@/utils/api";
+import { Button, IconButton, Stack, Typography } from "@mui/material";
 import { GetApp, Twitter } from "@mui/icons-material";
-import GradientButton from "@/components/GradientButton";
+import Carousel from "react-material-ui-carousel";
+import axios from "axios";
 
 const EndFanMeetingPage = () => {
+  /* route query */
   const router = useRouter();
   const { userName, fanMeetingId } = router.query;
-  const [user, setUser] = useState(null);
-  const [captures, setCaptures] = useState([]);
-  const [videos, setVideos] = useState([]); // Todo: captures를 videos로 변경해야됨
 
-  const handleDownload = (videoUrl) => {
-    fetch(videoUrl)
-      .then((response) => response.blob()) // 비디오 데이터를 Blob 형식으로 받아옵니다.
-      .then((blob) => {
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = userName + "video.mp4"; // 다운로드할 파일명 설정
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        // Optionally revoke the Object URL to free up resources
-        URL.revokeObjectURL(url);
-      })
-      .catch((error) => {
-        console.error("Error downloading the video:", error);
-      });
-  };
-
-  // const searchParams = useSearchParams();
-  const s3Addr = "https://s3.ap-northeast-2.amazonaws.com/doldolmeet.test/";
-  // const idolName = searchParams?.get("idolName");
-
-  const joinMemoryRoom = async () => {
-    await router.push(`/my-page/${userName}/${fanMeetingId}`);
-  };
+  /* States */
+  const [contents, setContents] = useState<string[]>([]);
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -50,29 +24,41 @@ const EndFanMeetingPage = () => {
         fanMeetingId &&
         fanMeetingId !== "undefined"
       ) {
+        // fanMeetingId가 유효한 경우에만 API 호출 수행
+        if (fanMeetingId && fanMeetingId !== "undefined") {
+          await backend_api()
+            .get(`/captures/${fanMeetingId}`)
+            .then((res) => {
+              if (res.data.data.length > 0) {
+                const captureUrls: string[] = res.data.data.map(
+                  (captureData) => `${AWS_S3_URL}/${captureData.captureUrl}`,
+                );
+                console.log("captureUrls", captureUrls);
+                setContents((prev) => [...prev, ...captureUrls]);
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching captures:", error);
+            });
+        }
+
         await backend_api()
           .post(`recording-java/api/recordings/get`, {
             fanMeetingId: fanMeetingId,
             fan: userName,
-            // idol: "karina",
           })
           .then((res) => {
-            setVideos(res.data);
+            if (Object.values(res.data).length > 0) {
+              const videoUrls: string[] = Object.values(res.data).map(
+                // @ts-ignore
+                (video) => video.url,
+              );
+              console.log("videoUrls", videoUrls);
+              setContents((prev) => [...prev, ...videoUrls]);
+            }
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
-          });
-      }
-
-      // fanMeetingId가 유효한 경우에만 API 호출 수행
-      if (fanMeetingId && fanMeetingId !== "undefined") {
-        await backend_api()
-          .get(`/captures/${fanMeetingId}`)
-          .then((res) => {
-            setCaptures(res.data.data);
-          })
-          .catch((error) => {
-            console.error("Error fetching captures:", error);
           });
       }
     }
@@ -80,48 +66,33 @@ const EndFanMeetingPage = () => {
     init();
   }, [fanMeetingId]);
 
-  // useEffect(() => {
-  //   console.log("videos", videos);
-  // }, [videos]);
+  const handleDownload = async (fileUrl) => {
+    const {
+      data: { type, arrayBuffer },
+    } = await axios.get("/api/file", { params: { url: fileUrl } });
 
-  // useEffect(() => {
-  //
-  // }, [fanMeetingId]);
+    const blob = await new Blob([Uint8Array.from(arrayBuffer)], { type });
+    // <a> 태그의 href 속성값으로 들어갈 다운로드 URL
+    const objectURL = window.URL.createObjectURL(blob);
 
-  const imgDownLoad = (imgUrl) => {
-    const fileName = imgUrl;
+    const a = document.createElement("a");
+    a.href = objectURL;
+    const fileName = fileUrl.endsWith(".mp4") ? "download.mp4" : "download.png";
+    a.download = fileName; // 다운로드할 파일명 설정
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
-    // Axios를 사용하여 파일 다운로드 요청
-    backend_api()
-      .get(`s3/file/download?fileName=${fileName}`, {
-        responseType: "blob", // 파일 다운로드를 위해 responseType을 'blob'으로 설정
-      })
-      .then((response) => {
-        // 파일 다운로드를 위해 Blob 형식으로 받은 응답을 처리
-        const blob = new Blob([response.data], {
-          type: response.headers["content-type"],
-        });
-        const url = window.URL.createObjectURL(blob);
+    // Optionally revoke the Object URL to free up resources
+    URL.revokeObjectURL(objectURL);
+  };
 
-        // 생성된 URL을 사용하여 다운로드 링크 생성
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-
-        // 링크 클릭하여 파일 다운로드
-        document.body.appendChild(link);
-        link.click();
-
-        // 필요 없는 링크 제거
-        document.body.removeChild(link);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  const joinMemoryRoom = async () => {
+    await router.push(`/my-page/${userName}/${fanMeetingId}`);
   };
 
   const shareTwitter = (imageUrl) => {
-    const sendText = "이미지 공유";
+    const sendText = "💜 돌돌밋 이미지 공유";
     const sendUrl = imageUrl; // 이미지 URL
     window.open(
       `https://twitter.com/intent/tweet?text=${sendText}&url=${sendUrl}`,
@@ -129,95 +100,163 @@ const EndFanMeetingPage = () => {
   };
 
   return (
-    <Grid container spacing={3}>
-      <Grid item xs={12}>
-        <Typography variant="h1" align="center" gutterBottom>
-          팬미팅이 종료되었습니다.
-        </Typography>
-        <GradientButton
-          variant="contained"
-          disableElevation
-          sx={{ px: 3, borderRadius: 10 }}
-          onClick={joinMemoryRoom}
+    <>
+      <Stack direction={"column"} justifyContent="flex-start">
+        <Typography
+          variant={"h2"}
+          sx={{ zIndex: 300, marginRight: 10, lineHeight: 2, color: "#212121" }}
         >
-          추억 보관함
-        </GradientButton>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <Typography variant="h2" align="center" gutterBottom>
-          녹화된 영상
+          팬미팅이 종료되었습니다. <br />
+          함께 찍은 사진과 영상을 공유해보세요 ☺️
         </Typography>
-        <Grid container spacing={1}>
-          {Object.values(videos).length > 0 ? (
-            Object.values(videos).map((video, i) => (
-              <Grid item xs={6} sm={6} key={i}>
-                <Paper elevation={3} style={{ padding: "10px" }}>
-                  <div>
-                    <video width="100%" controls>
-                      <source src={video.url} type="video/mp4" />
-                    </video>
-                    <IconButton onClick={() => handleDownload(video.url)}>
-                      <GetApp />
-                    </IconButton>
-                    <IconButton onClick={() => shareTwitter(video.url)}>
-                      <Twitter />
-                    </IconButton>
-                  </div>
-                </Paper>
-              </Grid>
-            ))
+        <Button
+          variant={"contained"}
+          sx={{ zIndex: 300, width: 200, height: 40, marginTop: 3 }}
+        >
+          <Typography
+            variant={"button"}
+            sx={{ letterSpacing: 1.5, fontWeight: 600 }}
+            onClick={joinMemoryRoom}
+          >
+            추억보관함 가기
+          </Typography>
+        </Button>
+      </Stack>
+      <Carousel
+        sx={{ height: "100%", minWidth: "40%", minHeight: "70%" }}
+        animation={"fade"}
+        duration={1500}
+      >
+        {contents.map((url, index) => {
+          const isVideo = url.endsWith(".mp4");
+          return isVideo ? (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                position: "relative",
+              }}
+              onMouseOver={() => setIsHovering(true)}
+              onMouseOut={() => setIsHovering(false)}
+            >
+              <video id={url} key={index} style={{ width: "100%" }} controls>
+                <source src={url} type="video/mp4" />
+              </video>
+              <Stack
+                direction="row"
+                spacing={4}
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0,0,0,0.7)",
+                  display: isHovering ? "flex" : "none",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <IconButton
+                  onClick={() => handleDownload(url)}
+                  size="large"
+                  sx={{
+                    color: "#FFFFFF",
+                    transform: "scale(1.5)",
+                    "&:hover": {
+                      color: "#FFAFCC",
+                    },
+                  }}
+                >
+                  <GetApp fontSize={"inherit"} />
+                </IconButton>
+                <IconButton
+                  onClick={() => shareTwitter(url)}
+                  sx={{
+                    color: "#FFFFFF",
+                    transform: "scale(1.5)",
+                    "&:hover": {
+                      color: "#FFAFCC",
+                    },
+                  }}
+                >
+                  <Twitter />
+                </IconButton>
+              </Stack>
+            </div>
           ) : (
-            <Typography variant="body1">
-              No captures found for this fanMeetingId.
-            </Typography>
-          )}
-        </Grid>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <Typography variant="h2" align="center" gutterBottom>
-          캡쳐된 이미지
-        </Typography>
-        <Grid container spacing={1}>
-          {captures.length > 0 ? (
-            captures.map((cap, i) => (
-              <Grid item xs={6} sm={6} key={i}>
-                <Paper elevation={3} style={{ padding: "10px" }}>
-                  <div>
-                    {/*<Typography variant="body1">*/}
-                    {/*  Capture ID: {cap.captureId}*/}
-                    {/*</Typography>*/}
-                    <div>
-                      <img
-                        src={s3Addr + cap.captureUrl}
-                        alt={`Capture ${i}`}
-                        style={{
-                          width: "100%",
-                          height: "auto",
-                          marginBottom: "33px",
-                          maxHeight: "150px",
-                        }}
-                      />
-                      <IconButton onClick={() => imgDownLoad(cap.captureUrl)}>
-                        <GetApp />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => shareTwitter(s3Addr + cap.captureUrl)}
-                      >
-                        <Twitter />
-                      </IconButton>
-                    </div>
-                  </div>
-                </Paper>
-              </Grid>
-            ))
-          ) : (
-            <Typography variant="body1">
-              No captures found for this fanMeetingId.
-            </Typography>
-          )}
-        </Grid>
-      </Grid>
-    </Grid>
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                position: "relative",
+              }}
+              onMouseOver={() => setIsHovering(true)}
+              onMouseOut={() => setIsHovering(false)}
+            >
+              <img
+                key={index}
+                src={url}
+                alt={"banner"}
+                style={{ width: "100%" }}
+              />
+              <Stack
+                direction="row"
+                spacing={4}
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0,0,0,0.7)",
+                  display: isHovering ? "flex" : "none",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <IconButton
+                  onClick={() => handleDownload(url)}
+                  size="large"
+                  sx={{
+                    color: "#FFFFFF",
+                    transform: "scale(1.5)",
+                    "&:hover": {
+                      color: "#FFAFCC",
+                    },
+                  }}
+                >
+                  <GetApp fontSize={"inherit"} />
+                </IconButton>
+                <IconButton
+                  onClick={() => shareTwitter(url)}
+                  sx={{
+                    color: "#FFFFFF",
+                    transform: "scale(1.5)",
+                    "&:hover": {
+                      color: "#FFAFCC",
+                    },
+                  }}
+                >
+                  <Twitter />
+                </IconButton>
+              </Stack>
+            </div>
+          );
+        })}
+      </Carousel>
+      <div
+        style={{
+          backgroundImage: "url('/album_poster.jpg')",
+          position: "absolute",
+          top: 0,
+          width: "100vw",
+          height: "100vh",
+        }}
+      />
+    </>
   );
 };
 

@@ -30,7 +30,10 @@ import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import Game from "@/components/Game";
 import GameSecond from "@/components/GameSecond";
 import { v4 as uuidv4 } from "uuid";
-import SpeechRecognition from "@/components/SpeechRecognition";
+import SpeechRecog from "../../components/Speech-Recognition";
+import FilterSelectDialog from "@/components/FilterSelectDialog";
+import { useAtomValue } from "jotai/react";
+import { languageTargetAtom } from "@/atom";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -83,7 +86,7 @@ const OneToOnePage = () => {
 
   /* 다음 아이돌의 대기실로 넘어가기 위해 필요한 state */
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
-  const [nextRoomId, setNextRoomId] = useState<string>("");
+  const [, setNextRoomId] = useState<string>("");
 
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
@@ -105,10 +108,18 @@ const OneToOnePage = () => {
 
   /* 이심전심 선택 */
   const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
+
+  /* 상대방 음성 인식 */
   const [partnerVoice, setPartnerVoice] = useState<string | undefined>();
+  const langTarget = useAtomValue(languageTargetAtom);
 
   /* 필터 On/Off */
   const [filter, setFilter] = useState(false);
+  const [filterPopupOpen, setFilterPopupOpen] = useState(false);
+
+  /*노래 관련 게임*/
+  const [replaynum, setReplaynum] = useState(0);
+  const [clickAnswer, setClickAnswer] = useState(0);
 
   useEffect(() => {
     token.then((res) => {
@@ -220,6 +231,22 @@ const OneToOnePage = () => {
         }
       });
 
+      mySession.on("signal:send_replay", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 상대방이 리플레이를 했어요.", event.data);
+          setReplaynum((prev) => prev + 1);
+        }
+      });
+
+      mySession.on("signal:click_answer", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 상대방이 리플레이를 했어요.", event.data);
+          setClickAnswer(data.isAnswer);
+        }
+      });
+
       mySession.on("signal:voice_detected", (event) => {
         const data = JSON.parse(event.data);
         // console.log("!!!!!!!!!!!!", data.username, userName);
@@ -300,8 +327,8 @@ const OneToOnePage = () => {
         videoSource: videoDevices[0].deviceId,
         publishAudio: true,
         publishVideo: true,
-        resolution: "640x480",
-        frameRate: 30,
+        resolution: "1280x720",
+        frameRate: 60,
         insertMode: "APPEND",
         mirror: false,
         // @ts-ignore
@@ -489,24 +516,37 @@ const OneToOnePage = () => {
     setGameStart(false);
   };
 
-  const onClickFilter = () => {
-    if (myStream?.stream.filter) {
-      myStream?.stream.removeFilter();
+  const toggleFilter = async () => {
+    if (filter) {
+      await myStream?.stream.removeFilter();
       setFilter(false);
     } else {
-      myStream?.stream.applyFilter("FaceOverlayFilter", {}).then((filter) => {
+      setFilterPopupOpen(true);
+    }
+  };
+
+  const onClickApplyFilter = async (filterUrl: string, toPartner: boolean) => {
+    const targetStream = toPartner ? partnerStream : myStream;
+
+    await targetStream?.stream
+      .applyFilter("FaceOverlayFilter", {})
+      .then((filter) => {
         filter.execMethod("setOverlayedImage", {
-          // uri: AWS_S3_URL + "/e7d8c009-1d9c-411e-9521-7837a6ec9c89.png",
-          uri: "https://cdn-icons-png.flaticon.com/512/6965/6965337.png",
+          uri: filterUrl,
           offsetXPercent: -0.2,
           offsetYPercent: -0.8,
-          widthPercent: 1.3,
+          widthPercent: 1.4,
           heightPercent: 1.0,
         });
       });
+
+    if (!toPartner) {
       setFilter(true);
     }
+    setFilterPopupOpen(false);
   };
+
+  const [isSubtitleActive, setSubtitleActive] = useState(false);
 
   return (
     <Grid container spacing={2}>
@@ -546,7 +586,9 @@ const OneToOnePage = () => {
                 fullScreen={fullScreen}
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
                 filterOn={filter}
-                onClickFilter={onClickFilter}
+                onClickFilter={toggleFilter}
+                toggleSubtitle={() => setSubtitleActive(!isSubtitleActive)}
+                isSubtitleActive={isSubtitleActive}
               />
             </Stack>
           </Grid>
@@ -594,15 +636,15 @@ const OneToOnePage = () => {
               )}
             </Grid>
           </Grid>
-          <SpeechRecognition
-            // role={role}
-            // fanMeetingId={fanMeetingId}
-            // idolName={idolName}
-            sessionId={sessionId}
-            partnerVoice={partnerVoice}
-            username={userName}
-            // motionType={motionType}
-          />
+          <Grid item xs={12}>
+            <SpeechRecog
+              sessionId={sessionId}
+              partnerVoice={partnerVoice}
+              username={userName}
+              active={isSubtitleActive}
+              languageTarget={langTarget}
+            />
+          </Grid>
         </Grid>
       </Grid>
 
@@ -640,7 +682,12 @@ const OneToOnePage = () => {
         <Game
           open={gameStart}
           handleclose={handleclose}
+          sessionId={sessionId}
+          username={userName}
           fanMeetingId={fanMeetingId}
+          role={role}
+          replaynum={replaynum}
+          clickAnswer={clickAnswer}
         />
       )}
       {gameType === "2" && (
@@ -653,6 +700,11 @@ const OneToOnePage = () => {
           partnerChoice={partnerChoice}
         />
       )}
+      <FilterSelectDialog
+        popupOpen={filterPopupOpen}
+        onClose={() => setFilterPopupOpen(false)}
+        onClickApplyFilter={onClickApplyFilter}
+      />
     </Grid>
   );
 };

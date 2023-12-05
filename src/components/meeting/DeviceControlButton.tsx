@@ -9,12 +9,17 @@ import { Publisher } from "openvidu-browser";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FaceRetouchingNaturalIcon from "@mui/icons-material/FaceRetouchingNatural";
 
+import ClosedCaptionIcon from "@mui/icons-material/ClosedCaption";
+import ClosedCaptionDisabledIcon from "@mui/icons-material/ClosedCaptionDisabled";
+
 interface Props {
   publisher: Publisher | undefined;
   fullScreen: boolean;
   toggleFullScreen: () => void;
   filterOn: boolean;
   onClickFilter: () => void;
+  toggleSubtitle: () => void;
+  isSubtitleActive: boolean;
 }
 
 const DeviceControlButton = ({
@@ -23,6 +28,8 @@ const DeviceControlButton = ({
   toggleFullScreen,
   filterOn,
   onClickFilter,
+  toggleSubtitle,
+  isSubtitleActive,
 }: Props) => {
   const [mic, setMic] = useState(true);
   const [camera, setCamera] = useState(true);
@@ -72,6 +79,20 @@ const DeviceControlButton = ({
         onClick={toggleFullScreen}
       >
         <FullscreenIcon sx={{ color: fullScreen ? "#FFAFCC" : "#bdbdbd" }} />
+      </ToggleButton>
+
+      {/* 자막 켜기 / 끄기 */}
+      <ToggleButton
+        value="underlined"
+        aria-label="underlined"
+        onClick={toggleSubtitle}
+      >
+        {/* ex. translate 온, 오프 */}
+        {isSubtitleActive ? (
+          <ClosedCaptionIcon sx={{ color: "#FFAFCC" }} />
+        ) : (
+          <ClosedCaptionDisabledIcon sx={{ color: "#bdbdbd" }} />
+        )}
       </ToggleButton>
     </ToggleButtonGroup>
   );

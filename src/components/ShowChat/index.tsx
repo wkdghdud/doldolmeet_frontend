@@ -15,6 +15,8 @@ import { WS_STOMP_URL } from "@/utils/api";
 import ChatBalloon from "@/components/chat/ChatBalloon";
 import { Box } from "@mui/system";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
+import { useAtom } from "jotai/react";
+import { languageTargetAtom } from "@/atom";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -42,6 +44,8 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const messagesRef = useRef<HTMLElement | null>(null);
   const token = useJwtToken();
   const [userId, setUserId] = useState("");
+
+  const [langTarget, setLangTarget] = useAtom(languageTargetAtom);
 
   useEffect(() => {
     const initWebSocket = () => {
@@ -113,15 +117,14 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
     }
   };
 
-  const [target, setTarget] = useState("en"); // 기본값은 "ko"
-  const toggleTarget = () => {
-    // 현재 target의 인덱스를 찾아서 다음 target으로 변경
-    const currentIndex = SUPPORTED_TARGETS.findIndex(
-      (item) => item.code === target,
-    );
-    const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
-    setTarget(SUPPORTED_TARGETS[nextIndex].code);
-  };
+  // const toggleTarget = () => {
+  //   // 현재 target의 인덱스를 찾아서 다음 target으로 변경
+  //   const currentIndex = SUPPORTED_TARGETS.findIndex(
+  //     (item) => item.code === target,
+  //   );
+  //   const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
+  //   setTarget(SUPPORTED_TARGETS[nextIndex].code);
+  // };
 
   return (
     <Box
@@ -152,8 +155,8 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           <Select
             labelId="demo-select-small-label"
             id="demo-select-small"
-            value={target}
-            onChange={(e) => setTarget(e.target.value)}
+            value={langTarget}
+            onChange={(e) => setLangTarget(e.target.value)}
             style={{ textAlign: "center" }}
           >
             <MenuItem disabled value="">
@@ -188,7 +191,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 key={index}
                 sender={msg.sender}
                 message={msg.message}
-                isLanaguage={target}
+                isLanaguage={langTarget}
               />
             ),
         )}
