@@ -123,7 +123,8 @@ const Game = ({
             clearInterval(timer);
             setShowCountdownModal(false);
             setShowGameModal(true);
-            setCountdown(3);
+            // setCountdown(3);
+            return 0;
           }
           return prevCount - 1;
         });
