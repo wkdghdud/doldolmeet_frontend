@@ -212,9 +212,9 @@ const Game = ({
             isAnswer: isAnswer,
           }),
         });
-        // setResultGameModal(true);
-        // setShowQuizGame(true);
-        setShowQuizGame(true);
+        setShowGameModal(false); // 게임 모달 닫기
+        setShowCountdownModal2(true);
+        setResultGameModal(true);
       }
     },
     [username, sessionId],
@@ -242,6 +242,8 @@ const Game = ({
       setShowGameModal(false); // 게임 모달 닫기
     } else if (clickAnswer === -1) {
       // alert("틀렸습니다.");
+      setShowGameModal(false); // 게임 모달 닫기
+      setShowCountdownModal2(true);
       setResultGameModal(true);
     }
   }, [clickAnswer]);
