@@ -1,16 +1,30 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DialogActions from "@mui/material/DialogActions/DialogActions";
 import { Button, Dialog, Grid, Paper, Typography } from "@mui/material";
-import { backend_api } from "@/utils/api";
+import { backend_api, openvidu_api } from "@/utils/api";
+import GradientButton from "@/components/GradientButton";
+import { Role } from "@/types";
 
 interface Props {
+  username: string;
+  sessionId: string | null | undefined;
   open: boolean;
   handleclose: () => void;
   fanMeetingId: string | undefined | null;
+  role: string | undefined | null;
+  replaynum: number;
 }
 
-const Game = ({ open, handleclose, fanMeetingId }: Props) => {
+const Game = ({
+  open,
+  handleclose,
+  fanMeetingId,
+  role,
+  username,
+  sessionId,
+  replaynum,
+}: Props) => {
   //첫번째 노래 맞추기 게임
   const [score, setScore] = useState(0);
   const [countdown, setCountdown] = useState(3);
@@ -23,6 +37,8 @@ const Game = ({ open, handleclose, fanMeetingId }: Props) => {
   const [showQuizGame, setShowQuizGame] = useState(false);
   const [quizQuestionIndex, setQuizQuestionIndex] = useState(0);
   const [firstGameCompleted, setFirstGameCompleted] = useState(false);
+
+  const [musicTime, setMusicTime] = useState(false);
 
   const quizQuestions = [
     {
@@ -131,6 +147,27 @@ const Game = ({ open, handleclose, fanMeetingId }: Props) => {
     };
   }, [showGameModal]);
 
+  const send_replay = useCallback(async () => {
+    if (username !== "") {
+      await openvidu_api.post(`/openvidu/api/signal`, {
+        session: sessionId,
+        type: "signal:send_replay",
+        data: JSON.stringify({
+          username: username,
+        }),
+      });
+    }
+  }, [username, sessionId]);
+
+  useEffect(() => {
+    if (replaynum === 1) {
+      audio.play();
+      setTimeout(() => {
+        audio.pause();
+      }, 1000);
+    }
+  }, [replaynum]);
+
   return (
     <div>
       {showGameModal && (
@@ -142,6 +179,11 @@ const Game = ({ open, handleclose, fanMeetingId }: Props) => {
             alignItems="center"
             justifyContent="center"
           >
+            {role === Role.IDOL && (
+              <GradientButton onClick={send_replay}>
+                다시 들려주기
+              </GradientButton>
+            )}
             <Grid item>
               <Typography variant="h5" gutterBottom>
                 노래 맞추기 게임

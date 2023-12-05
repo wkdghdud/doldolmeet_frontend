@@ -107,6 +107,9 @@ const OneToOnePage = () => {
   /* 필터 On/Off */
   const [filter, setFilter] = useState(false);
 
+  /*노래 관련 게임*/
+  const [replaynum, setReplaynum] = useState(0);
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -214,6 +217,14 @@ const OneToOnePage = () => {
         if (data.username !== userName) {
           console.log("👋 상대방이 선택을 했어요.", event.data);
           setPartnerChoice(data.choice);
+        }
+      });
+
+      mySession.on("signal:send_replay", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 상대방이 리플레이를 했어요.", event.data);
+          setReplaynum((prev) => prev + 1);
         }
       });
 
@@ -623,7 +634,11 @@ const OneToOnePage = () => {
         <Game
           open={gameStart}
           handleclose={handleclose}
+          sessionId={sessionId}
+          username={userName}
           fanMeetingId={fanMeetingId}
+          role={role}
+          replaynum={replaynum}
         />
       )}
       {gameType === "2" && (
