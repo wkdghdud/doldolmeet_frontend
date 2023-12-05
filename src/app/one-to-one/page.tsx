@@ -93,8 +93,8 @@ const OneToOnePage = () => {
   const [role, setRole] = useState<Role | undefined>();
   const [userName, setUserName] = useState<string>("");
 
-  /* Camera 효과음 */
-  const [shutter, setShutter] = useState<HTMLAudioElement>();
+  /* 사진 촬영 */
+  const [photoTime, setPhotoTime] = useState<boolean>(false);
   const [partnerPose, setPartnerPose] = useState<boolean>(false);
 
   /* FanMeeting 이름 */
@@ -373,6 +373,7 @@ const OneToOnePage = () => {
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
       console.log("🥹 통화가 곧 종료 됩니다.", JSON.parse(e.data));
       setEndSoon(true);
+      setPhotoTime(true);
       setSnackBarTitle("팬미팅이 종료되기까지 10초가 남았어요!");
       setSnackBarContent("아쉽지만 통화를 마무리할 준비를 해주세요.");
       setSnackBarOpen(true);
@@ -657,7 +658,7 @@ const OneToOnePage = () => {
         title={snackBarTitle}
         content={snackBarContent}
       />
-      {fanMeetingId && idolName && sessionId && userName && (
+      {fanMeetingId && idolName && sessionId && userName && photoTime && (
         <MotionDetector
           role={role}
           fanMeetingId={fanMeetingId}
