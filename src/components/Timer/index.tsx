@@ -4,9 +4,11 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 interface Props {
   open: boolean;
   handleClose: () => void;
+  title: string;
+  content: string;
 }
 
-const EndAlertBar = ({ open, handleClose }: Props) => {
+const AlertSnackBar = ({ open, handleClose, title, content }: Props) => {
   return (
     <Snackbar
       open={open}
@@ -22,11 +24,11 @@ const EndAlertBar = ({ open, handleClose }: Props) => {
         variant="filled"
         sx={{ width: "100%" }}
       >
-        <AlertTitle>팬미팅이 종료되기까지 10초가 남았어요!</AlertTitle>
-        아쉽지만 통화를 마무리할 준비를 해주세요.
+        <AlertTitle>{title}</AlertTitle>
+        {content}
       </Alert>
     </Snackbar>
   );
 };
 
-export default EndAlertBar;
+export default AlertSnackBar;
