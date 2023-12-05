@@ -22,7 +22,7 @@ export default async function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} style={{ backgroundColor: "#F8F8F8" }}>
         <AuthContext>
           <Providers>
             <Header />
@@ -34,7 +34,7 @@ export default async function RootLayout({
               maxWidth="xl"
               sx={{
                 mx: "auto",
-                backgroundColor: "#F8F8F8",
+                width: "100%",
                 paddingTop: 10,
                 minHeight: "98vh",
               }}
