@@ -56,7 +56,7 @@ const Game = ({
   const [lyricsInput, setLyricsInput] = useState("");
   const [isLyricsCorrect, setIsLyricsCorrect] = useState(false);
   const audio2 = new Audio("/mp3/idolsong2.mp3");
-
+  const audio3 = new Audio("/mp3/startgame.mp3");
   const lyrics = [
     "I'm super shy, super shy",
     "But wait a minute while I make you mine make you mine",
@@ -82,15 +82,44 @@ const Game = ({
     }
   };
 
+  // useEffect(() => {
+  //   // 게임이 시작되었다.
+  //   if (showQuizGame) {
+  //     // 노래를 튼다.
+  //     audio2.play();
+  //     lyricsChangeAfter(2000, 3000, 4000);
+  //     // setInterval(() => {
+  //     //   setLyricsIndex((prevIndex) => prevIndex + 1);
+  //     // }, 1000);
+  //   }
+  // }, [showQuizGame]);
   useEffect(() => {
-    // 게임이 시작되었다.
     if (showQuizGame) {
-      // 노래를 튼다.
+      // 노래 시작
       audio2.play();
+
+      // 13초 후에 노래 멈추고 게임 시작 효과음 재생
+      const pauseMusicTimeout = setTimeout(() => {
+        audio2.pause();
+        audio3.play();
+
+        // 게임 시작 효과음 재생 완료 후 노래 재개 (효과음 재생 시간을 고려하여 설정)
+        setTimeout(() => {
+          audio2.currentTime = 13; // 노래를 13초 지점부터 다시 시작
+          audio2.play();
+        }, 3000); // 예를 들어 게임 시작 효과음이 3초간 재생된다고 가정
+      }, 13000); // 노래가 13초 동안 재생되었다고 가정
+
+      // lyricsChangeAfter 로직은 그대로 유지
       lyricsChangeAfter(2000, 3000, 4000);
-      // setInterval(() => {
-      //   setLyricsIndex((prevIndex) => prevIndex + 1);
-      // }, 1000);
+
+      return () => {
+        clearTimeout(pauseMusicTimeout);
+        audio2.pause();
+        audio3.pause();
+        audio2.currentTime = 0;
+        audio3.currentTime = 0;
+      };
     }
   }, [showQuizGame]);
 
