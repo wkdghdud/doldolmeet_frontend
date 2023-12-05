@@ -402,14 +402,6 @@ const OneToOnePage = () => {
       // 종료 또는 에러 발생 시 할 일
       console.log("🥲 eventSource 에러가 발생했어요", e);
       // eventSource.close();
-
-      if (e.error) {
-        // 에러 발생 시 할 일
-      }
-
-      if (e.target.readyState === EventSource.CLOSED) {
-        // 종료 시 할 일
-      }
     };
 
     return true;
@@ -442,14 +434,6 @@ const OneToOnePage = () => {
       // 종료 또는 에러 발생 시 할 일
       console.log("🥲 eventSource 에러가 발생했어요", e);
       // eventSource.close();
-
-      if (e.error) {
-        // 에러 발생 시 할 일
-      }
-
-      if (e.target.readyState === EventSource.CLOSED) {
-        // 종료 시 할 일
-      }
     };
 
     return true;
