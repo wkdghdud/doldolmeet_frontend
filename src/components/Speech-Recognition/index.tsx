@@ -24,7 +24,6 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
 
   const [translatedText, setTranslatedText] = useState("");
   const [isLanguage, setIsLanguage] = useState("en");
-  const [showPartnerVoice, setShowPartnerVoice] = useState(true);
 
   const signalVoicesDetected = useCallback(
     async (text) => {
@@ -67,7 +66,6 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
         );
         const translatedText = res.data.translatedText || ""; // Use an empty string if translatedText is undefined
         signalVoicesDetected(translatedText);
-        setShowPartnerVoice(true);
         setTranslatedText(translatedText);
       }
     } catch (error) {
@@ -81,7 +79,6 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      setShowPartnerVoice(false);
       // 일정 시간(예: 5000ms, 5초)이 지난 후에 자동으로 새로고침
       setTranslatedText("");
       resetTranscript();
@@ -97,7 +94,7 @@ const SpeechRecog = ({ active, sessionId, partnerVoice, username }: Props) => {
   return (
     <>
       <Grid item xs={11}>
-        {showPartnerVoice && translatedText !== null && (
+        {translatedText !== null && (
           <Typography
             variant="subtitle1"
             color="secondary"
