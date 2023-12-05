@@ -112,6 +112,7 @@ const Game = ({
     };
   }, [showGameModal]);
 
+  useEffect(() => {}, []);
   //게임 시작 카운트 다운
   useEffect(() => {
     if (open) {
@@ -217,6 +218,13 @@ const Game = ({
     },
     [username, sessionId],
   );
+
+  useEffect(() => {
+    if (firstGameCompleted) {
+      // 첫 번째 게임이 완료되면 count를 3으로 다시 설정
+      setCountdown(3);
+    }
+  }, [firstGameCompleted]);
 
   useEffect(() => {
     if (clickAnswer === 1) {
