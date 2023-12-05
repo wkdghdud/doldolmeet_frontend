@@ -57,7 +57,12 @@ const Game = ({
   const [isLyricsCorrect, setIsLyricsCorrect] = useState(false);
   const audio2 = new Audio("/mp3/idolsong2.mp3");
 
-  const lyrics = ["가사1", "가사2", "가사3"];
+  const lyrics = [
+    "I'm super shy, super shy",
+    "But wait a minute while I make you mine make you mine",
+    "떨리는 지금도 you're on my mind all the time",
+    "I wanna tell you but I'm super shy, super shy",
+  ];
   const [lyricsIndex, setLyricsIndex] = useState(0);
   const handleLyricsChange = (e) => {
     setLyricsInput(e.target.value);
@@ -66,7 +71,7 @@ const Game = ({
   const checkLyrics = () => {
     // 여기서는 예시로 간단한 문자열 비교를 사용합니다
     // 실제로는 더 정교한 비교 로직이 필요할 수 있습니다
-    if (lyricsInput.trim() === "여기에 정답 가사 입력") {
+    if (lyricsInput.trim() === "I'm super shy, super shy") {
       setIsLyricsCorrect(true);
       setScore(score + 1);
       alert("정답입니다!");
@@ -79,7 +84,7 @@ const Game = ({
     if (showQuizGame) {
       audio2.play();
       setInterval(() => {
-        setLyricsIndex(lyricsIndex + 1);
+        setLyricsIndex((prevIndex) => prevIndex + 1);
       }, 1000);
     }
   }, [showQuizGame]);
