@@ -189,6 +189,22 @@ const MotionDetector = ({
   }, [username, sessionId]);
 
   useEffect(() => {
+    let timer = setTimeout(() => {
+      if (!hasCaptured) {
+        console.log(
+          "📸 포즈가 아직 안 취해졌지만 시간이 얼마 안 남아서 촬영합니다!",
+        );
+        onCapture();
+        setHasCaptured(true);
+      }
+    }, 6000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
     console.log("MotionDetector component mounted!");
     const loadScripts = async () => {
       const tfScript = document.createElement("script");
@@ -218,21 +234,9 @@ const MotionDetector = ({
         // console.log("😾😾😾😾😾😾😾motionType", motionType);
         init2();
       }
-
-      const captureTimer = setTimeout(() => {
-        if (!hasCaptured) {
-          console.log(
-            "📸 포즈가 아직 안 취해졌지만 시간이 얼마 안 남아서 촬영합니다!",
-          );
-          onCapture();
-          setHasCaptured(true);
-        }
-      }, 6000);
-
-      return () => clearTimeout(captureTimer);
     };
 
-    return loadScripts();
+    loadScripts();
   }, []);
 
   const init = async () => {
