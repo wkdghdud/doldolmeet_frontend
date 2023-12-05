@@ -62,8 +62,10 @@ const Game = ({
     "But wait a minute while I make you mine make you mine",
     "떨리는 지금도 you're on my mind all the time",
     "I wanna tell you but I'm super shy, super shy",
+    "",
   ];
   const [lyricsIndex, setLyricsIndex] = useState(0);
+
   const handleLyricsChange = (e) => {
     setLyricsInput(e.target.value);
   };
@@ -81,41 +83,68 @@ const Game = ({
   };
 
   useEffect(() => {
+    // 게임이 시작되었다.
     if (showQuizGame) {
+      // 노래를 튼다.
       audio2.play();
-      setInterval(() => {
-        setLyricsIndex((prevIndex) => prevIndex + 1);
-      }, 1000);
+      lyricsChangeAfter(2000, 3000, 4000);
+      // setInterval(() => {
+      //   setLyricsIndex((prevIndex) => prevIndex + 1);
+      // }, 1000);
     }
   }, [showQuizGame]);
 
-  const quizQuestions = [
-    {
-      question: "ㄴㄱ ㅁㄷ ㅋㅋ?",
-      options: [
-        "마종스 - 쿠키",
-        "마종스 - 슈퍼샤이",
-        "마종스 - 디토",
-        "마종스 - 하입 보이",
-      ],
-      answer: "마종스 - 쿠키",
-    },
-    // 추가 문제들...
-  ];
+  const lyricsChangeAfter = (first, second, third) => {
+    setTimeout(() => {
+      setLyricsIndex(1);
+    }, first);
 
-  const handleQuizAnswer = (option) => {
-    if (option === quizQuestions[quizQuestionIndex].answer) {
-      alert("정답입니다!");
-    } else {
-      alert("틀렸습니다!");
-    }
-    if (quizQuestionIndex < quizQuestions.length - 1) {
-      setQuizQuestionIndex(quizQuestionIndex + 1);
-    } else {
-      setShowQuizGame(false); // 마지막 문제이면 퀴즈 게임 종료
-      handleclose(); // 게임 전체를 종료
-    }
+    setTimeout(() => {
+      setLyricsIndex(2);
+    }, first + second);
+
+    setTimeout(
+      () => {
+        setLyricsIndex(3);
+      },
+      first + second + third,
+    );
+
+    setTimeout(
+      () => {
+        setLyricsIndex(4);
+      },
+      first + second + third + 3000,
+    );
   };
+
+  // const quizQuestions = [
+  //   {
+  //     question: "ㄴㄱ ㅁㄷ ㅋㅋ?",
+  //     options: [
+  //       "마종스 - 쿠키",
+  //       "마종스 - 슈퍼샤이",
+  //       "마종스 - 디토",
+  //       "마종스 - 하입 보이",
+  //     ],
+  //     answer: "마종스 - 쿠키",
+  //   },
+  //   // 추가 문제들...
+  // ];
+
+  // const handleQuizAnswer = (option) => {
+  //   if (option === quizQuestions[quizQuestionIndex].answer) {
+  //     alert("정답입니다!");
+  //   } else {
+  //     alert("틀렸습니다!");
+  //   }
+  //   if (quizQuestionIndex < quizQuestions.length - 1) {
+  //     setQuizQuestionIndex(quizQuestionIndex + 1);
+  //   } else {
+  //     setShowQuizGame(false); // 마지막 문제이면 퀴즈 게임 종료
+  //     handleclose(); // 게임 전체를 종료
+  //   }
+  // };
 
   // 제한 시간 카운트다운 로직
   useEffect(() => {
