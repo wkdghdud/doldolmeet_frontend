@@ -1,14 +1,23 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { openvidu_api } from "@/utils/api";
-import { Role } from "@/types";
+import { backend_api, openvidu_api } from "@/utils/api";
 import {
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Paper,
+  Typography,
 } from "@mui/material";
+
+interface Quiz {
+  id: number;
+  title: string;
+  choice1: string;
+  choice2: string;
+}
 
 interface Props {
   username: string;
@@ -16,9 +25,11 @@ interface Props {
   role: string | undefined;
   partnerChoice: string | null | undefined;
   open: boolean;
+  fanMeetingId: string | undefined | null;
 }
 
 const GameSecond = ({
+  fanMeetingId,
   open,
   username,
   sessionId,
@@ -30,9 +41,28 @@ const GameSecond = ({
   const [showCountdownModal, setShowCountdownModal] = useState(false);
   const [showGameModal, setShowGameModal] = useState(false);
   const [countdown, setCountdown] = useState(3);
-  const options = ["짜장", "짬뽕"];
   const [gameCountdown, setGameCountdown] = useState(5); // 게임 제한 시간
-  const decisionTimeLimit = 5; // 제한 시간 (5초)
+  const [currentQuizIndex, setCurrentQuizIndex] = useState(0); // 현재 문제 인덱스
+  const [quizes, setQuizes] = useState<Quiz[]>([]);
+  const audio = new Audio("/mp3/game.mp3");
+
+  const [resultGameModal, setResultGameModal] = useState(false);
+
+  useEffect(() => {
+    if (showCountdownModal) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  }, [showCountdownModal]);
+
+  useEffect(() => {
+    backend_api()
+      .get(`/game/sameminds`)
+      .then((res) => {
+        setQuizes(res.data.data); // data 프로퍼티에 접근하여 상태를 업데이트합니다.
+      });
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -52,24 +82,61 @@ const GameSecond = ({
   }, [open]);
 
   useEffect(() => {
+    // 게임이
+    // 5초 지나면 정산
     let timer;
+
+    // 타이머 실행
     if (showGameModal && gameCountdown > 0) {
       timer = setTimeout(() => {
         setGameCountdown((prev) => prev - 1);
       }, 1000);
-    } else if (gameCountdown === 0) {
-      setShowGameModal(false); // 시간이 만료되면 모달을 닫습니다.
+    }
+
+    // 시간 다되면 한 퀴즈에 대한 결과 보여주기
+    else if (gameCountdown === 0) {
       if (userChoice && partnerChoice) {
         if (userChoice === partnerChoice) {
-          alert("정답을 맞췄습니다!");
+          alert("둘의 마음이 통했습니다.!");
           setScore((prevScore) => prevScore + 1);
+          backend_api()
+            .post(`/fanMeetings/${fanMeetingId}/gameScore`)
+            .then((res) => {
+              console.log(res);
+            });
         } else {
-          alert("다른 것을 선택했습니다!");
+          alert("둘의 마음이 통하지 않았습니다.!");
         }
       }
+
+      // 아직 문제 남았으면 다음 문제로 인덱스 변경
+      if (currentQuizIndex < quizes.length - 1) {
+        setCurrentQuizIndex(currentQuizIndex + 1);
+        // 시간 초기화
+        setGameCountdown(5);
+      }
+      //마지막 문제였다면 게임 모달을 닫습니다.
+      else {
+        setShowGameModal(false);
+        setGameCountdown(5);
+        //결과창 수정
+        // alert("결과창 띄워주기");
+        setResultGameModal(true);
+      }
     }
+
     return () => clearTimeout(timer);
-  }, [showGameModal, gameCountdown, userChoice, partnerChoice]);
+
+    //
+  }, [showGameModal, gameCountdown]);
+
+  useEffect(() => {
+    if (resultGameModal) {
+      setTimeout(() => {
+        setResultGameModal(false);
+      }, 3000);
+    }
+  }, [resultGameModal]);
 
   const signalChoiceDetected = useCallback(
     async (choice) => {
@@ -82,12 +149,16 @@ const GameSecond = ({
             username: username,
           }),
         });
-        setUserChoice(choice);
-        setTimeout(() => {
-          if (partnerChoice === choice) {
-            setScore((prevScore) => prevScore + 1);
-          }
-        }, decisionTimeLimit * 1000);
+        // setTimeout(() => {
+        //   if (partnerChoice === choice) {
+        //     setScore((prevScore) => prevScore + 1);
+        //     backend_api()
+        //       .post(`/fanMeetings/${fanMeetingId}/gameScore`)
+        //       .then((res) => {
+        //         console.log(res);
+        //       });
+        //   }
+        // }, decisionTimeLimit * 1000);
       }
     },
     [username, sessionId, role, partnerChoice],
@@ -96,44 +167,79 @@ const GameSecond = ({
   const handleUserChoice = (choice) => {
     signalChoiceDetected(choice);
     setUserChoice(choice);
-    // if (choice === partnerChoice) {
-    //   alert("정답을 맞췄습니다!");
-    //   setScore(score + 1);
-    //   setShowGameModal(false);
-    // }
   };
 
   return (
     <div>
+      {/* 카운트다운 모달 */}
       {showCountdownModal && (
         <Dialog open={showCountdownModal}>
           <DialogTitle>게임 시작 카운트다운</DialogTitle>
           <DialogContent>
-            <h2>{countdown}초 후에 게임이 시작됩니다...</h2>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              {countdown}초 후에 게임이 시작됩니다...
+            </Typography>
           </DialogContent>
         </Dialog>
       )}
-
-      {showGameModal && (
-        <Dialog open={showGameModal} onClose={() => setShowGameModal(false)}>
+      {/* 게임 모달 */}
+      {showGameModal && quizes.length > 0 && (
+        <Dialog
+          open={showGameModal}
+          onClose={() => setShowGameModal(false)}
+          fullWidth
+          maxWidth="sm"
+        >
           <DialogTitle>이심전심 게임</DialogTitle>
           <DialogContent>
-            <div>
-              {options.map((option, idx) => (
-                <button key={option} onClick={() => handleUserChoice(option)}>
-                  {option}
-                </button>
-              ))}
-            </div>
-            <p>제한 시간: {gameCountdown}초</p>
+            <Paper sx={{ p: 2, my: 2, textAlign: "center" }}>
+              {/* 현재 인덱스의 문제를 렌더링합니다. */}
+              <div key={quizes[currentQuizIndex].id}>
+                <Typography variant="h6">
+                  {quizes[currentQuizIndex].title}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() =>
+                    handleUserChoice(quizes[currentQuizIndex].choice1)
+                  }
+                  sx={{ m: 1 }}
+                >
+                  {quizes[currentQuizIndex].choice1}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() =>
+                    handleUserChoice(quizes[currentQuizIndex].choice2)
+                  }
+                  sx={{ m: 1 }}
+                >
+                  {quizes[currentQuizIndex].choice2}
+                </Button>
+              </div>
+              <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                제한 시간 {gameCountdown}초 안에 골라주세요!
+              </Typography>
+            </Paper>
           </DialogContent>
           <DialogActions>
-            <div>
-              <p>당신의 선택: {userChoice}</p>
-              <p>아이돌의 선택: {partnerChoice}</p>
-              <p>점수: {score}</p>
-            </div>
+            <Typography variant="h6" sx={{ mx: "auto" }}>
+              점수: {score}
+            </Typography>
           </DialogActions>
+        </Dialog>
+      )}
+      {/* 결과 모달 */}
+      {resultGameModal && (
+        <Dialog open={resultGameModal}>
+          <DialogTitle>이심전심 게임 결과</DialogTitle>
+          <DialogContent>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              {score}점을 획득하셨습니다!
+            </Typography>
+          </DialogContent>
         </Dialog>
       )}
     </div>

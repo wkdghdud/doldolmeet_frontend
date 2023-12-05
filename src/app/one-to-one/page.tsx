@@ -30,6 +30,7 @@ import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import Game from "@/components/Game";
 import GameSecond from "@/components/GameSecond";
 import { v4 as uuidv4 } from "uuid";
+import SpeechRecog from "../../components/Speech-Recognition";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -77,7 +78,7 @@ const OneToOnePage = () => {
 
   /* 다음 아이돌의 대기실로 넘어가기 위해 필요한 state */
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
-  const [nextRoomId, setNextRoomId] = useState<string>("");
+  const [, setNextRoomId] = useState<string>("");
 
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
@@ -100,8 +101,15 @@ const OneToOnePage = () => {
   /* 이심전심 선택 */
   const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
 
+  /* 상대방 음성 인식 */
+  const [partnerVoice, setPartnerVoice] = useState<string | undefined>();
+
   /* 필터 On/Off */
   const [filter, setFilter] = useState(false);
+
+  /*노래 관련 게임*/
+  const [replaynum, setReplaynum] = useState(0);
+  const [clickAnswer, setClickAnswer] = useState(0);
 
   useEffect(() => {
     token.then((res) => {
@@ -210,6 +218,32 @@ const OneToOnePage = () => {
         if (data.username !== userName) {
           console.log("👋 상대방이 선택을 했어요.", event.data);
           setPartnerChoice(data.choice);
+        }
+      });
+
+      mySession.on("signal:send_replay", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 상대방이 리플레이를 했어요.", event.data);
+          setReplaynum((prev) => prev + 1);
+        }
+      });
+
+      mySession.on("signal:click_answer", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 상대방이 리플레이를 했어요.", event.data);
+          setClickAnswer(data.isAnswer);
+        }
+      });
+
+      mySession.on("signal:voice_detected", (event) => {
+        const data = JSON.parse(event.data);
+        // console.log("!!!!!!!!!!!!", data.username, userName);
+        if (data.username !== userName) {
+          console.log("👋 상대방의 음성 인식.", event.data);
+
+          setPartnerVoice(data.translatedText);
         }
       });
 
@@ -479,6 +513,8 @@ const OneToOnePage = () => {
     }
   };
 
+  const [isSubtitleActive, setSubtitleActive] = useState(false);
+
   return (
     <Grid container spacing={2}>
       <Grid
@@ -518,6 +554,8 @@ const OneToOnePage = () => {
                 toggleFullScreen={() => setFullScreen(!fullScreen)}
                 filterOn={filter}
                 onClickFilter={onClickFilter}
+                toggleSubtitle={() => setSubtitleActive(!isSubtitleActive)}
+                isSubtitleActive={isSubtitleActive}
               />
             </Stack>
           </Grid>
@@ -565,6 +603,14 @@ const OneToOnePage = () => {
               )}
             </Grid>
           </Grid>
+          <Grid item xs={12}>
+            <SpeechRecog
+              sessionId={sessionId}
+              partnerVoice={partnerVoice}
+              username={userName}
+              active={isSubtitleActive}
+            />
+          </Grid>
         </Grid>
       </Grid>
 
@@ -597,7 +643,12 @@ const OneToOnePage = () => {
         <Game
           open={gameStart}
           handleclose={handleclose}
+          sessionId={sessionId}
+          username={userName}
           fanMeetingId={fanMeetingId}
+          role={role}
+          replaynum={replaynum}
+          clickAnswer={clickAnswer}
         />
       )}
       {gameType === "2" && (
@@ -606,6 +657,7 @@ const OneToOnePage = () => {
           sessionId={sessionId}
           username={userName}
           role={role}
+          fanMeetingId={fanMeetingId}
           partnerChoice={partnerChoice}
         />
       )}

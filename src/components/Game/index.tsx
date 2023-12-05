@@ -1,34 +1,57 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DialogActions from "@mui/material/DialogActions/DialogActions";
-import { Dialog } from "@mui/material";
-import { backend_api } from "@/utils/api";
+import { Button, Dialog, Grid, Paper, Typography } from "@mui/material";
+import { backend_api, openvidu_api } from "@/utils/api";
+import GradientButton from "@/components/GradientButton";
+import { Role } from "@/types";
 
 interface Props {
+  username: string;
+  sessionId: string | null | undefined;
   open: boolean;
   handleclose: () => void;
   fanMeetingId: string | undefined | null;
+  role: string | undefined | null;
+  replaynum: number;
+  clickAnswer: number;
 }
 
-const Game = ({ open, handleclose, fanMeetingId }: Props) => {
+const Game = ({
+  open,
+  handleclose,
+  fanMeetingId,
+  role,
+  username,
+  sessionId,
+  replaynum,
+  clickAnswer,
+}: Props) => {
   //첫번째 노래 맞추기 게임
   const [score, setScore] = useState(0);
   const [countdown, setCountdown] = useState(3);
   const [showCountdownModal, setShowCountdownModal] = useState(false);
   const [showGameModal, setShowGameModal] = useState(false);
-  const correctAnswer = "최애의 아이돌";
-  const [timeLeft, setTimeLeft] = useState(5); // 5초 제한 시간
+  const correctAnswer = "마종스 - 하입 보이";
+  const [timeLeft, setTimeLeft] = useState(500); // 5초 제한 시간
 
   //가사보고 노래 맞추기 게임
   const [showQuizGame, setShowQuizGame] = useState(false);
   const [quizQuestionIndex, setQuizQuestionIndex] = useState(0);
   const [firstGameCompleted, setFirstGameCompleted] = useState(false);
 
+  const [musicTime, setMusicTime] = useState(false);
+
   const quizQuestions = [
     {
-      question: "React는 어떤 종류의 라이브러리인가요?",
-      options: ["데이터베이스", "UI", "보안", "네트워킹"],
-      answer: "UI",
+      question: "ㄴㄱ ㅁㄷ ㅋㅋ?",
+      options: [
+        "마종스 - 쿠키",
+        "마종스 - 슈퍼샤이",
+        "마종스 - 디토",
+        "마종스 - 하입 보이",
+      ],
+      answer: "마종스 - 쿠키",
     },
     // 추가 문제들...
   ];
@@ -59,7 +82,7 @@ const Game = ({ open, handleclose, fanMeetingId }: Props) => {
     if (showGameModal) {
       timer = setInterval(() => {
         setTimeLeft((prevTime) => {
-          if (prevTime === 1) {
+          if (prevTime === 5) {
             clearInterval(timer);
             alert("시간 초과!");
             handleclose();
@@ -126,49 +149,162 @@ const Game = ({ open, handleclose, fanMeetingId }: Props) => {
     };
   }, [showGameModal]);
 
+  const send_replay = useCallback(async () => {
+    if (username !== "") {
+      await openvidu_api.post(`/openvidu/api/signal`, {
+        session: sessionId,
+        type: "signal:send_replay",
+        data: JSON.stringify({
+          username: username,
+        }),
+      });
+    }
+  }, [username, sessionId]);
+
+  const handleAnswer = useCallback(
+    async (isAnswer) => {
+      if (username !== "") {
+        await openvidu_api.post(`/openvidu/api/signal`, {
+          session: sessionId,
+          type: "signal:click_answer",
+          data: JSON.stringify({
+            username: username,
+            isAnswer: isAnswer,
+          }),
+        });
+      }
+    },
+    [username, sessionId],
+  );
+
+  useEffect(() => {
+    if (clickAnswer === 1) {
+      alert("정답을 맞췄습니다!");
+      setScore(score + 1);
+      setFirstGameCompleted(true);
+      handleclose();
+      backend_api()
+        .post(`/fanMeetings/${fanMeetingId}/gameScore`)
+        .then((res) => {
+          console.log(res);
+        });
+      setShowGameModal(false); // 게임 모달 닫기
+    } else if (clickAnswer === -1) {
+      alert("틀렸습니다.");
+    }
+  }, [clickAnswer]);
+
+  useEffect(() => {
+    if (replaynum >= 1) {
+      audio.play();
+      setTimeout(() => {
+        audio.pause();
+      }, 1000);
+    }
+  }, [replaynum]);
+
   return (
     <div>
-      {showCountdownModal && (
-        <Dialog open={showCountdownModal}>
-          <h2>{countdown}초 후에 노래 맞추기 게임이 시작됩니다...</h2>
+      {showGameModal && (
+        <Dialog open={showGameModal} PaperComponent={Paper}>
+          <Grid
+            container
+            spacing={2}
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {role === Role.IDOL && (
+              <>
+                <GradientButton onClick={send_replay}>
+                  다시 들려주기
+                </GradientButton>
+                <GradientButton onClick={() => handleAnswer(1)}>
+                  정답
+                </GradientButton>
+                <GradientButton onClick={() => handleAnswer(-1)}>
+                  오답
+                </GradientButton>
+              </>
+            )}
+            <Grid item>
+              <Typography variant="h5" gutterBottom>
+                노래 맞추기 게임
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography gutterBottom>남은 시간: {timeLeft}초</Typography>
+            </Grid>
+            <Grid item container spacing={1}>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={() => handleSubmit("마종스 - 최애의 아이돌")}
+                >
+                  마종스 - 최애의 아이돌
+                </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  fullWidth
+                  onClick={() => handleSubmit("마종스 - 쿠키")}
+                >
+                  마종스 - 쿠키
+                </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  fullWidth
+                  onClick={() => handleSubmit("마종스 - 하입 보이")}
+                >
+                  마종스 - 하입 보이
+                </Button>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Typography>현재 점수: {score}</Typography>
+            </Grid>
+          </Grid>
         </Dialog>
       )}
 
-      {showGameModal && (
-        <Dialog open={showGameModal}>
-          <DialogActions>
-            <div>
-              <h1>노래 맞추기 게임</h1>
-              <p>남은 시간: {timeLeft}초</p>
-              <div className="modal">
-                <button onClick={() => handleSubmit("최애의 아이돌")}>
-                  최애의 아이돌
-                </button>
-                <button onClick={() => handleSubmit("다른 선택지")}>
-                  다른 선택지
-                </button>
-                <button onClick={() => handleSubmit("다른 선택지")}>
-                  다른 선택지
-                </button>
-              </div>
-              <p>현재 점수: {score}</p>
-            </div>
-          </DialogActions>
-        </Dialog>
-      )}
       {showQuizGame && (
-        <Dialog open={showQuizGame}>
-          <DialogActions>
-            <div>
-              <h1>퀴즈 게임</h1>
-              <p>{quizQuestions[quizQuestionIndex].question}</p>
-              {quizQuestions[quizQuestionIndex].options.map((option, index) => (
-                <button key={index} onClick={() => handleQuizAnswer(option)}>
+        <Dialog open={showQuizGame} PaperComponent={Paper}>
+          <Grid
+            container
+            spacing={2}
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Grid item>
+              <Typography variant="h5" gutterBottom>
+                퀴즈 게임
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography gutterBottom>
+                {quizQuestions[quizQuestionIndex].question}
+              </Typography>
+            </Grid>
+            {quizQuestions[quizQuestionIndex].options.map((option, index) => (
+              <Grid item xs={12} key={index}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => handleQuizAnswer(option)}
+                >
                   {option}
-                </button>
-              ))}
-            </div>
-          </DialogActions>
+                </Button>
+              </Grid>
+            ))}
+          </Grid>
         </Dialog>
       )}
     </div>
