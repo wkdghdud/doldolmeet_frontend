@@ -68,7 +68,12 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         stompClient.send(
           "/pub/chat/message",
           {},
-          JSON.stringify({ type: "ENTER", roomId: roomId, sender: sender }),
+          JSON.stringify({
+            type: "ENTER",
+            roomId: roomId,
+            sender: sender,
+            profileImgUrl: imgUrl,
+          }),
         );
       });
 
@@ -105,7 +110,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           roomId: roomId,
           sender: sender,
           message: message,
-          profileImgUrl: imgUrl,
         }),
       );
       setMessage("");
