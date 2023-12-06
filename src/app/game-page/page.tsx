@@ -130,10 +130,10 @@ const GamePage = () => {
       joinNextRoom(JSON.parse(e.data).nextRoomId);
     });
 
-    eventSource.addEventListener("gameStart", (e: MessageEvent) => {
-      console.log("🥹 game이 시작됐습니다!", JSON.parse(e.data));
-      // setGameStart(true);
-    });
+    // eventSource.addEventListener("gameStart", (e: MessageEvent) => {
+    //   console.log("🥹 game이 시작됐습니다!", JSON.parse(e.data));
+    //   setGameStart(true);
+    // });
 
     eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
       console.log("🥹 game이 종료됐습니다!", JSON.parse(e.data));
@@ -185,14 +185,6 @@ const GamePage = () => {
         // TODO: Subscriber 삭제
       });
 
-      mySession.on("signal:choice_detected", (event) => {
-        const data = JSON.parse(event.data);
-        if (data.username !== userName) {
-          console.log("👋 상대방이 선택을 했어요.", event.data);
-          // setPartnerChoice(data.choice);
-        }
-      });
-
       mySession.on("signal:send_replay", (event) => {
         const data = JSON.parse(event.data);
         if (data.username !== userName) {
@@ -229,6 +221,7 @@ const GamePage = () => {
           fanMeetingId: fanMeetingId,
           userName: userName,
           nickname: myNickName,
+          type: "gameRoom",
         }),
         kurentoOptions: {
           allowedFilters: [
