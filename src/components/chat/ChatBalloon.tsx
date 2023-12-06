@@ -24,10 +24,10 @@ export default function ChatBalloon({
   const createMarkup = useMemo(() => {
     return (text) => {
       const youtubeRegex =
-        /(https?:\/\/(?:www\.)?youtube\.com\/shorts\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+        /https:\/\/www\.youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/;
       const replacedText = text.replace(
         youtubeRegex,
-        '<iframe width="100%" height="auto" src="https://www.youtube.com/embed/$2" frameborder="0" allowfullscreen></iframe>',
+        '<iframe width="100%" height="auto" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>',
       );
 
       const imageRegex = /(https?:\/\/[^\s]+\.(?:png|jpg|gif|jpeg|webp))/g;
