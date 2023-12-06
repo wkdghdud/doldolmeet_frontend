@@ -32,6 +32,37 @@ const SpeechRecog = ({
   const [translatedText, setTranslatedText] = useState("");
 
   useEffect(() => {
+    if (active) {
+      SpeechRecognition.startListening({
+        continuous: true,
+      });
+    } else {
+      SpeechRecognition.stopListening();
+    }
+  }, [active]);
+
+  const fetchData = async (partnerVoice: string) => {
+    try {
+      const res = await backend_api()
+        .post(`/translate?target=${languageTarget}`, {
+          text: partnerVoice,
+        })
+        .then((res) => {
+          const translatedText = res.data.translatedText || "";
+          setTranslatedText(translatedText);
+        });
+    } catch (error) {
+      console.error("Error fetching translation:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (partnerVoice) {
+      fetchData(partnerVoice);
+    }
+  }, [partnerVoice]);
+
+  useEffect(() => {
     if (transcript && username !== "") {
       const sendSignal = async () => {
         try {
@@ -52,37 +83,6 @@ const SpeechRecog = ({
   }, [transcript, username, sessionId]);
 
   useEffect(() => {
-    if (active) {
-      SpeechRecognition.startListening({
-        continuous: true,
-      });
-    } else {
-      SpeechRecognition.stopListening();
-    }
-  }, [active]);
-
-  const fetchData = async (partnerVoice: string) => {
-    try {
-      const res = await backend_api()
-        .post(`/translate?target=${languageTarget}`, {
-          text: partnerVoice,
-        })
-        .then((res) => {
-          const translatedText = res.data.translatedText || ""; // Use an empty string if translatedText is undefined
-          setTranslatedText(translatedText); // 있어야 되나?
-        });
-    } catch (error) {
-      console.error("Error fetching translation:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (partnerVoice) {
-      fetchData(partnerVoice);
-    }
-  }, [partnerVoice]);
-
-  useEffect(() => {
     const intervalId = setInterval(() => {
       // 일정 시간(예: 5000ms, 5초)이 지난 후에 자동으로 새로고침
       setTranslatedText("");
@@ -99,7 +99,7 @@ const SpeechRecog = ({
   return (
     <>
       <Grid item xs={12}>
-        {translatedText !== null && (
+        {partnerVoice !== null && (
           <Typography
             color="secondary"
             align={"center"}
@@ -115,7 +115,7 @@ const SpeechRecog = ({
               minHeight: 24,
             }}
           >
-            {translatedText}
+            {partnerVoice}
           </Typography>
         )}
       </Grid>
