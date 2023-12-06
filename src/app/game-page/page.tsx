@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import {
   Connection,
   OpenVidu,
-  Session,
   Publisher,
+  Session,
   Subscriber,
 } from "openvidu-browser";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -12,8 +12,13 @@ import { createOpenViduConnection } from "@/utils/openvidu";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import { Role } from "@/types";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
-import { Grid, Stack } from "@mui/material";
-import OpenViduVideoView from "@/components/meeting/OpenViduVideoView";
+import { Box, Button, Grid, Stack } from "@mui/material";
+import IdolStreamView from "@/components/meeting/IdolStreamView";
+import FanStreamView from "@/components/meeting/FanStreamView";
+import Typography from "@mui/material/Typography";
+import LooksOneIcon from "@mui/icons-material/LooksOne";
+import LooksTwoIcon from "@mui/icons-material/LooksTwo";
+import Looks3Icon from "@mui/icons-material/Looks3";
 
 const GamePage = () => {
   const router = useRouter();
@@ -41,6 +46,11 @@ const GamePage = () => {
 
   /* OpenVidu Connection */
   const [myConnection, setMyConnection] = useState<Connection | undefined>();
+
+  /* Main Stream */
+  const [mainStream, setMainStream] = useState<
+    Subscriber | Subscriber | Publisher | undefined
+  >();
 
   useEffect(() => {
     token.then((res) => {
@@ -243,57 +253,111 @@ const GamePage = () => {
 
   return (
     <Grid container>
-      {/* 아이돌, 팬 카메라 영역*/}
-      <Grid item xs={8.5}>
-        <Stack direction="column" spacing={2}>
-          <Stack direction={"row"} spacing={2}>
+      <Grid item xs={10}>
+        {/* 아이돌 카메라 영역*/}
+        <Stack direction="column" spacing={1}>
+          <Stack
+            direction={"row"}
+            sx={{
+              width: "100%",
+              backgroundColor: "#eeeeee",
+              py: 2,
+              px: 1,
+              borderRadius: 5,
+            }}
+          >
             {role === Role.IDOL && myStream && (
-              <OpenViduVideoView
+              <IdolStreamView
                 key={myStream.id}
                 streamManager={myStream}
                 name={"아이돌"}
-                left={false}
-                showOverlay={false}
-                motionType={undefined}
               />
             )}
             {idolStreams.map((stream) => (
-              <OpenViduVideoView
+              <IdolStreamView
                 key={stream.id}
                 streamManager={stream}
                 name={"아이돌"}
-                left={false}
-                showOverlay={false}
-                motionType={undefined}
               />
             ))}
           </Stack>
-          <Stack direction={"row"} spacing={2}>
-            {role === Role.FAN && myStream && (
-              <OpenViduVideoView
-                key={myStream.id}
-                streamManager={myStream}
-                name={"팬"}
-                left={false}
-                showOverlay={false}
-                motionType={undefined}
-              />
-            )}
-            {fanStreams.map((stream) => (
-              <OpenViduVideoView
-                key={stream.id}
-                streamManager={stream}
-                name={"팬"}
-                left={false}
-                showOverlay={false}
-                motionType={undefined}
-              />
-            ))}
+          {/* 게임 문제 나오는 영역 */}
+          <Stack
+            direction={"row"}
+            spacing={1}
+            justifyContent={"center"}
+            alignItems={"center"}
+            sx={{
+              width: "100%",
+              height: "38vh",
+              backgroundColor: "#eeeeee",
+              py: 2,
+              px: 1,
+              borderRadius: 5,
+            }}
+          >
+            <Box sx={{ width: "100%", px: 2 }}>
+              <Typography variant={"h3"} textAlign={"center"}>
+                🎧 지금 나오는 노래의 제목을 맞춰주세요
+              </Typography>
+            </Box>
+            <Stack
+              direction={"column"}
+              spacing={1}
+              alignItems={"center"}
+              justifyContent={"center"}
+              sx={{ width: "100%", px: 2, margin: "auto" }}
+            >
+              <Button
+                variant={"contained"}
+                startIcon={<LooksOneIcon />}
+                sx={{ width: "50%" }}
+              >
+                내 루돌프
+              </Button>
+              <Button
+                variant={"contained"}
+                startIcon={<LooksTwoIcon />}
+                sx={{ width: "50%" }}
+              >
+                Attention
+              </Button>
+              <Button
+                variant={"contained"}
+                startIcon={<Looks3Icon />}
+                sx={{ width: "50%" }}
+              >
+                Dynamite
+              </Button>
+            </Stack>
           </Stack>
         </Stack>
       </Grid>
-      {/* 퀴즈 답안 입력 */}
-      <Grid item xs={3.5}></Grid>
+      {/* 팬들 카메라 나오는 곳 */}
+      <Grid item xs={2} sx={{ borderRadius: 3 }}>
+        <Box sx={{ height: "84vh", overflowY: "auto", paddingLeft: 3 }}>
+          <Stack
+            direction={"column"}
+            spacing={1}
+            sx={{ py: 2, px: 1, borderRadius: 3 }}
+          >
+            {role === Role.FAN && myStream && (
+              <FanStreamView
+                key={myStream.id}
+                streamManager={myStream}
+                name={"팬"}
+              />
+            )}
+            {fanStreams.map((stream) => (
+              <FanStreamView
+                key={stream.id}
+                streamManager={stream}
+                name={"팬"}
+              />
+            ))}
+          </Stack>
+        </Box>
+      </Grid>
     </Grid>
   );
 };
