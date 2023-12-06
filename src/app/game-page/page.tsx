@@ -247,6 +247,16 @@ const GamePage = () => {
       <Grid item xs={8.5}>
         <Stack direction="column" spacing={2}>
           <Stack direction={"row"} spacing={2}>
+            {role === Role.IDOL && myStream && (
+              <OpenViduVideoView
+                key={myStream.id}
+                streamManager={myStream}
+                name={"아이돌"}
+                left={false}
+                showOverlay={false}
+                motionType={undefined}
+              />
+            )}
             {idolStreams.map((stream) => (
               <OpenViduVideoView
                 key={stream.id}
@@ -259,6 +269,16 @@ const GamePage = () => {
             ))}
           </Stack>
           <Stack direction={"row"} spacing={2}>
+            {role === Role.FAN && myStream && (
+              <OpenViduVideoView
+                key={myStream.id}
+                streamManager={myStream}
+                name={"팬"}
+                left={false}
+                showOverlay={false}
+                motionType={undefined}
+              />
+            )}
             {fanStreams.map((stream) => (
               <OpenViduVideoView
                 key={stream.id}
