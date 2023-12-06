@@ -60,6 +60,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         stompClient.subscribe(`/sub/chat/room/${roomId}`, (message) => {
           const receivedMessage = JSON.parse(message.body);
           setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+          console.log("$$$$$$$$$$$$$$ messages:", messages);
         });
         // Send
         stompClient.send(
@@ -88,6 +89,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
       setImgUrl(res?.profileImgUrl ?? "");
+      // console.log("############# imgUrl: ", imgUrl); // 됨
     });
   }, [token]);
 
@@ -106,7 +108,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           roomId: roomId,
           sender: sender,
           message: message,
-          url: imgUrl,
+          profileImg: imgUrl,
         }),
       );
       setMessage("");
@@ -191,7 +193,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 sender={msg.sender}
                 message={msg.message}
                 isLanaguage={langTarget}
-                profile={msg.url}
+                profile={msg.profileImg}
               />
             ),
         )}
