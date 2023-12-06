@@ -62,13 +62,16 @@ export default function ShowDialog() {
 
   const idolRoomMove = async (todayMeeting) => {
     try {
-      const idolRoomResponse = await backend_api().get(
-        `/roomOrder/${todayMeeting?.data?.id}`,
-      );
+      if (todayMeeting?.data?.id) {
+        // 추가된 부분
+        const idolRoomResponse = await backend_api().get(
+          `/roomOrder/${todayMeeting?.data?.id}`,
+        );
 
-      setSessionId(idolRoomResponse.data.data.currentRoom);
-      setMotionType(idolRoomResponse.data.data.motionType);
-      setIdolName(idolRoomResponse.data.data.idolName);
+        setSessionId(idolRoomResponse.data.data.currentRoom);
+        setMotionType(idolRoomResponse.data.data.motionType);
+        setIdolName(idolRoomResponse.data.data.idolName);
+      }
     } catch (error) {
       console.error(error);
     }
