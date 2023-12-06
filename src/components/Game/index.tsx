@@ -26,6 +26,7 @@ interface Props {
   replaynum: number;
   gameStart: boolean;
   role: string | undefined;
+  setWinnerName: (winnerName: string) => void;
 }
 
 const SingGamePage = ({
@@ -36,6 +37,7 @@ const SingGamePage = ({
   userName,
   role,
   gameStart,
+  setWinnerName,
 }: Props) => {
   const [showAllIdolEnteredmodal, setShowAllIdolEnteredmodal] =
     useState<boolean>(false);
@@ -116,12 +118,12 @@ const SingGamePage = ({
     }
   }, [userName, sessionId]);
 
-  const alertWinner = async () => {
+  const alertWinner = async (winnerName: string) => {
     if (winner !== "") {
       await openvidu_api.post(`/openvidu/api/signal`, {
         session: sessionId,
         type: "signal:alertWinner",
-        data: winner,
+        data: winnerName,
       });
     }
   };
@@ -131,7 +133,8 @@ const SingGamePage = ({
     if (userAnswer === isAnswer) {
       alert("정답을 맞췄습니다!");
       setWinner(userName);
-      alertWinner();
+      setWinnerName(userName ?? "");
+      alertWinner(userName ?? "");
     } else {
       alert("틀렸습니다.");
     }

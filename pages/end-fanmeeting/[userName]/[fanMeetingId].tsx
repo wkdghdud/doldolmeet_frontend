@@ -317,9 +317,12 @@ const EndFanMeetingPage = () => {
         </Carousel>
       </Grid>
       {showSecretCard && (
-        <Dialog open={showSecretCard} onClose={() => setShowSecretCard(false)}>
-          <ScratchCard imageSrc="/dan.jpeg" brushSize={20} revealPercent={50} />
-        </Dialog>
+        // <Dialog open={showSecretCard} onClose={() => setShowSecretCard(false)}>
+        <ScratchCard
+          imageSrc="/majong.jpeg"
+          brushSize={20}
+          revealPercent={50}
+        />
       )}
       <div
         style={{

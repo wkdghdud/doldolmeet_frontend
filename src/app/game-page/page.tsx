@@ -373,6 +373,7 @@ const GamePage = () => {
             userName={userName}
             replaynum={replaynum}
             gameStart={gameStart}
+            setWinnerName={(winnerName) => setWinner(winnerName)}
           />
         </Stack>
       </Grid>
