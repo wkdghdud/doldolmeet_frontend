@@ -139,34 +139,11 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         position: "relative",
       }}
     >
-      {/* 채팅창 */}
-      <Box
-        ref={messagesRef}
-        sx={{
-          flex: 1,
-          overflowY: "auto",
-          padding: 2,
-        }}
-      >
-        {messages.map(
-          (msg, index) =>
-            msg.message &&
-            msg.message.trim() !== "" && (
-              <ChatBalloon
-                key={index}
-                sender={msg.sender}
-                message={msg.message}
-                isLanaguage={langTarget}
-              />
-            ),
-        )}
-      </Box>
-
-      {/* 번역 언어 선택 컴포넌트 */}
+      {/* 번역 언어 선택 박스 */}
       <FormControl
         sx={{
           position: "absolute",
-          top: 0,
+          top: "5%", // 조정 필요
           left: "65%",
           minWidth: 120,
           mt: 3,
@@ -196,6 +173,30 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           ))}
         </Select>
       </FormControl>
+
+      {/* 채팅 메시지 출력 부분 */}
+      <Box
+        ref={messagesRef}
+        sx={{
+          flex: 1,
+          overflowY: "auto",
+          padding: 2,
+          marginTop: "30px", // 조정 필요
+        }}
+      >
+        {messages.map(
+          (msg, index) =>
+            msg.message &&
+            msg.message.trim() !== "" && (
+              <ChatBalloon
+                key={index}
+                sender={msg.sender}
+                message={msg.message}
+                isLanaguage={langTarget}
+              />
+            ),
+        )}
+      </Box>
 
       {/* 메시지 입력 창 */}
       <TextField
@@ -240,4 +241,5 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   );
 };
 
+export default ShowChat;
 export default ShowChat;
