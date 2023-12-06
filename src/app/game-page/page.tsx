@@ -189,6 +189,10 @@ const GamePage = () => {
 
       mySession.on("streamDestroyed", (event) => {
         // TODO: Subscriber 삭제
+        const subscriber = mySession.subscribe(event.stream, undefined);
+        const clientData = JSON.parse(event.stream.connection.data).clientData;
+        const role = JSON.parse(clientData).role;
+        deleteSubscriber(role, subscriber);
       });
 
       mySession.on("signal:send_replay", (event) => {
@@ -298,6 +302,32 @@ const GamePage = () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [leaveSession]);
+
+  const deleteSubscriber = (role, streamManager) => {
+    if (role === Role.IDOL) {
+      setIdolStreams((prevSubscribers) => {
+        const index = prevSubscribers.indexOf(streamManager);
+        if (index > -1) {
+          const newSubscribers = [...prevSubscribers];
+          newSubscribers.splice(index, 1);
+          return newSubscribers;
+        } else {
+          return prevSubscribers;
+        }
+      });
+    } else {
+      setFanStreams((prevSubscribers) => {
+        const index = prevSubscribers.indexOf(streamManager);
+        if (index > -1) {
+          const newSubscribers = [...prevSubscribers];
+          newSubscribers.splice(index, 1);
+          return newSubscribers;
+        } else {
+          return prevSubscribers;
+        }
+      });
+    }
+  };
 
   return (
     <Grid container>
