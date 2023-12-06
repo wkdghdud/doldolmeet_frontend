@@ -52,8 +52,8 @@ const ShowVideoStreaming = () => {
   return (
     <ReactPlayer
       url={[
-        "https://www.youtube.com/watch?v=D8VEhcPeSlc",
-        "https://www.youtube.com/watch?v=rRzxEiBLQCA",
+        "https://www.youtube.com/watch?v=-1CxQjBnqP0",
+        "https://www.youtube.com/watch?v=tEbLmFOL6XA",
       ]}
       controls
       width="100%"

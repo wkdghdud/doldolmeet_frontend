@@ -391,12 +391,12 @@ const OneToOnePage = () => {
 
     eventSource.addEventListener("gameStart", (e: MessageEvent) => {
       console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
-      setGameStart(true);
+      // setGameStart(true);
     });
 
     eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
       console.log("🥹 game이 종료됐습니다.!!!.", JSON.parse(e.data));
-      setGameEnd(true);
+      // setGameEnd(true);
     });
 
     eventSource.onopen = () => {
@@ -423,12 +423,12 @@ const OneToOnePage = () => {
 
     eventSource.addEventListener("idolGameStart", (e: MessageEvent) => {
       console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
-      setGameStart(true);
+      // setGameStart(true);
     });
 
     eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
       console.log("🥹 game이 종료됐습니다.!!!.", JSON.parse(e.data));
-      setGameEnd(true);
+      // setGameEnd(true);
     });
 
     eventSource.onopen = () => {
@@ -673,28 +673,28 @@ const OneToOnePage = () => {
           motionType={motionType}
         />
       )}
-      {gameType === "1" && (
-        <Game
-          open={gameStart}
-          handleclose={handleclose}
-          sessionId={sessionId}
-          username={userName}
-          fanMeetingId={fanMeetingId}
-          role={role}
-          replaynum={replaynum}
-          clickAnswer={clickAnswer}
-        />
-      )}
-      {gameType === "2" && (
-        <GameSecond
-          open={gameStart}
-          sessionId={sessionId}
-          username={userName}
-          role={role}
-          fanMeetingId={fanMeetingId}
-          partnerChoice={partnerChoice}
-        />
-      )}
+      {/*{gameType === "1" && (*/}
+      {/*  <Game*/}
+      {/*    open={gameStart}*/}
+      {/*    handleclose={handleclose}*/}
+      {/*    sessionId={sessionId}*/}
+      {/*    username={userName}*/}
+      {/*    fanMeetingId={fanMeetingId}*/}
+      {/*    role={role}*/}
+      {/*    replaynum={replaynum}*/}
+      {/*    clickAnswer={clickAnswer}*/}
+      {/*  />*/}
+      {/*)}*/}
+      {/*{gameType === "2" && (*/}
+      {/*  <GameSecond*/}
+      {/*    open={gameStart}*/}
+      {/*    sessionId={sessionId}*/}
+      {/*    username={userName}*/}
+      {/*    role={role}*/}
+      {/*    fanMeetingId={fanMeetingId}*/}
+      {/*    partnerChoice={partnerChoice}*/}
+      {/*  />*/}
+      {/*)}*/}
       <FilterSelectDialog
         popupOpen={filterPopupOpen}
         onClose={() => setFilterPopupOpen(false)}
