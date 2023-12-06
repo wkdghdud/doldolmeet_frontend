@@ -322,14 +322,22 @@ const EndFanMeetingPage = () => {
           onClose={() => setShowSecretCard(false)}
           PaperProps={{
             style: {
-              width: "80%",
-              height: "80%",
-              backgroundColor: "transparent",
-              boxShadow: "none",
-              overflow: "hidden",
+              width: "60%", // 모달 창의 너비
+              height: "auto", // 모달 창의 높이는 내용에 따라 자동 조정
+              backgroundColor: "#fff", // 배경색
+              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.5)", // 그림자 스타일
+              borderRadius: "20px", // 모달 창의 모서리 둥글게
+              padding: "20px", // 내부 패딩
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
             },
           }}
         >
+          <Typography variant="h4" style={{ marginBottom: "20px" }}>
+            마종스의 미공개 포카에 당첨되셨습니다.
+          </Typography>
           <ScratchCard
             imageSrc="/majong.jpeg"
             brushSize={20}
