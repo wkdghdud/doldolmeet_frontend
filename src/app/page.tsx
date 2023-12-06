@@ -11,6 +11,7 @@ import ShowDialog from "@/components/ShowDialog";
 import { fetchTodayFanmeeting } from "@/hooks/useTodayFanmeeting";
 import Link from "next/link";
 import data from "@/mock/fanMeeting.json";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   // const { data } = useQuery({
@@ -18,10 +19,18 @@ export default function Home() {
   //   queryFn: ({ queryKey }) => fetchFanMeetings(queryKey[1]),
   // });
 
-  const { data: todayMeeting } = useQuery({
-    queryKey: ["fanMeetings", "today"],
-    queryFn: () => fetchTodayFanmeeting(),
-  });
+  // const { data: todayMeeting } = useQuery({
+  //   queryKey: ["fanMeetings", "today"],
+  //   queryFn: () => fetchTodayFanmyeeting(),
+  // });
+
+  const [todayMeeting, setTodayMeeting] = useState<any>();
+
+  useEffect(() => {
+    fetchTodayFanmeeting().then((res) => {
+      setTodayMeeting(res);
+    });
+  }, []);
 
   const moveWaitingRoom = (e) => {
     e.preventDefault();
@@ -57,7 +66,7 @@ export default function Home() {
       <Grid item xs={12} sx={{ marginTop: 1 }}>
         <Banner />
       </Grid>
-      {todayMeeting !== null && (
+      {todayMeeting !== null && todayMeeting?.data !== null && (
         <Grid
           item
           xs={12}

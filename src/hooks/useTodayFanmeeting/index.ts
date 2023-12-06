@@ -1,8 +1,9 @@
 import { backend_api } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
+import { BackendResponse } from "@/types";
 
-const fetchTodayFanmeeting = async () => {
+const fetchTodayFanmeeting = async (): Promise<BackendResponse<any>> => {
   const response = await backend_api()
     .get(`/fanMeetings/today`)
     .then((response: AxiosResponse) => {
