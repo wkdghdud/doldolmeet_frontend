@@ -18,7 +18,6 @@ const OpenViduSessionInfo = () => {
   const { data, refetch } = useAllOpenViduSessions();
 
   useEffect(() => {
-    console.log("OpenVidu Sessions", data);
     setSessionCnt(data?.numberOfElements);
     setSessions(data?.content);
   }, [data]);
