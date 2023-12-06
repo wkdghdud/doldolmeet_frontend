@@ -2,20 +2,29 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { AWS_S3_URL, backend_api } from "@/utils/api";
-import { Button, Grid, IconButton, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  Grid,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { GetApp, Twitter } from "@mui/icons-material";
 import Carousel from "react-material-ui-carousel";
 import axios from "axios";
 import ForwardIcon from "@mui/icons-material/Forward";
+import ScratchCard from "@/components/SecretCard";
 
 const EndFanMeetingPage = () => {
   /* route query */
   const router = useRouter();
-  const { userName, fanMeetingId } = router.query;
+  const { userName, fanMeetingId, winner } = router.query;
 
   /* States */
   const [contents, setContents] = useState<string[]>([]);
   const [isHovering, setIsHovering] = useState(false);
+  const [showSecretCard, setShowSecretCard] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -23,7 +32,9 @@ const EndFanMeetingPage = () => {
         userName &&
         userName !== undefined &&
         fanMeetingId &&
-        fanMeetingId !== "undefined"
+        fanMeetingId !== "undefined" &&
+        winner &&
+        winner !== undefined
       ) {
         // fanMeetingId가 유효한 경우에만 API 호출 수행
         if (fanMeetingId && fanMeetingId !== "undefined") {
@@ -61,6 +72,10 @@ const EndFanMeetingPage = () => {
           .catch((error) => {
             console.error("Error fetching videos:", error);
           });
+
+        if (winner === "true") {
+          setShowSecretCard(true);
+        }
       }
     }
 
@@ -298,6 +313,11 @@ const EndFanMeetingPage = () => {
           })}
         </Carousel>
       </Grid>
+      {showSecretCard && (
+        <Dialog open={showSecretCard} onClose={() => setShowSecretCard(false)}>
+          <ScratchCard imageSrc="/dan.jpeg" brushSize={20} revealPercent={50} />
+        </Dialog>
+      )}
       <div
         style={{
           backgroundImage: "url('/album_poster.jpg')",
