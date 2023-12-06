@@ -18,7 +18,7 @@ export default function ChatBalloon({
 }: {
   sender: string;
   message: any;
-  profile?: string;
+  profile: string;
   isLanaguage: string;
 }) {
   const createMarkup = useMemo(() => {

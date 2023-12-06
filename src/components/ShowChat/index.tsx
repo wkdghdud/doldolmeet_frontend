@@ -106,6 +106,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           roomId: roomId,
           sender: sender,
           message: message,
+          url: imgUrl,
         }),
       );
       setMessage("");
@@ -190,7 +191,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 sender={msg.sender}
                 message={msg.message}
                 isLanaguage={langTarget}
-                profile={imgUrl}
+                profile={msg.url}
               />
             ),
         )}
