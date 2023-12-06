@@ -27,8 +27,6 @@ import { backend_api, SPRING_URL } from "@/utils/api";
 import MotionDetector from "@/components/MotionDetector";
 
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
-import Game from "@/components/Game";
-import GameSecond from "@/components/GameSecond";
 import { v4 as uuidv4 } from "uuid";
 import SpeechRecog from "../../components/Speech-Recognition";
 import FilterSelectDialog from "@/components/FilterSelectDialog";

@@ -12,13 +12,10 @@ import { createOpenViduConnection } from "@/utils/openvidu";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import { Role } from "@/types";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
-import { Box, Button, Grid, Stack } from "@mui/material";
+import { Box, Grid, Stack } from "@mui/material";
 import IdolStreamView from "@/components/meeting/IdolStreamView";
 import FanStreamView from "@/components/meeting/FanStreamView";
-import Typography from "@mui/material/Typography";
-import LooksOneIcon from "@mui/icons-material/LooksOne";
-import LooksTwoIcon from "@mui/icons-material/LooksTwo";
-import Looks3Icon from "@mui/icons-material/Looks3";
+import Game from "@/components/Game";
 
 const GamePage = () => {
   const router = useRouter();
@@ -51,6 +48,15 @@ const GamePage = () => {
   const [mainStream, setMainStream] = useState<
     Subscriber | Subscriber | Publisher | undefined
   >();
+
+  /* 아이돌이 다 들어왔는지 */
+  const [allIdolEntered, setAllIdolEntered] = useState<boolean>(false);
+
+  /*노래 다시 듣기*/
+  const [replaynum, setReplaynum] = useState(0);
+
+  /*게임시작*/
+  const [gameStart, setGameStart] = useState(false);
 
   useEffect(() => {
     token.then((res) => {
@@ -143,6 +149,11 @@ const GamePage = () => {
       // eventSource.close();
     };
 
+    eventSource.addEventListener("allIdolEntered", (e: MessageEvent) => {
+      console.log("👋 아이돌이 다 들어왔어요!!!!: ", JSON.parse(e.data));
+      setAllIdolEntered(true);
+    });
+
     return true;
   };
 
@@ -186,7 +197,15 @@ const GamePage = () => {
         const data = JSON.parse(event.data);
         if (data.username !== userName) {
           console.log("👋 상대방이 리플레이를 했어요.", event.data);
-          // setReplaynum((prev) => prev + 1);
+          setReplaynum((prev) => prev + 1);
+        }
+      });
+
+      mySession.on("signal:gameStart", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 게임시작", event.data);
+          setGameStart(true);
         }
       });
 
@@ -282,55 +301,15 @@ const GamePage = () => {
             ))}
           </Stack>
           {/* 게임 문제 나오는 영역 */}
-          <Stack
-            direction={"row"}
-            spacing={1}
-            justifyContent={"center"}
-            alignItems={"center"}
-            sx={{
-              width: "100%",
-              height: "38vh",
-              backgroundColor: "#eeeeee",
-              py: 2,
-              px: 1,
-              borderRadius: 5,
-            }}
-          >
-            <Box sx={{ width: "100%", px: 2 }}>
-              <Typography variant={"h3"} textAlign={"center"}>
-                🎧 지금 나오는 노래의 제목을 맞춰주세요
-              </Typography>
-            </Box>
-            <Stack
-              direction={"column"}
-              spacing={1}
-              alignItems={"center"}
-              justifyContent={"center"}
-              sx={{ width: "100%", px: 2, margin: "auto" }}
-            >
-              <Button
-                variant={"contained"}
-                startIcon={<LooksOneIcon />}
-                sx={{ width: "50%" }}
-              >
-                내 루돌프
-              </Button>
-              <Button
-                variant={"contained"}
-                startIcon={<LooksTwoIcon />}
-                sx={{ width: "50%" }}
-              >
-                Attention
-              </Button>
-              <Button
-                variant={"contained"}
-                startIcon={<Looks3Icon />}
-                sx={{ width: "50%" }}
-              >
-                Dynamite
-              </Button>
-            </Stack>
-          </Stack>
+          <Game
+            role={role}
+            fanMeetingId={fanMeetingId}
+            sessionId={sessionId}
+            allIdolEntered={allIdolEntered}
+            userName={userName}
+            replaynum={replaynum}
+            gameStart={gameStart}
+          />
         </Stack>
       </Grid>
       {/* 팬들 카메라 나오는 곳 */}
@@ -358,6 +337,9 @@ const GamePage = () => {
           </Stack>
         </Box>
       </Grid>
+      {/* 퀴즈 답안 입력 */}
+      {/*<Grid item xs={3.5}>*/}
+      {/*</Grid>*/}
     </Grid>
   );
 };
