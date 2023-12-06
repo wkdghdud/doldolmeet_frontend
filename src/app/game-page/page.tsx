@@ -8,7 +8,10 @@ import {
   Subscriber,
 } from "openvidu-browser";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createOpenViduConnection } from "@/utils/openvidu";
+import {
+  closeOpenViduConnection,
+  createOpenViduConnection,
+} from "@/utils/openvidu";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import { Role } from "@/types";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
@@ -262,6 +265,27 @@ const GamePage = () => {
       return null;
     }
   };
+
+  const leaveSession = async () => {
+    if (sessionId && myConnection?.connectionId) {
+      await closeOpenViduConnection(sessionId, myConnection?.connectionId);
+    }
+
+    // state 초기화
+    setMyStream(undefined);
+    setMyConnection(undefined);
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      leaveSession();
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [leaveSession]);
 
   return (
     <Grid container>
