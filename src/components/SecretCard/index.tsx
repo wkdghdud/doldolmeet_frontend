@@ -80,8 +80,8 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
       />
       <canvas
         ref={scratchCanvasRef}
-        width={2160}
-        height={2880}
+        width={480}
+        height={360}
         style={{ position: "absolute" }}
       />
     </div>
