@@ -39,6 +39,8 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [message, setMessage] = useState<any>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [sender, setSender] = useState<string | null>("");
+  const [imgUrl, setImgUrl] = useState<string | null>("");
+
   const [stompClient, setStompClient] = useState<any>(null);
 
   const messagesRef = useRef<HTMLElement | null>(null);
@@ -46,6 +48,9 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [userId, setUserId] = useState("");
 
   const [langTarget, setLangTarget] = useAtom(languageTargetAtom);
+
+  // 프로필 이미지 => JWT Token => 팬의
+  // JWT TOKEN => UserName => API
 
   useEffect(() => {
     const initWebSocket = () => {
@@ -79,8 +84,10 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
   useEffect(() => {
     token.then((res) => {
+      console.log("@@@@@@@@@@@@@############", res);
       setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
+      setImgUrl(res?.sub ?? "");
     });
   }, [token]);
 
@@ -99,6 +106,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           roomId: roomId,
           sender: sender,
           message: message,
+          // profileImgUrl: "자기 프로필 이미지 URL",
         }),
       );
       setMessage("");
@@ -192,6 +200,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 sender={msg.sender}
                 message={msg.message}
                 isLanaguage={langTarget}
+                profile={"프로필 이미지 S3 주소"}
               />
             ),
         )}
