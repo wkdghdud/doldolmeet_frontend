@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Connection,
   OpenVidu,
@@ -63,6 +63,8 @@ const GamePage = () => {
 
   /*위너*/
   const [winner, setWinner] = useState<boolean>(false);
+  const winnerRef = useRef(winner);
+  winnerRef.current = winner;
 
   useEffect(() => {
     token.then((res) => {
@@ -133,7 +135,7 @@ const GamePage = () => {
 
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
       console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
-      joinNextRoom(JSON.parse(e.data).nextRoomId);
+      joinNextRoom();
     });
 
     // eventSource.addEventListener("gameStart", (e: MessageEvent) => {
@@ -167,7 +169,7 @@ const GamePage = () => {
     console.log("🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠", winner);
     router.push(
       `/end-fanmeeting/${userName}/${fanMeetingId}?winner=${
-        winner ? "true" : "false"
+        winnerRef.current ? "true" : "false"
       }`,
     );
   };
