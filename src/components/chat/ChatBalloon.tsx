@@ -4,12 +4,6 @@ import { Box, Stack } from "@mui/system";
 import SmallAvatar from "@/components/avatar/SmallAvatar";
 import { backend_api } from "@/utils/api";
 
-const SUPPORTED_TARGETS = [
-  { code: "ja", label: "Japanese" },
-  { code: "en", label: "English" },
-  { code: "ko", label: "Korean" },
-];
-
 export default function ChatBalloon({
   sender,
   message,
@@ -42,7 +36,6 @@ export default function ChatBalloon({
 
   const [text, setText] = useState("");
   const [showDivider, setShowDivider] = useState(false);
-  const [target, setTarget] = useState("ko"); // 기본값은 "ko"
 
   const handleChat = () => {
     backend_api()
@@ -54,19 +47,6 @@ export default function ChatBalloon({
         setShowDivider(true); // 버튼 클릭 시 Divider 보이기
       });
   };
-
-  useEffect(() => {
-    console.log("@@@@@@@@@@@@@@@@@@", profile);
-  }, []);
-
-  // const toggleTarget = () => {
-  //   // 현재 target의 인덱스를 찾아서 다음 target으로 변경
-  //   const currentIndex = SUPPORTED_TARGETS.findIndex(
-  //     (item) => item.code === target,
-  //   );
-  //   const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
-  //   setTarget(SUPPORTED_TARGETS[nextIndex].code);
-  // };
 
   return (
     <Stack
@@ -109,19 +89,6 @@ export default function ChatBalloon({
           >
             {text}
           </Typography>
-          {/*<Select*/}
-          {/*  value={target}*/}
-          {/*  onChange={(e) => setTarget(e.target.value)}*/}
-          {/*  variant="standard"*/}
-          {/*  style={{ marginTop: "8px" }}*/}
-          {/*>*/}
-          {/*  {SUPPORTED_TARGETS.map((item) => (*/}
-          {/*    <MenuItem key={item.code} value={item.code}>*/}
-          {/*      {item.label}*/}
-          {/*    </MenuItem>*/}
-          {/*  ))}*/}
-          {/*</Select>*/}
-          {/*<Button onClick={toggleTarget}>Toggle Target</Button>*/}
         </Box>
       </Stack>
     </Stack>
