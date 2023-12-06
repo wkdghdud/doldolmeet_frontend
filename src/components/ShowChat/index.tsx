@@ -68,7 +68,11 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         stompClient.send(
           "/pub/chat/message",
           {},
-          JSON.stringify({ type: "ENTER", roomId: roomId, sender: sender }),
+          JSON.stringify({
+            type: "ENTER",
+            roomId: roomId,
+            sender: sender,
+          }),
         );
       });
 
