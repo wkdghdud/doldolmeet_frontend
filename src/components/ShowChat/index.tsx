@@ -199,7 +199,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 sender={msg.sender}
                 message={msg.message}
                 isLanaguage={langTarget}
-                profile={msg.ImageUrl}
+                profile={msg.profileImgUrl}
               />
             ),
         )}
