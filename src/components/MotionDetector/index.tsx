@@ -76,11 +76,12 @@ const MotionDetector = ({
       ctx.scale(-1, 1); // Flip horizontally
       ctx.drawImage(
         videoElement,
-        xOffset,
+        -xOffset - videoElement.videoWidth * scale,
         yOffset,
         videoElement.videoWidth * scale,
         videoElement.videoHeight * scale,
       );
+      ctx.restore(); // Restore original transformation state
 
       // Return the created image data URL
       return canvasElement.toDataURL("image/png");
