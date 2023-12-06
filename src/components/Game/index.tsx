@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   Stack,
+  TextField,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import LooksOneIcon from "@mui/icons-material/LooksOne";
@@ -45,9 +46,12 @@ const SingGamePage = ({
     useState(true);
   const [gameButtonActive, setGameButtonActive] = useState<boolean>(false);
 
+  /* 정답맞춘사람 */
+  const [winner, setWinner] = useState<string | undefined | null>();
+
   /* 정답 확인 */
   const isAnswer = "내 루돌프";
-
+  const [answer, setAnswer] = useState("");
   /* audio */
   const audio = new Audio("/mp3/idolsong1.mp3");
 
@@ -120,9 +124,10 @@ const SingGamePage = ({
   }, [gameStart]);
 
   //정답 제출
-  const handleSubmit = (answer) => {
-    if (answer === isAnswer) {
+  const handleSubmit = (userAnswer) => {
+    if (userAnswer === isAnswer) {
       alert("정답을 맞췄습니다!");
+      setWinner(userName);
     } else {
       alert("틀렸습니다.");
     }
@@ -168,7 +173,6 @@ const SingGamePage = ({
             variant={"contained"}
             startIcon={<LooksOneIcon />}
             sx={{ width: "50%" }}
-            onClick={() => handleSubmit("내 루돌프")}
           >
             내 루돌프
           </Button>
@@ -176,7 +180,6 @@ const SingGamePage = ({
             variant={"contained"}
             startIcon={<LooksTwoIcon />}
             sx={{ width: "50%" }}
-            onClick={() => handleSubmit("Attention")}
           >
             Attention
           </Button>
@@ -184,18 +187,30 @@ const SingGamePage = ({
             variant={"contained"}
             startIcon={<Looks3Icon />}
             sx={{ width: "50%" }}
-            onClick={() => handleSubmit("Dynamite")}
           >
             Dynamite
+          </Button>
+          <TextField
+            label="노래 제목 입력"
+            variant="outlined"
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            sx={{ width: "50%" }}
+          />
+          <Button
+            variant="contained"
+            onClick={() => handleSubmit(answer)}
+            sx={{ width: "50%", mt: 2 }}
+          >
+            정답 제출
           </Button>
         </Stack>
       )}
       {showAllIdolEnteredmodal && (
         <Dialog open={showAllIdolEnteredmodal}>
-          <DialogTitle>아이돌 도착</DialogTitle>
           <DialogContent>
             <Typography variant="h2" align="center" sx={{ my: 5 }}>
-              아이돌 도착~~
+              아이돌 도착
             </Typography>
           </DialogContent>
         </Dialog>
