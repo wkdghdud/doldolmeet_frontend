@@ -162,27 +162,6 @@ const SingGamePage = ({
           justifyContent={"center"}
           sx={{ width: "100%", px: 2, margin: "auto" }}
         >
-          <Button
-            variant={"contained"}
-            startIcon={<LooksOneIcon />}
-            sx={{ width: "50%" }}
-          >
-            내 루돌프
-          </Button>
-          <Button
-            variant={"contained"}
-            startIcon={<LooksTwoIcon />}
-            sx={{ width: "50%" }}
-          >
-            Attention
-          </Button>
-          <Button
-            variant={"contained"}
-            startIcon={<Looks3Icon />}
-            sx={{ width: "50%" }}
-          >
-            Dynamite
-          </Button>
           <TextField
             label="노래 제목 입력"
             variant="outlined"
