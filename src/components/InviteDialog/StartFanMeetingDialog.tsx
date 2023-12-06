@@ -30,7 +30,7 @@ const StartFanMeetingDialog = ({ open, handleClose, handleEnter }: Props) => {
       <DialogContent>
         <DialogContentText>
           <img
-            src="/aespa_welcome.gif"
+            src="/images/welcome_majongs.gif"
             alt="invite"
             style={{ width: "350px", borderRadius: 20 }}
           />
