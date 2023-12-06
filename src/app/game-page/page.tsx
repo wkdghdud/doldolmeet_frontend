@@ -61,6 +61,9 @@ const GamePage = () => {
   /*게임시작*/
   const [gameStart, setGameStart] = useState(false);
 
+  /*위너*/
+  const [winner, setWinner] = useState<string | undefined>();
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -201,6 +204,15 @@ const GamePage = () => {
         if (data.username !== userName) {
           console.log("👋 게임시작", event.data);
           setGameStart(true);
+        }
+      });
+
+      mySession.on("signal:alertWinner", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.username !== userName) {
+          console.log("👋 게임종료", event.data);
+          setWinner(data.username);
+          alert(`${data.username}님이 정답을 맞추셨습니다!`);
         }
       });
 

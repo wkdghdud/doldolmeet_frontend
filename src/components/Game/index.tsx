@@ -116,11 +116,24 @@ const SingGamePage = ({
     }
   }, [userName, sessionId]);
 
+  const alertWinner = async () => {
+    if (winner !== "") {
+      await openvidu_api.post(`/openvidu/api/signal`, {
+        session: sessionId,
+        type: "signal:alertWinner",
+        data: JSON.stringify({
+          username: winner,
+        }),
+      });
+    }
+  };
+
   //정답 제출
   const handleSubmit = (userAnswer) => {
     if (userAnswer === isAnswer) {
       alert("정답을 맞췄습니다!");
       setWinner(userName);
+      alertWinner();
     } else {
       alert("틀렸습니다.");
     }
