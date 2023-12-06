@@ -175,7 +175,7 @@ const OneToOnePage = () => {
 
         {
           session: sessionId,
-          fanMeetingId: fanMeetingId,
+          fanMeetingId: fanMeetingId ?? "1",
           fan: userName,
           idol: idolName,
           name: recording_name,
