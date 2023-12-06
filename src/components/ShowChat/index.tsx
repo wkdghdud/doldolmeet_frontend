@@ -39,7 +39,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [message, setMessage] = useState<any>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [sender, setSender] = useState<string | null>("");
-  const [imgUrl, setImgUrl] = useState<string | null>("");
+  const [imgUrl, setImgUrl] = useState<string | undefined>("");
 
   const [stompClient, setStompClient] = useState<any>(null);
 
@@ -90,7 +90,8 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
     token.then((res) => {
       setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
-      setImgUrl(res.profileImgUrl ?? "");
+      setImgUrl(res?.profileImgUrl ?? "");
+      console.log("@@@@@@ ImgUrl: ", imgUrl);
     });
   }, [token]);
 
@@ -109,7 +110,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           roomId: roomId,
           sender: sender,
           message: message,
-          profileImgUrl: imgUrl,
         }),
       );
       setMessage("");
@@ -203,7 +203,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 sender={msg.sender}
                 message={msg.message}
                 isLanaguage={langTarget}
-                profile={msg.profileImgUrl}
+                profile={imgUrl}
               />
             ),
         )}
