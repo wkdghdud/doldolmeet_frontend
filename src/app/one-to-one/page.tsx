@@ -317,10 +317,10 @@ const OneToOnePage = () => {
       console.log("🥹 연결되었습니다.");
     });
 
-    eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
+    eventSource.addEventListener("moveToWaitRoom", async (e: MessageEvent) => {
       console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
-      joinNextRoom(
+      await joinNextRoom(
         JSON.parse(e.data).nextRoomId,
         JSON.parse(e.data).nextRoomType,
       );
