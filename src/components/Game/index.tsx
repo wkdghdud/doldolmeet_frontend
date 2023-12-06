@@ -39,7 +39,6 @@ const SingGamePage = ({
 }: Props) => {
   const [showAllIdolEnteredmodal, setShowAllIdolEnteredmodal] =
     useState<boolean>(false);
-  const [showGameModal, setShowGameModal] = useState<boolean>(false);
   const [showGameResultModal, setShowGameResultModal] =
     useState<boolean>(false);
   const [notshowAllIdolEnteredmodal, setnotShowAllIdolEnteredmodal] =
@@ -56,14 +55,14 @@ const SingGamePage = ({
   const audio = new Audio("/mp3/idolsong1.mp3");
 
   useEffect(() => {
-    if (showGameModal) {
+    if (gameStart) {
       audio.play();
     }
     return () => {
       audio.pause();
       audio.currentTime = 0;
     };
-  }, [showGameModal]);
+  }, [gameStart]);
 
   /* 다시 들려 주기 관련 */
   const send_replay = useCallback(async () => {
@@ -117,12 +116,6 @@ const SingGamePage = ({
     }
   }, [userName, sessionId]);
 
-  useEffect(() => {
-    if (gameStart) {
-      setShowGameModal(true);
-    }
-  }, [gameStart]);
-
   //정답 제출
   const handleSubmit = (userAnswer) => {
     if (userAnswer === isAnswer) {
@@ -152,7 +145,7 @@ const SingGamePage = ({
         <Typography variant={"h3"} textAlign={"center"}>
           🎧 지금 나오는 노래의 제목을 맞춰주세요
         </Typography>
-        {role === Role.IDOL && gameButtonActive && (
+        {role === Role.IDOL && (
           <>
             <GradientButton onClick={startGame}>
               게임 시작 버튼 활성화
@@ -161,7 +154,7 @@ const SingGamePage = ({
           </>
         )}
       </Box>
-      {showGameModal && (
+      {gameStart && (
         <Stack
           direction={"column"}
           spacing={1}
