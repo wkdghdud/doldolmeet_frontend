@@ -55,6 +55,7 @@ const SpeechRecog = ({
     if (active) {
       SpeechRecognition.startListening({
         continuous: true,
+        language: languageTarget,
       });
     } else {
       SpeechRecognition.stopListening();
