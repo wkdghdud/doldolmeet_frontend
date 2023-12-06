@@ -31,25 +31,20 @@ const SpeechRecog = ({
 
   const [translatedText, setTranslatedText] = useState("");
 
-  useEffect(() => {
-    if (transcript && username !== "") {
-      const sendSignal = async () => {
-        try {
-          await openvidu_api.post(`/openvidu/api/signal`, {
-            session: sessionId,
-            type: "signal:voice_detected",
-            data: JSON.stringify({
-              username: username,
-              translatedText: transcript,
-            }),
-          });
-        } catch (err) {
-          console.error("Error in signal:voice_detected:", err);
-        }
-      };
-      sendSignal();
+  const sendSignal = async (text) => {
+    try {
+      await openvidu_api.post(`/openvidu/api/signal`, {
+        session: sessionId,
+        type: "signal:voice_detected",
+        data: JSON.stringify({
+          username: username,
+          translatedText: text,
+        }),
+      });
+    } catch (err) {
+      console.error("Error in signal:voice_detected:", err);
     }
-  }, [transcript, username, sessionId]);
+  };
 
   useEffect(() => {
     if (active) {
@@ -68,8 +63,9 @@ const SpeechRecog = ({
           text: partnerVoice,
         })
         .then((res) => {
-          const translatedText = res.data.translatedText || ""; // Use an empty string if translatedText is undefined
-          setTranslatedText(translatedText); // 있어야 되나?
+          const translated = res.data.translatedText || ""; // Use an empty string if translatedText is undefined
+          setTranslatedText(translated); // 있어야 되나?
+          sendSignal(translatedText);
         });
     } catch (error) {
       console.error("Error fetching translation:", error);
@@ -77,10 +73,10 @@ const SpeechRecog = ({
   };
 
   useEffect(() => {
-    if (partnerVoice) {
-      fetchData(partnerVoice);
+    if (transcript) {
+      fetchData(transcript);
     }
-  }, [partnerVoice]);
+  }, [transcript]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -99,7 +95,7 @@ const SpeechRecog = ({
   return (
     <>
       <Grid item xs={12}>
-        {translatedText !== null && (
+        {partnerVoice !== null && (
           <Typography
             color="secondary"
             align={"center"}
@@ -115,7 +111,7 @@ const SpeechRecog = ({
               minHeight: 24,
             }}
           >
-            {translatedText}
+            {partnerVoice}
           </Typography>
         )}
       </Grid>
