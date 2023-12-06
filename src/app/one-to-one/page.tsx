@@ -108,16 +108,13 @@ const OneToOnePage = () => {
   const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
 
   /* 상대방 음성 인식 */
+  const [isSubtitleActive, setSubtitleActive] = useState(true);
   const [partnerVoice, setPartnerVoice] = useState<string | undefined>();
   const langTarget = useAtomValue(languageTargetAtom);
 
   /* 필터 On/Off */
   const [filter, setFilter] = useState(false);
   const [filterPopupOpen, setFilterPopupOpen] = useState(false);
-
-  /*노래 관련 게임*/
-  const [replaynum, setReplaynum] = useState(0);
-  const [clickAnswer, setClickAnswer] = useState(0);
 
   /* 남은 통화 시간 */
   const [timeLimit, setTimeLimit] = useState(60);
@@ -143,9 +140,6 @@ const OneToOnePage = () => {
       } else {
         await joinSession();
       }
-
-      // 카메라 셔터 효과음
-      // setShutter(new Audio("/mp3/camera9.mp3"));
     }
 
     if (role && userName !== "") {
@@ -153,7 +147,7 @@ const OneToOnePage = () => {
     }
   }, [role, userName]);
 
-  const startRecording = () => {
+  const startRecording = async () => {
     const recording_name = uuidv4();
 
     console.log("🎥 startRecording", {
@@ -167,13 +161,13 @@ const OneToOnePage = () => {
       outputMode: "COMPOSED",
     });
 
-    backend_api()
+    await backend_api()
       .post(
         SPRING_URL + "/recording-java/api/recording/start",
 
         {
           session: sessionId,
-          fanMeetingId: fanMeetingId,
+          fanMeetingId: fanMeetingId ?? "1",
           fan: userName,
           idol: idolName,
           name: recording_name,
@@ -183,7 +177,6 @@ const OneToOnePage = () => {
         },
       )
       .then((response) => {
-        // console.log(response.data);
         setForceRecordingId(response.data.id);
       })
       .catch((error) => {
@@ -224,41 +217,12 @@ const OneToOnePage = () => {
         }
       });
 
-      mySession.on("signal:choice_detected", (event) => {
-        const data = JSON.parse(event.data);
-        if (data.username !== userName) {
-          console.log("👋 상대방이 선택을 했어요.", event.data);
-          setPartnerChoice(data.choice);
-        }
-      });
-
-      mySession.on("signal:send_replay", (event) => {
-        const data = JSON.parse(event.data);
-        if (data.username !== userName) {
-          console.log("👋 상대방이 리플레이를 했어요.", event.data);
-          setReplaynum((prev) => prev + 1);
-        }
-      });
-
-      mySession.on("signal:click_answer", (event) => {
-        const data = JSON.parse(event.data);
-        if (data.username !== userName) {
-          console.log("👋 상대방이 리플레이를 했어요.", event.data);
-          setClickAnswer(data.isAnswer);
-        }
-      });
-
       mySession.on("signal:voice_detected", (event) => {
         const data = JSON.parse(event.data);
-        // console.log("!!!!!!!!!!!!", data.username, userName);
         if (data.username !== userName) {
-          console.log("👋 상대방의 음성 인식.", event.data);
-
           setPartnerVoice(data.translatedText);
         }
       });
-
-      // await createOpenViduSession(sessionId);
 
       const connection = await createOpenViduConnection(sessionId);
       if (connection) {
@@ -306,9 +270,9 @@ const OneToOnePage = () => {
               ],
             },
           })
-          .then(() => {
+          .then(async () => {
             if (role === Role.FAN) {
-              startRecording();
+              await startRecording();
             }
           });
       }
@@ -332,15 +296,6 @@ const OneToOnePage = () => {
         frameRate: 60,
         insertMode: "APPEND",
         mirror: false,
-        // @ts-ignore
-        // filter: {
-        //   type: "GStreamerFilter",
-        //   options: {
-        //     command:
-        //       // 'textoverlay text="Photo Time!" valignment=center halignment=center font-desc="Cantarell 25" draw-shadow=true',
-        //       "chromahold target-r=50 target-g=0 target-b=50 tolerance=90",
-        //   },
-        // },
       });
 
       newPublisher.subscribeToRemote();
@@ -362,10 +317,10 @@ const OneToOnePage = () => {
       console.log("🥹 연결되었습니다.");
     });
 
-    eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
+    eventSource.addEventListener("moveToWaitRoom", async (e: MessageEvent) => {
       console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
-      joinNextRoom(
+      await joinNextRoom(
         JSON.parse(e.data).nextRoomId,
         JSON.parse(e.data).nextRoomType,
       );
@@ -390,16 +345,6 @@ const OneToOnePage = () => {
       setTimeLimit(Math.floor(e.data / 1000));
     });
 
-    eventSource.addEventListener("gameStart", (e: MessageEvent) => {
-      console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
-      // setGameStart(true);
-    });
-
-    eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
-      console.log("🥹 game이 종료됐습니다.!!!.", JSON.parse(e.data));
-      // setGameEnd(true);
-    });
-
     eventSource.onopen = () => {
       console.log("📣 SSE 연결되었습니다.");
     };
@@ -422,14 +367,13 @@ const OneToOnePage = () => {
       console.log("🥹 아이돌 SSE 연결되었습니다.");
     });
 
-    eventSource.addEventListener("idolGameStart", (e: MessageEvent) => {
-      console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
-      // setGameStart(true);
-    });
-
-    eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
-      console.log("🥹 game이 종료됐습니다.!!!.", JSON.parse(e.data));
-      // setGameEnd(true);
+    eventSource.addEventListener("idolEndNotice", (e: MessageEvent) => {
+      console.log("🥹 통화가 곧 종료 됩니다.", JSON.parse(e.data));
+      setEndSoon(true);
+      setPhotoTime(true);
+      setSnackBarTitle("팬미팅이 종료되기까지 10초가 남았어요!");
+      setSnackBarContent("아쉽지만 통화를 마무리할 준비를 해주세요.");
+      setSnackBarOpen(true);
     });
 
     eventSource.onopen = () => {
@@ -468,7 +412,6 @@ const OneToOnePage = () => {
   }, [leaveSession]);
 
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
-    await leaveWaitingRoom();
     if (nextRoomType === "gameRoom") {
       router.push(
         `/game-page?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
@@ -478,12 +421,6 @@ const OneToOnePage = () => {
       router.push(
         `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
       );
-    }
-  };
-
-  const leaveWaitingRoom = async () => {
-    if (sessionId && myConnection?.connectionId) {
-      await closeOpenViduConnection(sessionId, myConnection.connectionId);
     }
   };
 
@@ -504,10 +441,6 @@ const OneToOnePage = () => {
       fetchFanMeetingTitle();
     }
   }, [fanMeetingId]);
-
-  const handleclose = () => {
-    setGameStart(false);
-  };
 
   const toggleFilter = async () => {
     if (filter) {
@@ -538,8 +471,6 @@ const OneToOnePage = () => {
     }
     setFilterPopupOpen(false);
   };
-
-  const [isSubtitleActive, setSubtitleActive] = useState(true);
 
   return (
     <Grid container spacing={2}>
@@ -677,28 +608,6 @@ const OneToOnePage = () => {
           motionType={motionType}
         />
       )}
-      {/*{gameType === "1" && (*/}
-      {/*  <Game*/}
-      {/*    open={gameStart}*/}
-      {/*    handleclose={handleclose}*/}
-      {/*    sessionId={sessionId}*/}
-      {/*    username={userName}*/}
-      {/*    fanMeetingId={fanMeetingId}*/}
-      {/*    role={role}*/}
-      {/*    replaynum={replaynum}*/}
-      {/*    clickAnswer={clickAnswer}*/}
-      {/*  />*/}
-      {/*)}*/}
-      {/*{gameType === "2" && (*/}
-      {/*  <GameSecond*/}
-      {/*    open={gameStart}*/}
-      {/*    sessionId={sessionId}*/}
-      {/*    username={userName}*/}
-      {/*    role={role}*/}
-      {/*    fanMeetingId={fanMeetingId}*/}
-      {/*    partnerChoice={partnerChoice}*/}
-      {/*  />*/}
-      {/*)}*/}
       <FilterSelectDialog
         popupOpen={filterPopupOpen}
         onClose={() => setFilterPopupOpen(false)}

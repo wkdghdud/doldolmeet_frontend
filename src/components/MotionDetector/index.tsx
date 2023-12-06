@@ -35,6 +35,9 @@ const MotionDetector = ({
 
   /* State*/
   const [hasCaptured, setHasCaptured] = useState<boolean>(false);
+  const hasCapturedRef = useRef(hasCaptured);
+  hasCapturedRef.current = hasCaptured;
+
   const [myPose, setMyPose] = useState<boolean>(false);
 
   let model, maxPredictions;
@@ -76,11 +79,12 @@ const MotionDetector = ({
       ctx.scale(-1, 1); // Flip horizontally
       ctx.drawImage(
         videoElement,
-        xOffset,
+        -xOffset - videoElement.videoWidth * scale,
         yOffset,
         videoElement.videoWidth * scale,
         videoElement.videoHeight * scale,
       );
+      ctx.restore(); // Restore original transformation state
 
       // Return the created image data URL
       return canvasElement.toDataURL("image/png");
@@ -191,7 +195,8 @@ const MotionDetector = ({
 
   useEffect(() => {
     let timer = setTimeout(() => {
-      if (!hasCaptured) {
+      console.log("hasCapturedRef.current", hasCapturedRef.current);
+      if (hasCapturedRef.current === false) {
         console.log(
           "📸 포즈가 아직 안 취해졌지만 시간이 얼마 안 남아서 촬영합니다!",
         );
