@@ -239,7 +239,7 @@ const WaitingRoom = () => {
                   marginBottom: 10,
                 }}
               >
-                👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦내 앞에 {pepleAhead}명 남았어요!👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦
+                👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦당신은 {pepleAhead + 1}번째 순서입니당!👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦
               </Typography>
               <img
                 src={"/waiting_dino.gif"}
