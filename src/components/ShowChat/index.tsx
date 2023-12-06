@@ -242,4 +242,3 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 };
 
 export default ShowChat;
-export default ShowChat;
