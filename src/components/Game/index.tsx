@@ -1,13 +1,21 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { openvidu_api } from "@/utils/api";
+import { backend_api, openvidu_api } from "@/utils/api";
 import { Role } from "@/types";
-import { Box, Button, Stack } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Stack,
+} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import LooksOneIcon from "@mui/icons-material/LooksOne";
 import LooksTwoIcon from "@mui/icons-material/LooksTwo";
 import Looks3Icon from "@mui/icons-material/Looks3";
+import GradientButton from "@/components/GradientButton";
 
 interface Props {
   fanMeetingId: string | undefined | null;
@@ -37,8 +45,21 @@ const SingGamePage = ({
     useState(true);
   const [gameButtonActive, setGameButtonActive] = useState<boolean>(false);
 
+  /* 정답 확인 */
+  const isAnswer = "내 루돌프";
+
   /* audio */
   const audio = new Audio("/mp3/idolsong1.mp3");
+
+  useEffect(() => {
+    if (showGameModal) {
+      audio.play();
+    }
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [showGameModal]);
 
   /* 다시 들려 주기 관련 */
   const send_replay = useCallback(async () => {
@@ -65,7 +86,6 @@ const SingGamePage = ({
   //만약 아이돌이 다들어왔으면 다 들어왔다고 모달창 띄우기
   useEffect(() => {
     if (allIdolEntered) {
-      setnotShowAllIdolEnteredmodal(false);
       setShowAllIdolEnteredmodal(true);
       setGameButtonActive(true);
     }
@@ -99,6 +119,15 @@ const SingGamePage = ({
     }
   }, [gameStart]);
 
+  //정답 제출
+  const handleSubmit = (answer) => {
+    if (answer === isAnswer) {
+      alert("정답을 맞췄습니다!");
+    } else {
+      alert("틀렸습니다.");
+    }
+  };
+
   return (
     <Stack
       direction={"row"}
@@ -118,43 +147,60 @@ const SingGamePage = ({
         <Typography variant={"h3"} textAlign={"center"}>
           🎧 지금 나오는 노래의 제목을 맞춰주세요
         </Typography>
+        {role === Role.IDOL && gameButtonActive && (
+          <>
+            <GradientButton onClick={startGame}>
+              게임 시작 버튼 활성화
+            </GradientButton>
+            <GradientButton onClick={send_replay}>다시 들려주기</GradientButton>
+          </>
+        )}
       </Box>
-      <Stack
-        direction={"column"}
-        spacing={1}
-        alignItems={"center"}
-        justifyContent={"center"}
-        sx={{ width: "100%", px: 2, margin: "auto" }}
-      >
-        <Button
-          variant={"contained"}
-          startIcon={<LooksOneIcon />}
-          sx={{ width: "50%" }}
+      {showGameModal && (
+        <Stack
+          direction={"column"}
+          spacing={1}
+          alignItems={"center"}
+          justifyContent={"center"}
+          sx={{ width: "100%", px: 2, margin: "auto" }}
         >
-          내 루돌프
-        </Button>
-        <Button
-          variant={"contained"}
-          startIcon={<LooksTwoIcon />}
-          sx={{ width: "50%" }}
-        >
-          Attention
-        </Button>
-        <Button
-          variant={"contained"}
-          startIcon={<Looks3Icon />}
-          sx={{ width: "50%" }}
-        >
-          Dynamite
-        </Button>
-      </Stack>
+          <Button
+            variant={"contained"}
+            startIcon={<LooksOneIcon />}
+            sx={{ width: "50%" }}
+            onClick={() => handleSubmit("내 루돌프")}
+          >
+            내 루돌프
+          </Button>
+          <Button
+            variant={"contained"}
+            startIcon={<LooksTwoIcon />}
+            sx={{ width: "50%" }}
+            onClick={() => handleSubmit("Attention")}
+          >
+            Attention
+          </Button>
+          <Button
+            variant={"contained"}
+            startIcon={<Looks3Icon />}
+            sx={{ width: "50%" }}
+            onClick={() => handleSubmit("Dynamite")}
+          >
+            Dynamite
+          </Button>
+        </Stack>
+      )}
+      {showAllIdolEnteredmodal && (
+        <Dialog open={showAllIdolEnteredmodal}>
+          <DialogTitle>아이돌 도착</DialogTitle>
+          <DialogContent>
+            <Typography variant="h2" align="center" sx={{ my: 5 }}>
+              아이돌 도착~~
+            </Typography>
+          </DialogContent>
+        </Dialog>
+      )}
     </Stack>
-    // <div>
-    //   {role === Role.IDOL && gameButtonActive && (
-    //     <button onClick={startGame}>게임 시작 버튼 활성화</button>
-    //   )}
-    //   <h1>싱게임 페이지</h1>
-    // </div>
   );
 };
 
