@@ -15,6 +15,7 @@ import useJwtToken from "@/hooks/useJwtToken";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { backend_api } from "@/utils/api";
+import Typography from "@mui/material/Typography";
 
 export interface TodayFanMeeting {
   id: number;
@@ -94,42 +95,52 @@ export default function ShowDialog() {
       onClose={handleClose}
       PaperProps={{
         style: {
-          width: "30%",
-          height: "55%",
+          width: "40vw",
+          height: "auto",
         },
       }}
     >
       <DialogTitle style={{ textAlign: "center" }}>
-        {todayMeeting?.data?.title}
+        <Typography variant="h3">{todayMeeting?.data?.title}</Typography>
+        <IconButton
+          aria-label="close"
+          onClick={() => setOpen(false)}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
-      <IconButton
-        aria-label="close"
-        onClick={() => setOpen(false)}
-        sx={{
-          position: "absolute",
-          right: 8,
-          top: 8,
-          color: (theme) => theme.palette.grey[500],
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
+
       {role === Role.FAN && (
         <>
-          <DialogContent
+          <DialogContentText
             style={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              width: "100%",
             }}
           >
             <img
               src={imgSrc}
               alt="이미지"
-              style={{ height: "100%", width: "90%" }}
+              style={{
+                maxWidth: "70%",
+                maxHeight: "80%",
+                width: "auto",
+                height: "auto",
+                position: "relative",
+                borderRadius: 10,
+                marginBottom: 10,
+              }}
               onError={() => setImgSrc("/images/fanmeeting/riize_cover.jpeg")}
             />
-          </DialogContent>
+          </DialogContentText>
           <DialogTitle style={{ textAlign: "center" }}>
             시작시간이 {formatDate(todayMeeting?.data?.startTime)} 입니다.
           </DialogTitle>
@@ -149,7 +160,9 @@ export default function ShowDialog() {
                 width: "100%", // 전체 폭을 사용하도록 설정
               }}
             >
-              <GradientButton sx={{ width: "100%", height: 40 }}>
+              <GradientButton
+                sx={{ width: "100%", height: 45, borderRadius: 4 }}
+              >
                 이동하기
               </GradientButton>
             </Link>
@@ -158,20 +171,29 @@ export default function ShowDialog() {
       )}
       {role === Role.IDOL && (
         <>
-          <DialogContent
+          <DialogContentText
             style={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              width: "100%",
             }}
           >
             <img
               src={imgSrc}
               alt="이미지"
-              style={{ width: "300px", height: "200px" }}
+              style={{
+                maxWidth: "70%",
+                maxHeight: "80%",
+                width: "auto",
+                height: "auto",
+                position: "relative",
+                borderRadius: 10,
+                marginBottom: 10,
+              }}
               onError={() => setImgSrc("/images/fanmeeting/riize_cover.jpeg")}
             />
-          </DialogContent>
+          </DialogContentText>
           <DialogContentText style={{ textAlign: "center" }}>
             오늘의 팬미팅이 시작되었습니다.
           </DialogContentText>
@@ -191,7 +213,9 @@ export default function ShowDialog() {
                 width: "100%", // 전체 폭을 사용하도록 설정
               }}
             >
-              <GradientButton sx={{ width: "100%", height: 40 }}>
+              <GradientButton
+                sx={{ width: "100%", height: 45, borderRadius: 4 }}
+              >
                 이동하기
               </GradientButton>
             </Link>
