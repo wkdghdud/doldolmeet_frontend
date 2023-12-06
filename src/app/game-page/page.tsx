@@ -163,7 +163,7 @@ const GamePage = () => {
     return true;
   };
 
-  const joinNextRoom = async (sessionId: string) => {
+  const joinNextRoom = async () => {
     router.push(`/end-fanmeeting/${userName}/${fanMeetingId}`);
   };
 
@@ -226,6 +226,10 @@ const GamePage = () => {
           console.log("👋 상대방이 리플레이를 했어요.", event.data);
           // setClickAnswer(data.isAnswer);
         }
+      });
+
+      mySession.on("signal:goToEndPage", (event) => {
+        joinNextRoom();
       });
 
       const connection = await createOpenViduConnection(sessionId);
