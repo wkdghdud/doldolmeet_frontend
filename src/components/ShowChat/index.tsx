@@ -84,10 +84,9 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
   useEffect(() => {
     token.then((res) => {
-      console.log("@@@@@@@@@@@@@############", res);
       setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
-      setImgUrl(res?.sub ?? "");
+      setImgUrl(res?.profileImgUrl ?? "");
     });
   }, [token]);
 
@@ -106,7 +105,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           roomId: roomId,
           sender: sender,
           message: message,
-          // profileImgUrl: "자기 프로필 이미지 URL",
+          profileImgUrl: imgUrl,
         }),
       );
       setMessage("");
@@ -200,7 +199,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 sender={msg.sender}
                 message={msg.message}
                 isLanaguage={langTarget}
-                profile={"프로필 이미지 S3 주소"}
+                profile={msg.ImageUrl}
               />
             ),
         )}
