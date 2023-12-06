@@ -8,7 +8,10 @@ import {
   Subscriber,
 } from "openvidu-browser";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createOpenViduConnection } from "@/utils/openvidu";
+import {
+  closeOpenViduConnection,
+  createOpenViduConnection,
+} from "@/utils/openvidu";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import { Role } from "@/types";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
@@ -57,6 +60,9 @@ const GamePage = () => {
 
   /*게임시작*/
   const [gameStart, setGameStart] = useState(false);
+
+  /*위너*/
+  const [winner, setWinner] = useState<string | undefined>();
 
   useEffect(() => {
     token.then((res) => {
@@ -158,7 +164,11 @@ const GamePage = () => {
   };
 
   const joinNextRoom = async (sessionId: string) => {
-    router.push(`/end-fanmeeting/${userName}/${fanMeetingId}`);
+    router.push(
+      `/end-fanmeeting/${userName}/${fanMeetingId}?winner=${
+        winner ? "true" : "false"
+      }`,
+    );
   };
 
   const joinSession = async (_chatRoomId?: string) => {
@@ -183,6 +193,10 @@ const GamePage = () => {
 
       mySession.on("streamDestroyed", (event) => {
         // TODO: Subscriber 삭제
+        const subscriber = mySession.subscribe(event.stream, undefined);
+        const clientData = JSON.parse(event.stream.connection.data).clientData;
+        const role = JSON.parse(clientData).role;
+        deleteSubscriber(role, subscriber);
       });
 
       mySession.on("signal:send_replay", (event) => {
@@ -201,12 +215,22 @@ const GamePage = () => {
         }
       });
 
+      mySession.on("signal:alertWinner", (event) => {
+        console.log("👋 게임종료", event.data);
+        setWinner(event.data);
+        alert(`${event.data}님이 정답을 맞추셨습니다!`);
+      });
+
       mySession.on("signal:click_answer", (event) => {
         const data = JSON.parse(event.data);
         if (data.username !== userName) {
           console.log("👋 상대방이 리플레이를 했어요.", event.data);
           // setClickAnswer(data.isAnswer);
         }
+      });
+
+      mySession.on("signal:goToEndPage", (event) => {
+        joinNextRoom();
       });
 
       const connection = await createOpenViduConnection(sessionId);
@@ -263,11 +287,58 @@ const GamePage = () => {
     }
   };
 
+  const leaveSession = async () => {
+    if (sessionId && myConnection?.connectionId) {
+      await closeOpenViduConnection(sessionId, myConnection?.connectionId);
+    }
+
+    // state 초기화
+    setMyStream(undefined);
+    setMyConnection(undefined);
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      leaveSession();
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [leaveSession]);
+
+  const deleteSubscriber = (role, streamManager) => {
+    if (role === Role.IDOL) {
+      setIdolStreams((prevSubscribers) => {
+        const index = prevSubscribers.indexOf(streamManager);
+        if (index > -1) {
+          const newSubscribers = [...prevSubscribers];
+          newSubscribers.splice(index, 1);
+          return newSubscribers;
+        } else {
+          return prevSubscribers;
+        }
+      });
+    } else {
+      setFanStreams((prevSubscribers) => {
+        const index = prevSubscribers.indexOf(streamManager);
+        if (index > -1) {
+          const newSubscribers = [...prevSubscribers];
+          newSubscribers.splice(index, 1);
+          return newSubscribers;
+        } else {
+          return prevSubscribers;
+        }
+      });
+    }
+  };
+
   return (
     <Grid container>
       <Grid item xs={10}>
         {/* 아이돌 카메라 영역*/}
-        <Stack direction="column" spacing={1}>
+        <Stack direction="column" spacing={1} sx={{ minHeight: "40vh" }}>
           <Stack
             direction={"row"}
             sx={{
@@ -302,6 +373,7 @@ const GamePage = () => {
             userName={userName}
             replaynum={replaynum}
             gameStart={gameStart}
+            setWinnerName={(winnerName) => setWinner(winnerName)}
           />
         </Stack>
       </Grid>

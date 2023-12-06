@@ -4,7 +4,7 @@ const TestPage = () => {
   return (
     <div>
       <h1>Test Page</h1>
-      <ScratchCard imageSrc="/dan.jpeg" brushSize={20} revealPercent={50} />
+      <ScratchCard imageSrc="/majong.jpeg" brushSize={20} revealPercent={50} />
     </div>
   );
 };

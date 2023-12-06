@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   Stack,
+  TextField,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import LooksOneIcon from "@mui/icons-material/LooksOne";
@@ -25,6 +26,7 @@ interface Props {
   replaynum: number;
   gameStart: boolean;
   role: string | undefined;
+  setWinnerName: (winnerName: string) => void;
 }
 
 const SingGamePage = ({
@@ -35,31 +37,34 @@ const SingGamePage = ({
   userName,
   role,
   gameStart,
+  setWinnerName,
 }: Props) => {
   const [showAllIdolEnteredmodal, setShowAllIdolEnteredmodal] =
     useState<boolean>(false);
-  const [showGameModal, setShowGameModal] = useState<boolean>(false);
   const [showGameResultModal, setShowGameResultModal] =
     useState<boolean>(false);
   const [notshowAllIdolEnteredmodal, setnotShowAllIdolEnteredmodal] =
     useState(true);
   const [gameButtonActive, setGameButtonActive] = useState<boolean>(false);
 
+  /* 정답맞춘사람 */
+  const [winner, setWinner] = useState<string | undefined | null>();
+
   /* 정답 확인 */
   const isAnswer = "내 루돌프";
-
+  const [answer, setAnswer] = useState("");
   /* audio */
   const audio = new Audio("/mp3/idolsong1.mp3");
 
   useEffect(() => {
-    if (showGameModal) {
+    if (gameStart) {
       audio.play();
     }
     return () => {
       audio.pause();
       audio.currentTime = 0;
     };
-  }, [showGameModal]);
+  }, [gameStart]);
 
   /* 다시 들려 주기 관련 */
   const send_replay = useCallback(async () => {
@@ -113,19 +118,33 @@ const SingGamePage = ({
     }
   }, [userName, sessionId]);
 
-  useEffect(() => {
-    if (gameStart) {
-      setShowGameModal(true);
+  const alertWinner = async (winnerName: string) => {
+    if (winner !== "") {
+      await openvidu_api.post(`/openvidu/api/signal`, {
+        session: sessionId,
+        type: "signal:alertWinner",
+        data: winnerName,
+      });
     }
-  }, [gameStart]);
+  };
 
   //정답 제출
-  const handleSubmit = (answer) => {
-    if (answer === isAnswer) {
+  const handleSubmit = (userAnswer) => {
+    if (userAnswer === isAnswer) {
       alert("정답을 맞췄습니다!");
+      setWinner(userName);
+      setWinnerName(userName ?? "");
+      alertWinner(userName ?? "");
     } else {
       alert("틀렸습니다.");
     }
+  };
+
+  const signalGoToEndPage = async () => {
+    await openvidu_api.post(`/openvidu/api/signal`, {
+      session: sessionId,
+      type: "signal:goToEndPage",
+    });
   };
 
   return (
@@ -147,16 +166,19 @@ const SingGamePage = ({
         <Typography variant={"h3"} textAlign={"center"}>
           🎧 지금 나오는 노래의 제목을 맞춰주세요
         </Typography>
-        {role === Role.IDOL && gameButtonActive && (
+        {role === Role.IDOL && (
           <>
             <GradientButton onClick={startGame}>
               게임 시작 버튼 활성화
             </GradientButton>
             <GradientButton onClick={send_replay}>다시 들려주기</GradientButton>
+            <GradientButton onClick={signalGoToEndPage}>
+              종료 페이지로 보내기
+            </GradientButton>
           </>
         )}
       </Box>
-      {showGameModal && (
+      {gameStart && (
         <Stack
           direction={"column"}
           spacing={1}
@@ -164,38 +186,27 @@ const SingGamePage = ({
           justifyContent={"center"}
           sx={{ width: "100%", px: 2, margin: "auto" }}
         >
-          <Button
-            variant={"contained"}
-            startIcon={<LooksOneIcon />}
+          <TextField
+            label="노래 제목 입력"
+            variant="outlined"
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
             sx={{ width: "50%" }}
-            onClick={() => handleSubmit("내 루돌프")}
-          >
-            내 루돌프
-          </Button>
+          />
           <Button
-            variant={"contained"}
-            startIcon={<LooksTwoIcon />}
-            sx={{ width: "50%" }}
-            onClick={() => handleSubmit("Attention")}
+            variant="contained"
+            onClick={() => handleSubmit(answer)}
+            sx={{ width: "50%", mt: 2 }}
           >
-            Attention
-          </Button>
-          <Button
-            variant={"contained"}
-            startIcon={<Looks3Icon />}
-            sx={{ width: "50%" }}
-            onClick={() => handleSubmit("Dynamite")}
-          >
-            Dynamite
+            정답 제출
           </Button>
         </Stack>
       )}
       {showAllIdolEnteredmodal && (
         <Dialog open={showAllIdolEnteredmodal}>
-          <DialogTitle>아이돌 도착</DialogTitle>
           <DialogContent>
             <Typography variant="h2" align="center" sx={{ my: 5 }}>
-              아이돌 도착~~
+              아이돌 도착
             </Typography>
           </DialogContent>
         </Dialog>
