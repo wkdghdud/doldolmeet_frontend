@@ -5,9 +5,11 @@ import { AWS_S3_URL, backend_api } from "@/utils/api";
 import {
   Button,
   Dialog,
+  DialogTitle,
   Grid,
   IconButton,
   Stack,
+  DialogContentText,
   Typography,
 } from "@mui/material";
 import { GetApp, Twitter } from "@mui/icons-material";
@@ -16,6 +18,7 @@ import axios from "axios";
 import ForwardIcon from "@mui/icons-material/Forward";
 import ScratchCard from "@/components/SecretCard";
 import { useSearchParams } from "next/navigation";
+import CloseIcon from "@mui/icons-material/Close";
 
 const EndFanMeetingPage = () => {
   /* route query */
@@ -322,12 +325,12 @@ const EndFanMeetingPage = () => {
           onClose={() => setShowSecretCard(false)}
           PaperProps={{
             style: {
-              height: "80vh",
-              width: "520px", // 모달 창의 너비 (이미지보다 조금 크게)
-              backgroundColor: "#fff", // 배경색
-              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.25)", // 그림자 스타일
-              // borderRadius: "15px", // 모달 창의 모서리 둥글게
-              padding: "30px", // 내부 패딩
+              height: "auto",
+              width: "520px",
+              backgroundColor: "#f4f4f4", // 연한 배경색
+              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.25)",
+              borderRadius: "15px",
+              padding: "20px",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -335,15 +338,36 @@ const EndFanMeetingPage = () => {
             },
           }}
         >
-          <Typography variant="h4" style={{ marginBottom: "20px" }}>
-            마종스의 미공개 포카에 당첨되셨습니다.
-          </Typography>
-          <ScratchCard
-            imageSrc="/majong.jpeg"
-            brushSize={20}
-            revealPercent={50}
-          />
-          <Typography variant="h4" style={{ marginBottom: "10px" }}>
+          <DialogTitle style={{ textAlign: "center", padding: "10px" }}>
+            <Typography
+              variant="h4"
+              style={{ fontWeight: "bold", color: "#333" }}
+            >
+              마종스의 미공개 포카 당첨
+            </Typography>
+            <IconButton
+              aria-label="close"
+              onClick={() => setShowSecretCard(false)}
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContentText
+            style={{ width: "100%", textAlign: "center", margin: "20px 0" }}
+          >
+            <ScratchCard
+              imageSrc="/majong.jpeg"
+              brushSize={20}
+              revealPercent={50}
+            />
+          </DialogContentText>
+          <Typography variant="h6" style={{ color: "#555" }}>
             마우스 커서를 이용해 긁어 주세요.
           </Typography>
         </Dialog>
