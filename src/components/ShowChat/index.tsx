@@ -39,6 +39,8 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [message, setMessage] = useState<any>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [sender, setSender] = useState<string | null>("");
+  const [imgUrl, setImgUrl] = useState<string | null>("");
+
   const [stompClient, setStompClient] = useState<any>(null);
 
   const messagesRef = useRef<HTMLElement | null>(null);
@@ -46,6 +48,9 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [userId, setUserId] = useState("");
 
   const [langTarget, setLangTarget] = useAtom(languageTargetAtom);
+
+  // 프로필 이미지 => JWT Token => 팬의
+  // JWT TOKEN => UserName => API
 
   useEffect(() => {
     const initWebSocket = () => {
@@ -63,7 +68,11 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         stompClient.send(
           "/pub/chat/message",
           {},
-          JSON.stringify({ type: "ENTER", roomId: roomId, sender: sender }),
+          JSON.stringify({
+            type: "ENTER",
+            roomId: roomId,
+            sender: sender,
+          }),
         );
       });
 
@@ -81,6 +90,9 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
     token.then((res) => {
       setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
+      setImgUrl(res?.profileImgUrl ?? "");
+      console.log("!!!!!!!!!!!!!!!!res.profileimg", res?.profileImgUrl);
+      console.log("^^^^^^^^^^^^^^^^imgUrl", imgUrl);
     });
   }, [token]);
 
@@ -99,6 +111,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           roomId: roomId,
           sender: sender,
           message: message,
+          profileImgUrl: imgUrl,
         }),
       );
       setMessage("");
@@ -180,7 +193,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           flex: 1,
           overflowY: "auto",
           padding: 2,
-          marginTop: "30px", // 조정 필요
+          marginTop: "45px", // 조정 필요
         }}
       >
         {messages.map(
@@ -192,6 +205,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 sender={msg.sender}
                 message={msg.message}
                 isLanaguage={langTarget}
+                profile={msg.profileImgUrl}
               />
             ),
         )}
