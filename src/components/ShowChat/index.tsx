@@ -91,6 +91,8 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
       setImgUrl(res?.profileImgUrl ?? "");
+      console.log("!!!!!!!!!!!!!!!!res.profileimg", res?.profileImgUrl);
+      console.log("^^^^^^^^^^^^^^^^imgUrl", imgUrl);
     });
   }, [token]);
 
