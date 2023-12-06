@@ -18,7 +18,7 @@ import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
 import { Box, Grid, Stack } from "@mui/material";
 import IdolStreamView from "@/components/meeting/IdolStreamView";
 import FanStreamView from "@/components/meeting/FanStreamView";
-import Game from "@/components/Game";
+import Game, { Answer } from "@/components/Game";
 
 const GamePage = () => {
   const router = useRouter();
@@ -65,6 +65,9 @@ const GamePage = () => {
   const [winner, setWinner] = useState<boolean>(false);
   const winnerRef = useRef(winner);
   winnerRef.current = winner;
+
+  /* 다른 사람들의 응답 */
+  const [answers, setAnswers] = useState<Answer[]>([]);
 
   useEffect(() => {
     token.then((res) => {
@@ -216,6 +219,11 @@ const GamePage = () => {
           console.log("👋 게임시작", event.data);
           setGameStart(true);
         }
+      });
+
+      mySession.on("signal:submitAnswer", (event) => {
+        const data = JSON.parse(event.data) as Answer;
+        setAnswers((prev) => [...prev, data]);
       });
 
       mySession.on("signal:alertWinner", (event) => {
@@ -377,7 +385,7 @@ const GamePage = () => {
             userName={userName}
             replaynum={replaynum}
             gameStart={gameStart}
-            setWinnerName={(winnerName) => setWinner(winnerName)}
+            answers={answers}
           />
         </Stack>
       </Grid>
@@ -406,9 +414,6 @@ const GamePage = () => {
           </Stack>
         </Box>
       </Grid>
-      {/* 퀴즈 답안 입력 */}
-      {/*<Grid item xs={3.5}>*/}
-      {/*</Grid>*/}
     </Grid>
   );
 };
