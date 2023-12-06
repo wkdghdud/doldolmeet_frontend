@@ -348,6 +348,12 @@ const EndFanMeetingPage = () => {
           <DialogTitle style={{ textAlign: "center" }}>
             마종스 미공개 포카에 당첨되셨습니다.
           </DialogTitle>
+          <DialogContentText style={{ textAlign: "center" }}>
+            마종스 미공개 포카를 확인하시려면 이미지를 스크래치 해주세요.
+          </DialogContentText>
+          <DialogContentText style={{ textAlign: "center", fontSize: "10px" }}>
+            당첨된 포카는 추억보관함에서 확인하실 수 있습니다.
+          </DialogContentText>
         </Dialog>
       )}
     </Grid>
