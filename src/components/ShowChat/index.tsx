@@ -143,7 +143,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       <FormControl
         sx={{
           position: "absolute",
-          top: "5%", // 조정 필요
           left: "65%",
           minWidth: 120,
           mt: 3,
