@@ -72,7 +72,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
             type: "ENTER",
             roomId: roomId,
             sender: sender,
-            profileImgUrl: imgUrl,
           }),
         );
       });
@@ -110,6 +109,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           roomId: roomId,
           sender: sender,
           message: message,
+          profileImgUrl: imgUrl,
         }),
       );
       setMessage("");
