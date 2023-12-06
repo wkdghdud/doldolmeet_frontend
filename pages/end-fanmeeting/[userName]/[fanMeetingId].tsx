@@ -325,19 +325,35 @@ const EndFanMeetingPage = () => {
           onClose={() => setShowSecretCard(false)}
           PaperProps={{
             style: {
-              height: "auto",
+              height: "80vh",
               width: "520px",
-              backgroundColor: "#f4f4f4", // 연한 배경색
+              backgroundColor: "rgba(255, 255, 255, 0.9)", // 반투명한 배경
+              backdropFilter: "blur(10px)", // 배경 블러 효과
               boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.25)",
               borderRadius: "15px",
-              padding: "20px",
+              padding: "30px",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
+              position: "relative", // 배경 이미지를 위한 상대적 위치
             },
           }}
         >
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: "url('/insta.jpg')", // 배경 이미지
+              backgroundSize: "cover",
+              borderRadius: "15px",
+              filter: "brightness(0.7)", // 이미지 밝기 조절
+              zIndex: -1, // 텍스트와 카드가 이미지 위에 오도록 함
+            }}
+          />
           <DialogTitle style={{ textAlign: "center", padding: "10px" }}>
             <Typography
               variant="h4"
@@ -372,15 +388,6 @@ const EndFanMeetingPage = () => {
           </Typography>
         </Dialog>
       )}
-      <div
-        style={{
-          backgroundImage: "url('/album_poster.jpg')",
-          position: "absolute",
-          top: 0,
-          width: "100vw",
-          height: "100vh",
-        }}
-      />
     </Grid>
   );
 };
