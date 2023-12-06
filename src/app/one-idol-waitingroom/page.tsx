@@ -202,7 +202,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
       </Stack>
       <JoinIdolRoomDialog
         open={popupOpen}
-        idolImgUrl={`${AWS_S3_URL}/${popupImage}`}
+        idolImgUrl={popupImage}
         handleClose={handleClose}
         handleEnter={joinNextRoom}
       />

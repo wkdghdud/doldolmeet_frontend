@@ -72,7 +72,8 @@ const MotionDetector = ({
       const yOffset =
         (canvasElement.height - videoElement.videoHeight * scale) / 2;
 
-      // Draw the video content on the canvas
+      ctx.save(); // Save current transformation state
+      ctx.scale(-1, 1); // Flip horizontally
       ctx.drawImage(
         videoElement,
         xOffset,

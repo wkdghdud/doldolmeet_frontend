@@ -23,44 +23,24 @@ const AdminInitFanMeetingPage = () => {
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("id");
-
-  const [role, setRole] = useState<Role>(Role.ADMIN);
-  const [userName, setUserName] = useState<string>("");
   const [sessionIds, setSessionIds] = useState<string[]>([]);
 
-  const token = useJwtToken();
-
   useEffect(() => {
-    if (fanMeetingId) {
-      fetchAllRoomIdsByAdmin(fanMeetingId).then((res) => {
-        setSessionIds(res);
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    token.then((res) => {
-      if (res) {
-        setRole(res.auth);
-        setUserName(res.sub);
+    async function init() {
+      if (fanMeetingId) {
+        await fetchAllRoomIdsByAdmin(fanMeetingId).then((res) => {
+          setSessionIds(res);
+        });
       }
-    });
-  }, [token]);
-
-  const joinMultipleSession = async () => {
-    sessionIds.forEach(async (sessionId) => {
-      await joinSession(sessionId);
-    });
-    if (fanMeetingId) {
-      updateFanMeetingRoomCreated(fanMeetingId);
     }
-  };
+
+    init();
+  }, []);
 
   const joinSession = async (sessionId: string) => {
     try {
       // OpenVidu 객체 생성
       const ov = new OpenVidu();
-      // setOV(ov);
 
       const mySession = ov.initSession();
 
@@ -68,18 +48,12 @@ const AdminInitFanMeetingPage = () => {
 
       mySession.on("streamCreated", (event) => {
         const subscriber = mySession.subscribe(event.stream, undefined);
-        // setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
-      });
-
-      mySession.on("streamDestroyed", (event) => {
-        // deleteSubscriber(event.stream.streamManager);
       });
 
       const connection = await createOpenViduConnection(sessionId);
-      // if (connection) {
-      //   setMyConnection(connection);
-      // }
+
       const { token } = connection;
+
       await mySession.connect(token, {
         clientData: JSON.stringify({
           role: Role.ADMIN,
@@ -87,16 +61,23 @@ const AdminInitFanMeetingPage = () => {
           userName: "admin123",
         }),
       });
-
-      // setSession(mySession);
     } catch (error) {
       console.error("Error in enterFanmeeting:", error);
       return null;
     }
   };
 
-  const startFanMeeting = () => {
-    backend_api()
+  const joinMultipleSession = async () => {
+    sessionIds.forEach(async (sessionId) => {
+      await joinSession(sessionId);
+    });
+    if (fanMeetingId) {
+      await updateFanMeetingRoomCreated(fanMeetingId);
+    }
+  };
+
+  const startFanMeeting = async () => {
+    await backend_api()
       .post(`/fanMeetings/${fanMeetingId}/start`)
       .then((res) => {
         console.log(res);
@@ -110,8 +91,8 @@ const AdminInitFanMeetingPage = () => {
         console.log(res);
       });
 
-    sessionIds.forEach((sessionId) => {
-      closeOpenViduSession(sessionId);
+    sessionIds.forEach(async (sessionId) => {
+      await closeOpenViduSession(sessionId);
     });
   };
 

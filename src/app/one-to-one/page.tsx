@@ -27,8 +27,6 @@ import { backend_api, SPRING_URL } from "@/utils/api";
 import MotionDetector from "@/components/MotionDetector";
 
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
-import Game from "@/components/Game";
-import GameSecond from "@/components/GameSecond";
 import { v4 as uuidv4 } from "uuid";
 import SpeechRecog from "../../components/Speech-Recognition";
 import FilterSelectDialog from "@/components/FilterSelectDialog";
@@ -86,7 +84,7 @@ const OneToOnePage = () => {
 
   /* 다음 아이돌의 대기실로 넘어가기 위해 필요한 state */
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
-  const [, setNextRoomId] = useState<string>("");
+  const [nextRoomId, setNextRoomId] = useState<string>("");
 
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
@@ -367,7 +365,10 @@ const OneToOnePage = () => {
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
       console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
-      joinNextRoom(JSON.parse(e.data).nextRoomId);
+      joinNextRoom(
+        JSON.parse(e.data).nextRoomId,
+        JSON.parse(e.data).nextRoomType,
+      );
     });
 
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
@@ -391,12 +392,12 @@ const OneToOnePage = () => {
 
     eventSource.addEventListener("gameStart", (e: MessageEvent) => {
       console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
-      setGameStart(true);
+      // setGameStart(true);
     });
 
     eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
       console.log("🥹 game이 종료됐습니다.!!!.", JSON.parse(e.data));
-      setGameEnd(true);
+      // setGameEnd(true);
     });
 
     eventSource.onopen = () => {
@@ -423,12 +424,12 @@ const OneToOnePage = () => {
 
     eventSource.addEventListener("idolGameStart", (e: MessageEvent) => {
       console.log("🥹 game이 시작됐습닌다!!!.", JSON.parse(e.data));
-      setGameStart(true);
+      // setGameStart(true);
     });
 
     eventSource.addEventListener("gameEnd", (e: MessageEvent) => {
       console.log("🥹 game이 종료됐습니다.!!!.", JSON.parse(e.data));
-      setGameEnd(true);
+      // setGameEnd(true);
     });
 
     eventSource.onopen = () => {
@@ -466,10 +467,13 @@ const OneToOnePage = () => {
     };
   }, [leaveSession]);
 
-  const joinNextRoom = async (sessionId: string) => {
+  const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     await leaveWaitingRoom();
-    if (sessionId === "END") {
-      router.push(`/end-fanmeeting/${userName}/${fanMeetingId}`);
+    if (nextRoomType === "gameRoom") {
+      router.push(
+        `/game-page?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
+      );
+      // router.push(`/end-fanmeeting/${userName}/${fanMeetingId}`);
     } else {
       router.push(
         `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
@@ -673,28 +677,28 @@ const OneToOnePage = () => {
           motionType={motionType}
         />
       )}
-      {gameType === "1" && (
-        <Game
-          open={gameStart}
-          handleclose={handleclose}
-          sessionId={sessionId}
-          username={userName}
-          fanMeetingId={fanMeetingId}
-          role={role}
-          replaynum={replaynum}
-          clickAnswer={clickAnswer}
-        />
-      )}
-      {gameType === "2" && (
-        <GameSecond
-          open={gameStart}
-          sessionId={sessionId}
-          username={userName}
-          role={role}
-          fanMeetingId={fanMeetingId}
-          partnerChoice={partnerChoice}
-        />
-      )}
+      {/*{gameType === "1" && (*/}
+      {/*  <Game*/}
+      {/*    open={gameStart}*/}
+      {/*    handleclose={handleclose}*/}
+      {/*    sessionId={sessionId}*/}
+      {/*    username={userName}*/}
+      {/*    fanMeetingId={fanMeetingId}*/}
+      {/*    role={role}*/}
+      {/*    replaynum={replaynum}*/}
+      {/*    clickAnswer={clickAnswer}*/}
+      {/*  />*/}
+      {/*)}*/}
+      {/*{gameType === "2" && (*/}
+      {/*  <GameSecond*/}
+      {/*    open={gameStart}*/}
+      {/*    sessionId={sessionId}*/}
+      {/*    username={userName}*/}
+      {/*    role={role}*/}
+      {/*    fanMeetingId={fanMeetingId}*/}
+      {/*    partnerChoice={partnerChoice}*/}
+      {/*  />*/}
+      {/*)}*/}
       <FilterSelectDialog
         popupOpen={filterPopupOpen}
         onClose={() => setFilterPopupOpen(false)}

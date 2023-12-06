@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button, Divider, Typography, MenuItem, Select } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import SmallAvatar from "@/components/avatar/SmallAvatar";
@@ -24,10 +24,10 @@ export default function ChatBalloon({
   const createMarkup = useMemo(() => {
     return (text) => {
       const youtubeRegex =
-        /(https?:\/\/(?:www\.)?youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+        /https:\/\/www\.youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/;
       const replacedText = text.replace(
         youtubeRegex,
-        '<iframe width="100%" height="auto" src="https://www.youtube.com/embed/$2" frameborder="0" allowfullscreen></iframe>',
+        '<iframe width="100%" height="auto" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>',
       );
 
       const imageRegex = /(https?:\/\/[^\s]+\.(?:png|jpg|gif|jpeg|webp))/g;
@@ -54,6 +54,10 @@ export default function ChatBalloon({
         setShowDivider(true); // 버튼 클릭 시 Divider 보이기
       });
   };
+
+  useEffect(() => {
+    console.log("@@@@@@@@@@@@@@@@@@", profile);
+  }, []);
 
   // const toggleTarget = () => {
   //   // 현재 target의 인덱스를 찾아서 다음 target으로 변경

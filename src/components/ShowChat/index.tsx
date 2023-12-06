@@ -39,6 +39,8 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [message, setMessage] = useState<any>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [sender, setSender] = useState<string | null>("");
+  const [imgUrl, setImgUrl] = useState<string | undefined>("");
+
   const [stompClient, setStompClient] = useState<any>(null);
 
   const messagesRef = useRef<HTMLElement | null>(null);
@@ -63,7 +65,11 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         stompClient.send(
           "/pub/chat/message",
           {},
-          JSON.stringify({ type: "ENTER", roomId: roomId, sender: sender }),
+          JSON.stringify({
+            type: "ENTER",
+            roomId: roomId,
+            sender: sender,
+          }),
         );
       });
 
@@ -81,6 +87,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
     token.then((res) => {
       setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
+      setImgUrl(res?.profileImgUrl ?? "");
     });
   }, [token]);
 
@@ -117,15 +124,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
     }
   };
 
-  // const toggleTarget = () => {
-  //   // 현재 target의 인덱스를 찾아서 다음 target으로 변경
-  //   const currentIndex = SUPPORTED_TARGETS.findIndex(
-  //     (item) => item.code === target,
-  //   );
-  //   const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
-  //   setTarget(SUPPORTED_TARGETS[nextIndex].code);
-  // };
-
   return (
     <Box
       sx={{
@@ -136,51 +134,51 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         height: "100%",
         backgroundColor: "#ffffff",
         borderRadius: 2,
-        position: "relative", // 추가: 상대 위치 설정
+        position: "relative",
       }}
     >
-      <div>
-        {/* m - margin, mt - margin-top */}
-        <FormControl
-          sx={{
-            position: "absolute",
-            top: "0%", // 부모 요소 높이의 10% 위치
-            left: "65%", // 부모 요소 너비의 10% 위치
-            minWidth: 120,
-            mt: 3,
-          }}
-          size="small"
+      {/* 번역 언어 선택 박스 */}
+      <FormControl
+        sx={{
+          position: "absolute",
+          left: "65%",
+          minWidth: 120,
+          mt: 3,
+          zIndex: 1,
+        }}
+        size="small"
+      >
+        {/* 언어 선택용 Select */}
+        <Select
+          labelId="demo-select-small-label"
+          id="demo-select-small"
+          value={langTarget}
+          onChange={(e) => setLangTarget(e.target.value)}
+          style={{ textAlign: "center" }}
         >
-          {/* 언어 선택용 Select */}
-          <Select
-            labelId="demo-select-small-label"
-            id="demo-select-small"
-            value={langTarget}
-            onChange={(e) => setLangTarget(e.target.value)}
-            style={{ textAlign: "center" }}
-          >
-            <MenuItem disabled value="">
-              <em>언어 선택</em>
+          <MenuItem disabled value="">
+            <em>언어 선택</em>
+          </MenuItem>
+          {SUPPORTED_TARGETS.map((item) => (
+            <MenuItem
+              key={item.code}
+              value={item.code}
+              sx={{ textAlign: "right" }}
+            >
+              {item.label}
             </MenuItem>
-            {SUPPORTED_TARGETS.map((item) => (
-              <MenuItem
-                key={item.code}
-                value={item.code}
-                sx={{ textAlign: "right" }}
-              >
-                {item.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </div>
+          ))}
+        </Select>
+      </FormControl>
+
+      {/* 채팅 메시지 출력 부분 */}
       <Box
         ref={messagesRef}
         sx={{
-          width: "auto",
-          height: "85%",
+          flex: 1,
           overflowY: "auto",
           padding: 2,
+          marginTop: "45px", // 조정 필요
         }}
       >
         {messages.map(
@@ -192,10 +190,13 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 sender={msg.sender}
                 message={msg.message}
                 isLanaguage={langTarget}
+                profile={imgUrl}
               />
             ),
         )}
       </Box>
+
+      {/* 메시지 입력 창 */}
       <TextField
         label="메시지 입력"
         variant="outlined"
