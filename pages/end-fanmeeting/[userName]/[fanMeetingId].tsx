@@ -15,11 +15,14 @@ import Carousel from "react-material-ui-carousel";
 import axios from "axios";
 import ForwardIcon from "@mui/icons-material/Forward";
 import ScratchCard from "@/components/SecretCard";
+import { useSearchParams } from "next/navigation";
 
 const EndFanMeetingPage = () => {
   /* route query */
   const router = useRouter();
-  const { userName, fanMeetingId, winner } = router.query;
+  const { userName, fanMeetingId } = router.query;
+  const searchParams = useSearchParams();
+  const winner = searchParams?.get("winner");
 
   /* States */
   const [contents, setContents] = useState<string[]>([]);

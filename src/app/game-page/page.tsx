@@ -164,7 +164,11 @@ const GamePage = () => {
   };
 
   const joinNextRoom = async (sessionId: string) => {
-    router.push(`/end-fanmeeting/${userName}/${fanMeetingId}`);
+    router.push(
+      `/end-fanmeeting/${userName}/${fanMeetingId}?winner=${
+        winner ? "true" : "false"
+      }`,
+    );
   };
 
   const joinSession = async (_chatRoomId?: string) => {
