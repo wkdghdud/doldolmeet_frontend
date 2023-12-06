@@ -136,49 +136,14 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         height: "100%",
         backgroundColor: "#ffffff",
         borderRadius: 2,
-        position: "relative", // 추가: 상대 위치 설정
+        position: "relative",
       }}
     >
-      <div>
-        {/* m - margin, mt - margin-top */}
-        <FormControl
-          sx={{
-            position: "absolute",
-            top: "0%", // 부모 요소 높이의 10% 위치
-            left: "65%", // 부모 요소 너비의 10% 위치
-            minWidth: 120,
-            mt: 3,
-          }}
-          size="small"
-        >
-          {/* 언어 선택용 Select */}
-          <Select
-            labelId="demo-select-small-label"
-            id="demo-select-small"
-            value={langTarget}
-            onChange={(e) => setLangTarget(e.target.value)}
-            style={{ textAlign: "center" }}
-          >
-            <MenuItem disabled value="">
-              <em>언어 선택</em>
-            </MenuItem>
-            {SUPPORTED_TARGETS.map((item) => (
-              <MenuItem
-                key={item.code}
-                value={item.code}
-                sx={{ textAlign: "right" }}
-              >
-                {item.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </div>
+      {/* 채팅창 */}
       <Box
         ref={messagesRef}
         sx={{
-          width: "auto",
-          height: "85%",
+          flex: 1,
           overflowY: "auto",
           padding: 2,
         }}
@@ -196,6 +161,43 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
             ),
         )}
       </Box>
+
+      {/* 번역 언어 선택 컴포넌트 */}
+      <FormControl
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: "65%",
+          minWidth: 120,
+          mt: 3,
+          zIndex: 1,
+        }}
+        size="small"
+      >
+        {/* 언어 선택용 Select */}
+        <Select
+          labelId="demo-select-small-label"
+          id="demo-select-small"
+          value={langTarget}
+          onChange={(e) => setLangTarget(e.target.value)}
+          style={{ textAlign: "center" }}
+        >
+          <MenuItem disabled value="">
+            <em>언어 선택</em>
+          </MenuItem>
+          {SUPPORTED_TARGETS.map((item) => (
+            <MenuItem
+              key={item.code}
+              value={item.code}
+              sx={{ textAlign: "right" }}
+            >
+              {item.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      {/* 메시지 입력 창 */}
       <TextField
         label="메시지 입력"
         variant="outlined"
