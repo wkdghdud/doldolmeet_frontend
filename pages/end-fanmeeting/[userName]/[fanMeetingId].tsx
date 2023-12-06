@@ -325,67 +325,29 @@ const EndFanMeetingPage = () => {
           onClose={() => setShowSecretCard(false)}
           PaperProps={{
             style: {
-              height: "80vh",
-              width: "520px",
-              backgroundColor: "rgba(255, 255, 255, 0.9)", // 반투명한 배경
-              backdropFilter: "blur(10px)", // 배경 블러 효과
-              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.25)",
-              borderRadius: "15px",
-              padding: "30px",
+              width: "480px", // 모달 창의 너비
+              height: "auto", // 모달 창의 높이는 내용에 따라 자동 조정
+              backgroundColor: "#fff", // 배경색
+              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.5)", // 그림자 스타일
+              // borderRadius: "20px", // 모달 창의 모서리 둥글게
+              padding: "20px", // 내부 패딩
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              position: "relative", // 배경 이미지를 위한 상대적 위치
             },
           }}
         >
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundImage: "url('/insta.jpg')", // 배경 이미지
-              backgroundSize: "cover",
-              borderRadius: "15px",
-              filter: "brightness(0.7)", // 이미지 밝기 조절
-              zIndex: -1, // 텍스트와 카드가 이미지 위에 오도록 함
-            }}
-          />
-          <DialogTitle style={{ textAlign: "center", padding: "10px" }}>
-            <Typography
-              variant="h4"
-              style={{ fontWeight: "bold", color: "#333" }}
-            >
-              마종스의 미공개 포카 당첨
-            </Typography>
-            <IconButton
-              aria-label="close"
-              onClick={() => setShowSecretCard(false)}
-              sx={{
-                position: "absolute",
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
+          <DialogTitle style={{ textAlign: "center" }}>
+            마종스의 미공개 포카에 당첨되셨습니다.
           </DialogTitle>
-          <DialogContentText
-            style={{ width: "100%", textAlign: "center", margin: "20px 0" }}
-          >
+          <DialogContentText>
             <ScratchCard
               imageSrc="/majong.jpeg"
               brushSize={20}
               revealPercent={50}
             />
           </DialogContentText>
-          <Typography variant="h6" style={{ color: "#555" }}>
-            마우스 커서를 이용해 긁어 주세요.
-          </Typography>
         </Dialog>
       )}
     </Grid>
