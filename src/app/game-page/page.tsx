@@ -19,6 +19,7 @@ import { Box, Grid, Stack } from "@mui/material";
 import IdolStreamView from "@/components/meeting/IdolStreamView";
 import FanStreamView from "@/components/meeting/FanStreamView";
 import Game, { Answer } from "@/components/Game";
+import WinnerDialog from "@/components/WinnerDialog";
 
 const GamePage = () => {
   const router = useRouter();
@@ -65,6 +66,7 @@ const GamePage = () => {
   const [winner, setWinner] = useState<boolean>(false);
   const winnerRef = useRef(winner);
   winnerRef.current = winner;
+  const [showWinnerDialog, setShowWinnerDialog] = useState(false);
 
   /* 다른 사람들의 응답 */
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -169,7 +171,6 @@ const GamePage = () => {
   };
 
   const joinNextRoom = async () => {
-    console.log("🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠", winner);
     router.push(
       `/end-fanmeeting/${userName}/${fanMeetingId}?winner=${
         winnerRef.current ? "true" : "false"
@@ -227,9 +228,8 @@ const GamePage = () => {
       });
 
       mySession.on("signal:alertWinner", (event) => {
-        console.log("👋 게임종료", event.data);
-        console.log("👋 내가 위너?", event.data === userName);
         setWinner(event.data === userName);
+        setShowWinnerDialog(true);
         alert(`${event.data}님이 정답을 맞추셨습니다!`);
       });
 
@@ -414,6 +414,12 @@ const GamePage = () => {
           </Stack>
         </Box>
       </Grid>
+      <WinnerDialog
+        open={showWinnerDialog}
+        onClose={() => setShowWinnerDialog(false)}
+        winnerName={"장호영"}
+        fanStream={myStream}
+      />
     </Grid>
   );
 };
