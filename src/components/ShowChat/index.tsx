@@ -49,9 +49,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
   const [langTarget, setLangTarget] = useAtom(languageTargetAtom);
 
-  // 프로필 이미지 => JWT Token => 팬의
-  // JWT TOKEN => UserName => API
-
   useEffect(() => {
     const initWebSocket = () => {
       const sock = new SockJS(WS_STOMP_URL);
@@ -91,7 +88,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
       setImgUrl(res?.profileImgUrl ?? "");
-      console.log("@@@@@@ ImgUrl: ", imgUrl);
     });
   }, [token]);
 
@@ -127,15 +123,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       sendMessage(event);
     }
   };
-
-  // const toggleTarget = () => {
-  //   // 현재 target의 인덱스를 찾아서 다음 target으로 변경
-  //   const currentIndex = SUPPORTED_TARGETS.findIndex(
-  //     (item) => item.code === target,
-  //   );
-  //   const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
-  //   setTarget(SUPPORTED_TARGETS[nextIndex].code);
-  // };
 
   return (
     <Box
