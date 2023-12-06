@@ -145,7 +145,7 @@ const SingGamePage = ({
         <Typography variant={"h3"} textAlign={"center"}>
           🎧 지금 나오는 노래의 제목을 맞춰주세요
         </Typography>
-        {role === Role.IDOL && gameButtonActive && (
+        {role === Role.IDOL && (
           <>
             <GradientButton onClick={startGame}>
               게임 시작 버튼 활성화
