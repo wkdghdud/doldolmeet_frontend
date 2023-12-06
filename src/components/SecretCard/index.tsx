@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
 import "./styles/global.css";
+import GradientButton from "@/components/GradientButton";
 
 const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
   const scratchCanvasRef = useRef(null);
@@ -66,7 +67,7 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
   return (
     <div style={{ position: "relative" }}>
       {scratchPercentage > revealPercent && !isRevealed && (
-        <button onClick={revealImage}>이미지 확인하기</button>
+        <GradientButton onClick={revealImage}>이미지 확인하기</GradientButton>
       )}
       <img
         src={imageSrc}

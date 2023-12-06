@@ -5,9 +5,11 @@ import { AWS_S3_URL, backend_api } from "@/utils/api";
 import {
   Button,
   Dialog,
+  DialogTitle,
   Grid,
   IconButton,
   Stack,
+  DialogContentText,
   Typography,
 } from "@mui/material";
 import { GetApp, Twitter } from "@mui/icons-material";
@@ -16,6 +18,7 @@ import axios from "axios";
 import ForwardIcon from "@mui/icons-material/Forward";
 import ScratchCard from "@/components/SecretCard";
 import { useSearchParams } from "next/navigation";
+import CloseIcon from "@mui/icons-material/Close";
 
 const EndFanMeetingPage = () => {
   /* route query */
@@ -322,30 +325,31 @@ const EndFanMeetingPage = () => {
           onClose={() => setShowSecretCard(false)}
           PaperProps={{
             style: {
-              width: "80%",
-              height: "80%",
-              backgroundColor: "transparent",
-              boxShadow: "none",
-              overflow: "hidden",
+              width: "480px", // 모달 창의 너비
+              height: "auto", // 모달 창의 높이는 내용에 따라 자동 조정
+              backgroundColor: "#fff", // 배경색
+              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.5)", // 그림자 스타일
+              // borderRadius: "20px", // 모달 창의 모서리 둥글게
+              padding: "20px", // 내부 패딩
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
             },
           }}
         >
-          <ScratchCard
-            imageSrc="/majong.jpeg"
-            brushSize={20}
-            revealPercent={50}
-          />
+          <DialogTitle style={{ textAlign: "center" }}>
+            마종스의 미공개 포카에 당첨되셨습니다.
+          </DialogTitle>
+          <DialogContentText>
+            <ScratchCard
+              imageSrc="/majong.jpeg"
+              brushSize={20}
+              revealPercent={50}
+            />
+          </DialogContentText>
         </Dialog>
       )}
-      <div
-        style={{
-          backgroundImage: "url('/album_poster.jpg')",
-          position: "absolute",
-          top: 0,
-          width: "100vw",
-          height: "100vh",
-        }}
-      />
     </Grid>
   );
 };
