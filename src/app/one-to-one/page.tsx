@@ -86,7 +86,7 @@ const OneToOnePage = () => {
 
   /* 다음 아이돌의 대기실로 넘어가기 위해 필요한 state */
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
-  const [, setNextRoomId] = useState<string>("");
+  const [nextRoomId, setNextRoomId] = useState<string>("");
 
   /* Role */
   const token: Promise<JwtToken | null> = useJwtToken();
@@ -367,7 +367,10 @@ const OneToOnePage = () => {
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
       console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
-      joinNextRoom(JSON.parse(e.data).nextRoomId);
+      joinNextRoom(
+        JSON.parse(e.data).nextRoomId,
+        JSON.parse(e.data).nextRoomType,
+      );
     });
 
     eventSource.addEventListener("endNotice", (e: MessageEvent) => {
@@ -466,10 +469,13 @@ const OneToOnePage = () => {
     };
   }, [leaveSession]);
 
-  const joinNextRoom = async (sessionId: string) => {
+  const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     await leaveWaitingRoom();
-    if (sessionId === "END") {
-      router.push(`/end-fanmeeting/${userName}/${fanMeetingId}`);
+    if (nextRoomType === "gameRoom") {
+      router.push(
+        `/game-page?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
+      );
+      // router.push(`/end-fanmeeting/${userName}/${fanMeetingId}`);
     } else {
       router.push(
         `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
