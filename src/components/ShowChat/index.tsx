@@ -39,7 +39,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [message, setMessage] = useState<any>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [sender, setSender] = useState<string | null>("");
-  const [imgUrl, setImgUrl] = useState<string | null>("");
+  const [imgUrl, setImgUrl] = useState<string | undefined>("");
 
   const [stompClient, setStompClient] = useState<any>(null);
 
@@ -48,9 +48,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [userId, setUserId] = useState("");
 
   const [langTarget, setLangTarget] = useAtom(languageTargetAtom);
-
-  // 프로필 이미지 => JWT Token => 팬의
-  // JWT TOKEN => UserName => API
 
   useEffect(() => {
     const initWebSocket = () => {
@@ -91,8 +88,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
       setImgUrl(res?.profileImgUrl ?? "");
-      console.log("!!!!!!!!!!!!!!!!res.profileimg", res?.profileImgUrl);
-      console.log("^^^^^^^^^^^^^^^^imgUrl", imgUrl);
     });
   }, [token]);
 
@@ -111,7 +106,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           roomId: roomId,
           sender: sender,
           message: message,
-          profileImgUrl: imgUrl,
         }),
       );
       setMessage("");
@@ -129,15 +123,6 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       sendMessage(event);
     }
   };
-
-  // const toggleTarget = () => {
-  //   // 현재 target의 인덱스를 찾아서 다음 target으로 변경
-  //   const currentIndex = SUPPORTED_TARGETS.findIndex(
-  //     (item) => item.code === target,
-  //   );
-  //   const nextIndex = (currentIndex + 1) % SUPPORTED_TARGETS.length;
-  //   setTarget(SUPPORTED_TARGETS[nextIndex].code);
-  // };
 
   return (
     <Box
@@ -205,7 +190,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
                 sender={msg.sender}
                 message={msg.message}
                 isLanaguage={langTarget}
-                profile={msg.profileImgUrl}
+                profile={imgUrl}
               />
             ),
         )}
