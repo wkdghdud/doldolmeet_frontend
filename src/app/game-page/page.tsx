@@ -1,6 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Connection, OpenVidu, Session, Subscriber } from "openvidu-browser";
+import {
+  Connection,
+  OpenVidu,
+  Session,
+  Publisher,
+  Subscriber,
+} from "openvidu-browser";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createOpenViduConnection } from "@/utils/openvidu";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
@@ -149,6 +155,8 @@ const GamePage = () => {
           setIdolStreams((prev) => [...prev, subscriber]);
         } else if (role === Role.FAN) {
           setFanStreams((prev) => [...prev, subscriber]);
+        } else {
+          setFanStreams((prev) => [...prev, subscriber]);
         }
       });
 
@@ -214,22 +222,13 @@ const GamePage = () => {
 
       const newPublisher = await ov.initPublisherAsync(undefined, {
         audioSource: undefined,
-        videoSource: videoDevices[0].deviceId,
+        videoSource: undefined,
         publishAudio: true,
         publishVideo: true,
         resolution: "1280x720",
         frameRate: 60,
         insertMode: "APPEND",
         mirror: false,
-        // @ts-ignore
-        // filter: {
-        //   type: "GStreamerFilter",
-        //   options: {
-        //     command:
-        //       // 'textoverlay text="Photo Time!" valignment=center halignment=center font-desc="Cantarell 25" draw-shadow=true',
-        //       "chromahold target-r=50 target-g=0 target-b=50 tolerance=90",
-        //   },
-        // },
       });
 
       newPublisher.subscribeToRemote();
@@ -260,7 +259,7 @@ const GamePage = () => {
             ))}
           </Stack>
           <Stack direction={"row"} spacing={2}>
-            {idolStreams.map((stream) => (
+            {fanStreams.map((stream) => (
               <OpenViduVideoView
                 key={stream.id}
                 streamManager={stream}
