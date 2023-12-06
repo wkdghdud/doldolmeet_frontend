@@ -70,15 +70,15 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
         src={imageSrc}
         alt="Scratch Image"
         style={{
-          width: "610px",
-          height: "720px",
+          width: "510px",
+          height: "620px",
           animation: isRevealed ? "spin 3s linear" : "none",
         }}
       />
       <canvas
         ref={scratchCanvasRef}
-        width={610}
-        height={720}
+        width={510}
+        height={620}
         style={{ position: "absolute", top: 0, left: 0 }}
       />
       {scratchPercentage > revealPercent && !isRevealed && (
