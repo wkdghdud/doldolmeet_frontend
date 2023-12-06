@@ -325,8 +325,8 @@ const EndFanMeetingPage = () => {
           onClose={() => setShowSecretCard(false)}
           PaperProps={{
             style: {
-              width: "480px", // 모달 창의 너비
-              height: "auto", // 모달 창의 높이는 내용에 따라 자동 조정
+              width: "550px", // 모달 창의 너비
+              height: "700px", // 모달 창의 높이는 내용에 따라 자동 조정
               backgroundColor: "#fff", // 배경색
               boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.5)", // 그림자 스타일
               // borderRadius: "20px", // 모달 창의 모서리 둥글게
@@ -338,15 +338,21 @@ const EndFanMeetingPage = () => {
             },
           }}
         >
-          <DialogTitle style={{ textAlign: "center" }}>
-            마종스의 미공개 포카에 당첨되셨습니다.
-          </DialogTitle>
           <DialogContentText>
             <ScratchCard
               imageSrc="/majong.jpeg"
               brushSize={20}
               revealPercent={50}
             />
+          </DialogContentText>
+          <DialogTitle style={{ textAlign: "center" }}>
+            🎉마종스 미공개 포카에 당첨되셨습니다.🎉
+          </DialogTitle>
+          <DialogContentText style={{ textAlign: "center" }}>
+            마종스 미공개 포카를 확인하시려면 이미지를 스크래치 해주세요.
+          </DialogContentText>
+          <DialogContentText style={{ textAlign: "center", fontSize: "10px" }}>
+            -당첨된 포카는 추억보관함에서 확인하실 수 있습니다.-
           </DialogContentText>
         </Dialog>
       )}
