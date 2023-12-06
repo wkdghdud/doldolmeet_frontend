@@ -62,7 +62,7 @@ const GamePage = () => {
   const [gameStart, setGameStart] = useState(false);
 
   /*위너*/
-  const [winner, setWinner] = useState<string | undefined>();
+  const [winner, setWinner] = useState<boolean>(false);
 
   useEffect(() => {
     token.then((res) => {
@@ -163,7 +163,7 @@ const GamePage = () => {
     return true;
   };
 
-  const joinNextRoom = async (sessionId: string) => {
+  const joinNextRoom = async () => {
     console.log("🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠", winner);
     router.push(
       `/end-fanmeeting/${userName}/${fanMeetingId}?winner=${
@@ -218,7 +218,8 @@ const GamePage = () => {
 
       mySession.on("signal:alertWinner", (event) => {
         console.log("👋 게임종료", event.data);
-        setWinner(event.data);
+        console.log("👋 내가 위너?", event.data === userName);
+        setWinner(event.data === userName);
         alert(`${event.data}님이 정답을 맞추셨습니다!`);
       });
 
