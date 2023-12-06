@@ -180,7 +180,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           flex: 1,
           overflowY: "auto",
           padding: 2,
-          marginTop: "30px", // 조정 필요
+          marginTop: "40px", // 조정 필요
         }}
       >
         {messages.map(
