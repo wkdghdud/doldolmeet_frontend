@@ -322,12 +322,11 @@ const EndFanMeetingPage = () => {
           onClose={() => setShowSecretCard(false)}
           PaperProps={{
             style: {
-              width: "60%", // 모달 창의 너비
-              height: "auto", // 모달 창의 높이는 내용에 따라 자동 조정
+              width: "520px", // 모달 창의 너비 (이미지보다 조금 크게)
               backgroundColor: "#fff", // 배경색
-              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.5)", // 그림자 스타일
-              borderRadius: "20px", // 모달 창의 모서리 둥글게
-              padding: "20px", // 내부 패딩
+              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.25)", // 그림자 스타일
+              // borderRadius: "15px", // 모달 창의 모서리 둥글게
+              padding: "30px", // 내부 패딩
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -343,6 +342,9 @@ const EndFanMeetingPage = () => {
             brushSize={20}
             revealPercent={50}
           />
+          <Typography variant="h4" style={{ marginBottom: "10px" }}>
+            마우스 커서를 이용해 긁어 주세요.
+          </Typography>
         </Dialog>
       )}
       <div
