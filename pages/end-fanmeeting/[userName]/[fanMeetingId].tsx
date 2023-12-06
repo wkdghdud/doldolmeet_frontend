@@ -322,6 +322,7 @@ const EndFanMeetingPage = () => {
           onClose={() => setShowSecretCard(false)}
           PaperProps={{
             style: {
+              height: "80vh",
               width: "520px", // 모달 창의 너비 (이미지보다 조금 크게)
               backgroundColor: "#fff", // 배경색
               boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.25)", // 그림자 스타일
