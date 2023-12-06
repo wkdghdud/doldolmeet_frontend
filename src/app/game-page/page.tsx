@@ -164,6 +164,7 @@ const GamePage = () => {
   };
 
   const joinNextRoom = async (sessionId: string) => {
+    console.log("🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠", winner);
     router.push(
       `/end-fanmeeting/${userName}/${fanMeetingId}?winner=${
         winner === userName ? "true" : "false"
