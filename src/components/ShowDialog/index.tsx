@@ -14,6 +14,7 @@ import { Role } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import { backend_api } from "@/utils/api";
 
 export interface TodayFanMeeting {
   id: number;
@@ -33,6 +34,10 @@ export default function ShowDialog() {
   const [role, setRole] = useState<Role>(Role.FAN);
   const [imgSrc, setImgSrc] = useState<string>("");
 
+  const [sessionId, setSessionId] = useState<string>("");
+  const [motionType, setMotionType] = useState<string>("");
+  const [idolName, setIdolName] = useState<string>("");
+
   const token = useJwtToken();
 
   useEffect(() => {
@@ -47,11 +52,26 @@ export default function ShowDialog() {
   useEffect(() => {
     setOpen(todayMeeting !== null && todayMeeting !== undefined);
     setImgSrc(todayMeeting?.data?.imgUrl);
+    idolRoomMove(todayMeeting);
   }, [todayMeeting]);
 
   const handleClose = (event, reason) => {
     if (reason && reason == "backdropClick") return;
     setOpen(false);
+  };
+
+  const idolRoomMove = async (todayMeeting) => {
+    try {
+      const idolRoomResponse = await backend_api().get(
+        `/roomOrder/${todayMeeting?.data?.id}`,
+      );
+
+      setSessionId(idolRoomResponse.data.data.currentRoom);
+      setMotionType(idolRoomResponse.data.data.motionType);
+      setIdolName(idolRoomResponse.data.data.idolName);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const formatDate = (dateTimeString: string) => {
@@ -153,17 +173,19 @@ export default function ShowDialog() {
             오늘의 팬미팅이 시작되었습니다.
           </DialogContentText>
           <DialogTitle style={{ textAlign: "center" }}>
-            시작시간이 {todayMeeting?.data?.startTime} 입니다.
+            시작시간이 {formatDate(todayMeeting?.data?.startTime)} 입니다.
           </DialogTitle>
           <DialogContentText style={{ textAlign: "center" }}>
             팬미팅을 시작하시겠습니까?
           </DialogContentText>
           <DialogActions style={{ justifyContent: "space-between" }}>
             <Link
-              href={`/idol-fanmeeting?id=${todayMeeting?.data?.id}`}
+              href={`one-to-one?fanMeetingId=${todayMeeting?.data?.id}&sessionId=${sessionId}&idolName=${idolName}&motionType=${motionType}`}
               style={{
                 textDecoration: "none",
                 color: "inherit",
+                display: "block", // 링크를 블록 레벨 요소로 설정
+                width: "100%", // 전체 폭을 사용하도록 설정
               }}
             >
               <GradientButton sx={{ width: "100%", height: 40 }}>
