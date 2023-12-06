@@ -229,6 +229,10 @@ const GamePage = () => {
         }
       });
 
+      mySession.on("signal:goToEndPage", (event) => {
+        joinNextRoom();
+      });
+
       const connection = await createOpenViduConnection(sessionId);
       if (connection) {
         setMyConnection(connection);
