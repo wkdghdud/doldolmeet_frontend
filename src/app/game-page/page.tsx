@@ -267,7 +267,7 @@ const GamePage = () => {
     <Grid container>
       <Grid item xs={10}>
         {/* 아이돌 카메라 영역*/}
-        <Stack direction="column" spacing={1}>
+        <Stack direction="column" spacing={1} sx={{ minHeight: "40vh" }}>
           <Stack
             direction={"row"}
             sx={{
