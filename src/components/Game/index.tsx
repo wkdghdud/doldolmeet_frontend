@@ -133,10 +133,10 @@ const SingGamePage = ({
       await openvidu_api.post(`/openvidu/api/signal`, {
         session: sessionId,
         type: "signal:alertWinner",
-        data: {
+        data: JSON.stringify({
           winnerName: winnerName,
           connectionId: connectionId,
-        },
+        }),
       });
     }
   };
