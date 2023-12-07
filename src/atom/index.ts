@@ -9,4 +9,4 @@ export const sessionIdsAtom = atom([
 export const currSessionIdxAtom = atom(0);
 export const currSessionIdAtom = atom("SessionA");
 
-export const languageTargetAtom = atom<string>("en");
+export const languageTargetAtom = atom<string>("ko");
