@@ -145,7 +145,6 @@ const SingGamePage = ({
   const handleSubmit = (userAnswer) => {
     signalSubmitAnswer(userAnswer);
     if (userAnswer === isAnswer) {
-      alert("정답을 맞췄습니다!");
       setWinner(userName);
       alertWinner(userName ?? "");
     } else {

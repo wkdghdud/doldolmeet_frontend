@@ -233,6 +233,7 @@ const GamePage = () => {
       });
 
       mySession.on("signal:alertWinner", (event) => {
+        console.log("Alert Winner", event);
         const data = JSON.parse(event.data);
         setWinner(data.winnerName === userName);
         setWinnerName(data.winnerName);
@@ -244,7 +245,6 @@ const GamePage = () => {
         );
         setWinnerStream(winnerStream);
         setShowWinnerDialog(true);
-        alert(`${event.data}님이 정답을 맞추셨습니다!`);
       });
 
       mySession.on("signal:click_answer", (event) => {
