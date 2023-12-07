@@ -24,6 +24,7 @@ interface Props {
   gameStart: boolean;
   role: string | undefined;
   answers: Answer[];
+  connectionId: string | undefined;
 }
 
 const SingGamePage = ({
@@ -35,6 +36,7 @@ const SingGamePage = ({
   role,
   gameStart,
   answers,
+  connectionId,
 }: Props) => {
   const [showAllIdolEnteredmodal, setShowAllIdolEnteredmodal] =
     useState<boolean>(false);
@@ -131,7 +133,10 @@ const SingGamePage = ({
       await openvidu_api.post(`/openvidu/api/signal`, {
         session: sessionId,
         type: "signal:alertWinner",
-        data: winnerName,
+        data: {
+          winnerName: winnerName,
+          connectionId: connectionId,
+        },
       });
     }
   };

@@ -5,6 +5,7 @@ import {
   OpenVidu,
   Publisher,
   Session,
+  StreamManager,
   Subscriber,
 } from "openvidu-browser";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -64,6 +65,10 @@ const GamePage = () => {
 
   /*위너*/
   const [winner, setWinner] = useState<boolean>(false);
+  const [winnerName, setWinnerName] = useState<string>("");
+  const [winnerStream, setWinnerStream] = useState<
+    StreamManager | Publisher | Subscriber | undefined
+  >();
   const winnerRef = useRef(winner);
   winnerRef.current = winner;
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
@@ -199,10 +204,10 @@ const GamePage = () => {
       });
 
       mySession.on("streamDestroyed", (event) => {
-        // TODO: Subscriber 삭제
         const subscriber = mySession.subscribe(event.stream, undefined);
         const clientData = JSON.parse(event.stream.connection.data).clientData;
         const role = JSON.parse(clientData).role;
+        console.log("👋 streamDestroyed", event, role);
         deleteSubscriber(role, subscriber);
       });
 
@@ -228,7 +233,16 @@ const GamePage = () => {
       });
 
       mySession.on("signal:alertWinner", (event) => {
-        setWinner(event.data === userName);
+        const data = JSON.parse(event.data);
+        setWinner(data.winnerName === userName);
+        setWinnerName(data.winnerName);
+        const connectionIdOfWinner = data.connectionId;
+        const winnerStream = session?.streamManagers.find(
+          (streamManagers) =>
+            streamManagers.stream.connection.connectionId ===
+            connectionIdOfWinner,
+        );
+        setWinnerStream(winnerStream);
         setShowWinnerDialog(true);
         alert(`${event.data}님이 정답을 맞추셨습니다!`);
       });
@@ -281,7 +295,7 @@ const GamePage = () => {
       const newPublisher = await ov.initPublisherAsync(undefined, {
         audioSource: undefined,
         videoSource: undefined,
-        publishAudio: true,
+        publishAudio: role === Role.IDOL, // 아이돌인 경우에만 말할 수 있도록
         publishVideo: true,
         resolution: "1280x720",
         frameRate: 60,
@@ -289,7 +303,6 @@ const GamePage = () => {
         mirror: false,
       });
 
-      newPublisher.subscribeToRemote();
       mySession.publish(newPublisher);
       setSession(mySession);
       setMyStream(newPublisher);
@@ -332,7 +345,7 @@ const GamePage = () => {
           return prevSubscribers;
         }
       });
-    } else {
+    } else if (role === Role.FAN) {
       setFanStreams((prevSubscribers) => {
         const index = prevSubscribers.indexOf(streamManager);
         if (index > -1) {
@@ -386,6 +399,7 @@ const GamePage = () => {
             replaynum={replaynum}
             gameStart={gameStart}
             answers={answers}
+            connectionId={myConnection?.connectionId}
           />
         </Stack>
       </Grid>
@@ -417,8 +431,8 @@ const GamePage = () => {
       <WinnerDialog
         open={showWinnerDialog}
         onClose={() => setShowWinnerDialog(false)}
-        winnerName={"장호영"}
-        fanStream={myStream}
+        winnerName={winnerName}
+        fanStream={winnerStream}
       />
     </Grid>
   );
