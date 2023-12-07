@@ -204,11 +204,10 @@ const GamePage = () => {
       });
 
       mySession.on("streamDestroyed", (event) => {
-        const subscriber = mySession.subscribe(event.stream, undefined);
         const clientData = JSON.parse(event.stream.connection.data).clientData;
         const role = JSON.parse(clientData).role;
         console.log("👋 streamDestroyed", event, role);
-        deleteSubscriber(role, subscriber);
+        deleteSubscriber(role, event.stream.streamManager);
       });
 
       mySession.on("signal:send_replay", (event) => {
