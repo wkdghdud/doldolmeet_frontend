@@ -26,6 +26,8 @@ const GamePage = () => {
   const router = useRouter();
 
   const [session, setSession] = useState<Session | undefined>();
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
 
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("fanMeetingId");
@@ -232,16 +234,18 @@ const GamePage = () => {
       });
 
       mySession.on("signal:alertWinner", (event) => {
-        console.log("Alert Winner", event);
         const data = JSON.parse(event.data);
         setWinner(data.winnerName === userName);
         setWinnerName(data.winnerName);
         const connectionIdOfWinner = data.connectionId;
-        const winnerStream = session?.streamManagers.find(
+        const winnerStream = sessionRef?.current?.streamManagers.find(
           (streamManagers) =>
             streamManagers.stream.connection.connectionId ===
             connectionIdOfWinner,
         );
+        console.log("session", session);
+        console.log("sessionRef", sessionRef);
+        console.log("winnerStream", winnerStream);
         setWinnerStream(winnerStream);
         setShowWinnerDialog(true);
       });
