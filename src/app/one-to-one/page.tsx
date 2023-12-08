@@ -491,11 +491,12 @@ const OneToOnePage = () => {
     setFilterPopupOpen(false);
   };
 
-  useEffect(() => {
-    return () => {
-      leaveSession();
-    };
-  }, [leaveSession]);
+  // useEffect(() => {
+  //   return () => {
+  //     leaveSession();
+  //   };
+  // }, [leaveSession]);
+
   return (
     <Grid container spacing={2}>
       <Grid
