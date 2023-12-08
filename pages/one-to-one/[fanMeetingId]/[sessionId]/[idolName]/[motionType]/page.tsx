@@ -7,7 +7,7 @@ import {
   StreamManager,
 } from "openvidu-browser";
 import { Grid, Stack } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
@@ -31,7 +31,6 @@ import { v4 as uuidv4 } from "uuid";
 import FilterSelectDialog from "@/components/FilterSelectDialog";
 import { useAtomValue } from "jotai/react";
 import { languageTargetAtom } from "@/atom";
-import useLeaveSession from "@/hooks/useLeaveSession";
 import SpeechRecog from "@/components/Speech-Recognition";
 
 const OneToOnePage = () => {
@@ -41,9 +40,6 @@ const OneToOnePage = () => {
     router.beforePopState(({ as }) => {
       const currentPath = router.asPath;
       if (as !== currentPath) {
-        // Will run when leaving the current page; on back/forward actions
-        // Add your logic here, like toggling the modal state
-        // for example
         leaveSession();
         return true;
       }
@@ -52,35 +48,6 @@ const OneToOnePage = () => {
 
     return () => {
       router.beforePopState(() => true);
-    };
-  }, [router]); // Add any state variables to dependencies array if needed.
-
-  useEffect(() => {
-    const handleRouteChange = (url, { shallow }) => {
-      leaveSession();
-      console.log(
-        `App is changing to ${url} ${
-          shallow ? "with" : "without"
-        } shallow routing`,
-      );
-    };
-
-    router.events.on("routeChangeStart", handleRouteChange);
-    router.events.on("routeChangeComplete", handleRouteChange);
-    router.events.on("routeChangeError", handleRouteChange);
-    router.events.on("beforeHistoryChange", handleRouteChange);
-    router.events.on("hashChangeStart", handleRouteChange);
-    router.events.on("hashChangeComplete", handleRouteChange);
-
-    // If the component is unmounted, unsubscribe
-    // from the event with the `off` method:
-    return () => {
-      router.events.off("routeChangeStart", handleRouteChange);
-      router.events.off("routeChangeComplete", handleRouteChange);
-      router.events.off("routeChangeError", handleRouteChange);
-      router.events.off("beforeHistoryChange", handleRouteChange);
-      router.events.off("hashChangeStart", handleRouteChange);
-      router.events.off("hashChangeComplete", handleRouteChange);
     };
   }, [router]);
 
