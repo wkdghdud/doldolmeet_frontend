@@ -61,7 +61,6 @@ const OneToOnePage = () => {
   const sessionId = searchParams.sessionId;
   const idolName = searchParams.idolName;
   const motionType = searchParams.motionType;
-  const gameType = searchParams.gameType;
 
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();
