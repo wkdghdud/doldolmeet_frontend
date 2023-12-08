@@ -14,6 +14,7 @@ interface Props {
   username: string;
   role: string | undefined;
   motionType: string | undefined | null;
+  updateShowOverlay: (newValue: boolean) => void;
 }
 
 const MotionDetector = ({
@@ -24,6 +25,7 @@ const MotionDetector = ({
   partnerPose,
   username,
   motionType,
+  updateShowOverlay,
 }: Props) => {
   const audio = new Audio("/mp3/camera9.mp3");
 
@@ -202,6 +204,7 @@ const MotionDetector = ({
         );
         onCapture();
         setHasCaptured(true);
+        updateShowOverlay(false);
       }
     }, 6000);
 
@@ -320,6 +323,7 @@ const MotionDetector = ({
       console.log("📸📸 사진촬영!!!!!📸📸", myPose);
       onCapture();
       setHasCaptured(true);
+      updateShowOverlay(false);
     }
   }, [partnerPose, myPose, hasCaptured]);
 
