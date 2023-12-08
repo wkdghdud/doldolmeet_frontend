@@ -401,16 +401,32 @@ const OneToOnePage = () => {
     setMyConnection(undefined);
   };
 
+  // useEffect(() => {
+  //   const handleBeforeUnload = (event) => {
+  //     leaveSession();
+  //   };
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+  //
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //   };
+  // }, [leaveSession]);
+
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
+    // URL 변경을 감지하는 함수
+    const handlePopState = () => {
       leaveSession();
     };
-    window.addEventListener("beforeunload", handleBeforeUnload);
 
+    // popstate 이벤트에 리스너 추가
+    window.addEventListener("popstate", handlePopState);
+
+    // 정리 함수
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      // 이벤트 리스너 제거
+      window.removeEventListener("popstate", handlePopState);
     };
-  }, [leaveSession]);
+  }, []);
 
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     if (nextRoomType === "gameRoom") {
@@ -472,8 +488,6 @@ const OneToOnePage = () => {
     }
     setFilterPopupOpen(false);
   };
-
-  // useLeaveSession(leaveSession);
 
   return (
     <Grid container spacing={2}>
