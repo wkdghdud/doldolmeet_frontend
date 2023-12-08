@@ -413,23 +413,21 @@ const OneToOnePage = () => {
   // }, [leaveSession]);
 
   useEffect(() => {
-    // URL 변경을 감지하는 이벤트 핸들러
     const handleHistoryChange = () => {
-      if (window.location.pathname !== "/one-to-one") {
+      if (router.asPath !== "/one-to-one") {
         console.log("🥲 URL이 변경되었어요");
         leaveSession();
       }
     };
 
-    // popstate 이벤트에 리스너 추가
+    // popstate 이벤트 리스너 추가
     window.addEventListener("popstate", handleHistoryChange);
 
-    // 정리 함수
     return () => {
-      // 이벤트 리스너 제거
+      // popstate 이벤트 리스너 제거
       window.removeEventListener("popstate", handleHistoryChange);
     };
-  }, []);
+  }, [router]);
 
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     if (nextRoomType === "gameRoom") {
