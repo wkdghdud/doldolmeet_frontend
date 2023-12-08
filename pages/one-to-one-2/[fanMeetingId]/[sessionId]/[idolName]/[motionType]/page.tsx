@@ -260,7 +260,6 @@ const OneToOnePage = () => {
             type: "idolRoom",
             chatRoomId: _chatRoomId,
             nickname: myNickName,
-            gameType: gameType,
           }),
           kurentoOptions: {
             allowedFilters: [
@@ -280,7 +279,6 @@ const OneToOnePage = () => {
               type: "idolRoom",
               chatRoomId: _chatRoomId,
               nickname: myNickName,
-              gameType: gameType,
               idolName: idolName,
             }),
             kurentoOptions: {
