@@ -1,10 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Connection,
   OpenVidu,
   Publisher,
   Session,
+  StreamManager,
   Subscriber,
 } from "openvidu-browser";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -18,12 +19,15 @@ import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
 import { Box, Grid, Stack } from "@mui/material";
 import IdolStreamView from "@/components/meeting/IdolStreamView";
 import FanStreamView from "@/components/meeting/FanStreamView";
-import Game from "@/components/Game";
+import Game, { Answer } from "@/components/Game";
+import WinnerDialog from "@/components/WinnerDialog";
 
 const GamePage = () => {
   const router = useRouter();
 
   const [session, setSession] = useState<Session | undefined>();
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
 
   const searchParams = useSearchParams();
   const fanMeetingId = searchParams?.get("fanMeetingId");
@@ -62,7 +66,17 @@ const GamePage = () => {
   const [gameStart, setGameStart] = useState(false);
 
   /*위너*/
-  const [winner, setWinner] = useState<string | undefined>();
+  const [winner, setWinner] = useState<boolean>(false);
+  const [winnerName, setWinnerName] = useState<string>("");
+  const [winnerStream, setWinnerStream] = useState<
+    StreamManager | Publisher | Subscriber | undefined
+  >();
+  const winnerRef = useRef(winner);
+  winnerRef.current = winner;
+  const [showWinnerDialog, setShowWinnerDialog] = useState(false);
+
+  /* 다른 사람들의 응답 */
+  const [answers, setAnswers] = useState<Answer[]>([]);
 
   useEffect(() => {
     token.then((res) => {
@@ -133,7 +147,7 @@ const GamePage = () => {
 
     eventSource.addEventListener("moveToWaitRoom", (e: MessageEvent) => {
       console.log("👋 moveToWaitRoom: ", JSON.parse(e.data));
-      joinNextRoom(JSON.parse(e.data).nextRoomId);
+      joinNextRoom();
     });
 
     // eventSource.addEventListener("gameStart", (e: MessageEvent) => {
@@ -163,10 +177,10 @@ const GamePage = () => {
     return true;
   };
 
-  const joinNextRoom = async (sessionId: string) => {
+  const joinNextRoom = async () => {
     router.push(
       `/end-fanmeeting/${userName}/${fanMeetingId}?winner=${
-        winner ? "true" : "false"
+        winnerRef.current ? "true" : "false"
       }`,
     );
   };
@@ -192,11 +206,10 @@ const GamePage = () => {
       });
 
       mySession.on("streamDestroyed", (event) => {
-        // TODO: Subscriber 삭제
-        const subscriber = mySession.subscribe(event.stream, undefined);
         const clientData = JSON.parse(event.stream.connection.data).clientData;
         const role = JSON.parse(clientData).role;
-        deleteSubscriber(role, subscriber);
+        console.log("👋 streamDestroyed", event, role);
+        deleteSubscriber(role, event.stream.streamManager);
       });
 
       mySession.on("signal:send_replay", (event) => {
@@ -215,10 +228,26 @@ const GamePage = () => {
         }
       });
 
+      mySession.on("signal:submitAnswer", (event) => {
+        const data = JSON.parse(event.data) as Answer;
+        setAnswers((prev) => [...prev, data]);
+      });
+
       mySession.on("signal:alertWinner", (event) => {
-        console.log("👋 게임종료", event.data);
-        setWinner(event.data);
-        alert(`${event.data}님이 정답을 맞추셨습니다!`);
+        const data = JSON.parse(event.data);
+        setWinner(data.winnerName === userName);
+        setWinnerName(data.winnerName);
+        const connectionIdOfWinner = data.connectionId;
+        const winnerStream = sessionRef?.current?.streamManagers.find(
+          (streamManagers) =>
+            streamManagers.stream.connection.connectionId ===
+            connectionIdOfWinner,
+        );
+        console.log("session", session);
+        console.log("sessionRef", sessionRef);
+        console.log("winnerStream", winnerStream);
+        setWinnerStream(winnerStream);
+        setShowWinnerDialog(true);
       });
 
       mySession.on("signal:click_answer", (event) => {
@@ -269,7 +298,7 @@ const GamePage = () => {
       const newPublisher = await ov.initPublisherAsync(undefined, {
         audioSource: undefined,
         videoSource: undefined,
-        publishAudio: true,
+        publishAudio: role === Role.IDOL, // 아이돌인 경우에만 말할 수 있도록
         publishVideo: true,
         resolution: "1280x720",
         frameRate: 60,
@@ -277,7 +306,6 @@ const GamePage = () => {
         mirror: false,
       });
 
-      newPublisher.subscribeToRemote();
       mySession.publish(newPublisher);
       setSession(mySession);
       setMyStream(newPublisher);
@@ -320,7 +348,7 @@ const GamePage = () => {
           return prevSubscribers;
         }
       });
-    } else {
+    } else if (role === Role.FAN) {
       setFanStreams((prevSubscribers) => {
         const index = prevSubscribers.indexOf(streamManager);
         if (index > -1) {
@@ -373,7 +401,8 @@ const GamePage = () => {
             userName={userName}
             replaynum={replaynum}
             gameStart={gameStart}
-            setWinnerName={(winnerName) => setWinner(winnerName)}
+            answers={answers}
+            connectionId={myConnection?.connectionId}
           />
         </Stack>
       </Grid>
@@ -402,9 +431,12 @@ const GamePage = () => {
           </Stack>
         </Box>
       </Grid>
-      {/* 퀴즈 답안 입력 */}
-      {/*<Grid item xs={3.5}>*/}
-      {/*</Grid>*/}
+      <WinnerDialog
+        open={showWinnerDialog}
+        onClose={() => setShowWinnerDialog(false)}
+        winnerName={winnerName}
+        fanStream={winnerStream}
+      />
     </Grid>
   );
 };

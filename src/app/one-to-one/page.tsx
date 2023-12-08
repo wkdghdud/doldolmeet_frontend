@@ -108,7 +108,7 @@ const OneToOnePage = () => {
   const [partnerChoice, setPartnerChoice] = useState<string | undefined>();
 
   /* 상대방 음성 인식 */
-  const [isSubtitleActive, setSubtitleActive] = useState(true);
+  const [isSubtitleActive, setSubtitleActive] = useState(false);
   const [partnerVoice, setPartnerVoice] = useState<string | undefined>();
   const langTarget = useAtomValue(languageTargetAtom);
 

@@ -5,9 +5,11 @@ import { AWS_S3_URL, backend_api } from "@/utils/api";
 import {
   Button,
   Dialog,
+  DialogTitle,
   Grid,
   IconButton,
   Stack,
+  DialogContentText,
   Typography,
 } from "@mui/material";
 import { GetApp, Twitter } from "@mui/icons-material";
@@ -16,6 +18,7 @@ import axios from "axios";
 import ForwardIcon from "@mui/icons-material/Forward";
 import ScratchCard from "@/components/SecretCard";
 import { useSearchParams } from "next/navigation";
+import CloseIcon from "@mui/icons-material/Close";
 
 const EndFanMeetingPage = () => {
   /* route query */
@@ -317,22 +320,42 @@ const EndFanMeetingPage = () => {
         </Carousel>
       </Grid>
       {showSecretCard && (
-        // <Dialog open={showSecretCard} onClose={() => setShowSecretCard(false)}>
-        <ScratchCard
-          imageSrc="/majong.jpeg"
-          brushSize={20}
-          revealPercent={50}
-        />
+        <Dialog
+          open={showSecretCard}
+          onClose={() => setShowSecretCard(false)}
+          PaperProps={{
+            style: {
+              width: "550px", // 모달 창의 너비
+              height: "700px", // 모달 창의 높이는 내용에 따라 자동 조정
+              backgroundColor: "#fff", // 배경색
+              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.5)", // 그림자 스타일
+              // borderRadius: "20px", // 모달 창의 모서리 둥글게
+              padding: "20px", // 내부 패딩
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            },
+          }}
+        >
+          <DialogContentText>
+            <ScratchCard
+              imageSrc="/majong.jpeg"
+              brushSize={20}
+              revealPercent={50}
+            />
+          </DialogContentText>
+          <DialogTitle style={{ textAlign: "center" }}>
+            🎉마종스 미공개 포카에 당첨되셨습니다.🎉
+          </DialogTitle>
+          <DialogContentText style={{ textAlign: "center" }}>
+            마종스 미공개 포카를 확인하시려면 이미지를 스크래치 해주세요.
+          </DialogContentText>
+          <DialogContentText style={{ textAlign: "center", fontSize: "10px" }}>
+            -당첨된 포카는 추억보관함에서 확인하실 수 있습니다.-
+          </DialogContentText>
+        </Dialog>
       )}
-      <div
-        style={{
-          backgroundImage: "url('/album_poster.jpg')",
-          position: "absolute",
-          top: 0,
-          width: "100vw",
-          height: "100vh",
-        }}
-      />
     </Grid>
   );
 };

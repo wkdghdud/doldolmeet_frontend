@@ -1,5 +1,5 @@
 "use client";
-import { AppBar, Toolbar } from "@mui/material";
+import { AppBar, Stack, Toolbar } from "@mui/material";
 import { Box } from "@mui/system";
 import Link from "next/link";
 import GradientButton from "@/components/GradientButton";
@@ -38,17 +38,36 @@ export default function Header() {
           <Image src={"/en_logo.svg"} width={200} height={30} alt="logo" />
         </Link>
         <Box sx={{ flexGrow: 1 }}></Box>
-        <Link href="/create-fanmeeting" style={{ textDecoration: "none" }}>
-          {role === Role.ADMIN && (
-            <GradientButton
-              variant="contained"
-              disableElevation
-              sx={{ px: 3, borderRadius: 10, marginLeft: "8px" }} // 왼쪽 간격 추가
+
+        {role === Role.ADMIN && (
+          <Stack direction={"row"} spacing={1}>
+            <Link
+              href="/admin-init-fanmeeting?id=1"
+              style={{ textDecoration: "none", width: "100%" }}
             >
-              팬미팅 등록
-            </GradientButton>
-          )}
-        </Link>
+              <GradientButton
+                variant="contained"
+                disableElevation
+                sx={{ px: 3, borderRadius: 10, marginLeft: "8px" }} // 왼쪽 간격 추가
+              >
+                팬미팅 관리
+              </GradientButton>
+            </Link>
+            <Link
+              href="/create-fanmeeting"
+              style={{ textDecoration: "none", width: "100%" }}
+            >
+              <GradientButton
+                variant="contained"
+                disableElevation
+                sx={{ px: 3, borderRadius: 10, marginLeft: "8px" }} // 왼쪽 간격 추가
+              >
+                팬미팅 등록
+              </GradientButton>
+            </Link>
+          </Stack>
+        )}
+
         <Link
           href="/login"
           style={{ textDecoration: "none", marginLeft: "8px" }}

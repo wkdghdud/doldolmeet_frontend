@@ -1,22 +1,19 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { backend_api, openvidu_api } from "@/utils/api";
+import { openvidu_api } from "@/utils/api";
 import { Role } from "@/types";
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Box, Dialog, DialogContent, Stack, TextField } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import LooksOneIcon from "@mui/icons-material/LooksOne";
-import LooksTwoIcon from "@mui/icons-material/LooksTwo";
-import Looks3Icon from "@mui/icons-material/Looks3";
 import GradientButton from "@/components/GradientButton";
+import ChatBalloon from "@/components/chat/ChatBalloon";
+import useJwtToken from "@/hooks/useJwtToken";
+
+export interface Answer {
+  nickname: string;
+  profileImgUrl: string;
+  answer: string;
+}
 
 interface Props {
   fanMeetingId: string | undefined | null;
@@ -26,7 +23,8 @@ interface Props {
   replaynum: number;
   gameStart: boolean;
   role: string | undefined;
-  setWinnerName: (winnerName: string) => void;
+  answers: Answer[];
+  connectionId: string | undefined;
 }
 
 const SingGamePage = ({
@@ -37,7 +35,8 @@ const SingGamePage = ({
   userName,
   role,
   gameStart,
-  setWinnerName,
+  answers,
+  connectionId,
 }: Props) => {
   const [showAllIdolEnteredmodal, setShowAllIdolEnteredmodal] =
     useState<boolean>(false);
@@ -55,6 +54,17 @@ const SingGamePage = ({
   const [answer, setAnswer] = useState("");
   /* audio */
   const audio = new Audio("/mp3/idolsong1.mp3");
+
+  /* 토큰 정보 */
+  const [nickname, setNickname] = useState<string>("");
+  const [profileImgUrl, setProfileImgUrl] = useState<string>("");
+  const token = useJwtToken();
+  useEffect(() => {
+    token.then((res) => {
+      setNickname(res?.nickname ?? "");
+      setProfileImgUrl(res?.profileImgUrl ?? "");
+    });
+  }, [token]);
 
   useEffect(() => {
     if (gameStart) {
@@ -123,20 +133,22 @@ const SingGamePage = ({
       await openvidu_api.post(`/openvidu/api/signal`, {
         session: sessionId,
         type: "signal:alertWinner",
-        data: winnerName,
+        data: JSON.stringify({
+          winnerName: winnerName,
+          connectionId: connectionId,
+        }),
       });
     }
   };
 
   //정답 제출
   const handleSubmit = (userAnswer) => {
+    signalSubmitAnswer(userAnswer);
     if (userAnswer === isAnswer) {
-      alert("정답을 맞췄습니다!");
       setWinner(userName);
-      setWinnerName(userName ?? "");
       alertWinner(userName ?? "");
     } else {
-      alert("틀렸습니다.");
+      // alert("틀렸습니다.");
     }
   };
 
@@ -145,6 +157,25 @@ const SingGamePage = ({
       session: sessionId,
       type: "signal:goToEndPage",
     });
+  };
+
+  const signalSubmitAnswer = async (answer: string) => {
+    await openvidu_api.post(`/openvidu/api/signal`, {
+      session: sessionId,
+      type: "signal:submitAnswer",
+      data: JSON.stringify({
+        nickname: nickname,
+        profileImgUrl: profileImgUrl,
+        answer: answer,
+      }),
+    });
+  };
+
+  const handleEnter = (event) => {
+    if (event.keyCode === 13) {
+      handleSubmit(answer);
+      setAnswer("");
+    }
   };
 
   return (
@@ -162,10 +193,52 @@ const SingGamePage = ({
         borderRadius: 5,
       }}
     >
+      <Box sx={{ width: "100%", overflowY: "auto", px: 5, height: "30vh" }}>
+        {answers.length > 0 &&
+          answers.map((answer, index) => (
+            <ChatBalloon
+              sender={answer.nickname}
+              message={answer.answer}
+              profile={answer.profileImgUrl}
+              key={index}
+            />
+          ))}
+      </Box>
       <Box sx={{ width: "100%", px: 2 }}>
-        <Typography variant={"h3"} textAlign={"center"}>
-          🎧 지금 나오는 노래의 제목을 맞춰주세요
-        </Typography>
+        {gameStart ? (
+          <Stack
+            direction={"column"}
+            spacing={2}
+            sx={{ justifyContent: "center", alignItems: "center" }}
+          >
+            <Typography variant={"h3"} textAlign={"center"}>
+              🎧 지금 재생되는 노래의 제목을 맞춰주세요!
+            </Typography>
+            <img
+              src={
+                "https://m.media-amazon.com/images/G/01/digital/music/player/web/EQ_accent.gif"
+              }
+              style={{ maxHeight: "10vh", width: "10%", marginTop: 10 }}
+            />
+            <TextField
+              variant="outlined"
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              sx={{ width: 400, backgroundColor: "rgba(255,255,255,0.5)" }}
+              inputProps={{
+                style: {
+                  textAlign: "center",
+                },
+              }}
+              onKeyDown={handleEnter}
+            />
+          </Stack>
+        ) : (
+          <Typography variant={"h3"} textAlign={"center"}>
+            게임이 시작될 때까지 조금만 기다려주세요 😎
+          </Typography>
+        )}
+
         {role === Role.IDOL && (
           <>
             <GradientButton onClick={startGame}>
@@ -178,30 +251,6 @@ const SingGamePage = ({
           </>
         )}
       </Box>
-      {gameStart && (
-        <Stack
-          direction={"column"}
-          spacing={1}
-          alignItems={"center"}
-          justifyContent={"center"}
-          sx={{ width: "100%", px: 2, margin: "auto" }}
-        >
-          <TextField
-            label="노래 제목 입력"
-            variant="outlined"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            sx={{ width: "50%" }}
-          />
-          <Button
-            variant="contained"
-            onClick={() => handleSubmit(answer)}
-            sx={{ width: "50%", mt: 2 }}
-          >
-            정답 제출
-          </Button>
-        </Stack>
-      )}
       {showAllIdolEnteredmodal && (
         <Dialog open={showAllIdolEnteredmodal}>
           <DialogContent>
