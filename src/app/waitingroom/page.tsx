@@ -35,9 +35,6 @@ const WaitingRoom = () => {
   const { data: fanMeeting } = useFanMeeting(fanMeetingId);
   const { data: waitRoomId } = useMainWaitRoom(fanMeetingId);
 
-  /* 뒤로가기 이벤트 */
-  const [eventSource, setEventSource] = useState(null);
-
   const [role, setRole] = useState<Role>(Role.FAN);
   const [userName, setUserName] = useState<string>("");
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
@@ -191,32 +188,6 @@ const WaitingRoom = () => {
       console.error("FanMeeting fetch error:", error);
     }
   };
-
-  useEffect(() => {
-    // EventSource 객체 생성
-    const newEventSource = new EventSource("/sse-endpoint");
-
-    // 연결이 끊겼을 때의 이벤트 핸들러
-    newEventSource.onerror = () => {
-      console.error("SSE 연결이 끊겼습니다.");
-
-      // 이전 EventSource 객체가 존재하면 닫기
-      if (eventSource) {
-        eventSource.close();
-      }
-
-      // 새로운 EventSource 객체로 교체
-      setEventSource(newEventSource);
-    };
-
-    // 이펙트 클린업 함수
-    return () => {
-      // 컴포넌트가 언마운트될 때 EventSource 객체 닫기
-      if (eventSource) {
-        eventSource.close();
-      }
-    };
-  }, [eventSource]); // eventSource가 변경될 때마다 useEffect를 실행
 
   return (
     <>
