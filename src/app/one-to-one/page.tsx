@@ -186,6 +186,9 @@ const OneToOnePage = () => {
         // console.error("Start recording WRONG:", error);
       });
   };
+  const updateShowOverlay = (newValue) => {
+    setEndSoon(newValue);
+  };
 
   const joinSession = async (_chatRoomId?: string) => {
     try {
@@ -631,6 +634,7 @@ const OneToOnePage = () => {
           partnerPose={partnerPose}
           username={userName}
           motionType={motionType}
+          updateShowOverlay={updateShowOverlay}
         />
       )}
       <FilterSelectDialog
