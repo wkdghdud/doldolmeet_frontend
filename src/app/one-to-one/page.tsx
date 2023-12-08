@@ -408,20 +408,32 @@ const OneToOnePage = () => {
   };
 
   useEffect(() => {
-    console.log("현재 pathname:", pathname, "이전 pathname:", pathRef.current);
-
-    // 첫 마운트 시에는 skip (첫 마운트에서 pathRef.current는 초기값이므로)
-    if (pathRef.current && pathRef.current !== pathname) {
-      console.log("경로가 변경되었습니다.");
-      if (pathname !== "/one-to-one") {
-        console.log("one-to-one 페이지가 아니므로 세션을 종료합니다.");
-        leaveSession();
-      }
+    const currentPath = window.location.pathname;
+    // URL 변경에 따른 로직 처리
+    if (currentPath !== "/one-to-one") {
+      console.log(
+        "현재 페이지가 one-to-one 페이지가 아닙니다. 필요한 처리를 수행합니다.",
+      );
+      leaveSession();
+      // 여기에 필요한 로직 추가
     }
+  }, [leaveSession]);
 
-    // 현재의 pathname을 저장
-    pathRef.current = pathname;
-  }, [pathname, searchParams]);
+  // useEffect(() => {
+  //   console.log("현재 pathname:", pathname, "이전 pathname:", pathRef.current);
+  //
+  //   // 첫 마운트 시에는 skip (첫 마운트에서 pathRef.current는 초기값이므로)
+  //   if (pathRef.current && pathRef.current !== pathname) {
+  //     console.log("경로가 변경되었습니다.");
+  //     if (pathname !== "/one-to-one") {
+  //       console.log("one-to-one 페이지가 아니므로 세션을 종료합니다.");
+  //       leaveSession();
+  //     }
+  //   }
+  //
+  //   // 현재의 pathname을 저장
+  //   pathRef.current = pathname;
+  // }, [pathname, searchParams]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
