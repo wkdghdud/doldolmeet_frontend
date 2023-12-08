@@ -236,12 +236,18 @@ export const closeOpenViduConnection = async (
   sessionId: string,
   connectionId: string,
 ) => {
+  console.log(
+    `😍😍😍closeOpenViduConnection called with😍😍😍 sessionId: ${sessionId}, connectionId: ${connectionId}`,
+  );
+
   try {
-    await openvidu_api.delete(
-      `/openvidu/api/sessions/${sessionId}/connection/${connectionId}`,
-    );
+    const url = `/openvidu/api/sessions/${sessionId}/connection/${connectionId}`;
+    console.log(`😍😍😍😍Sending delete request to URL😍😍😍😍😍: ${url}`);
+
+    const response = await openvidu_api.delete(url);
+    console.log(`Response🤡🤡 received:`, response);
   } catch (e) {
-    console.error(e);
+    console.error(`Error occurred 🤡🤡🤡in closeOpenViduConnection:`, e);
   }
 };
 
