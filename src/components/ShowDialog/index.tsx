@@ -205,7 +205,7 @@ export default function ShowDialog() {
           </DialogContentText>
           <DialogActions style={{ justifyContent: "space-between" }}>
             <Link
-              href={`one-to-one?fanMeetingId=${todayMeeting?.data?.id}&sessionId=${sessionId}&idolName=${idolName}&motionType=${motionType}`}
+              href={`one-to-one/${todayMeeting?.data?.id}/${sessionId}/${idolName}/${motionType}`}
               style={{
                 textDecoration: "none",
                 color: "inherit",
