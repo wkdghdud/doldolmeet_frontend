@@ -163,7 +163,7 @@ export default function Header() {
                 <MenuItemStyled
                   onClick={() =>
                     router.push(
-                      `/game-page?gameRoomId=${gameRoomId}&sessionId=${sessionId}`,
+                      `/game-page?fanMeetingId=${gameRoomId}&sessionId=${sessionId}`,
                     )
                   }
                 >
