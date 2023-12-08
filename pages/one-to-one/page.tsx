@@ -17,7 +17,7 @@ import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import DeviceControlButton from "@/components/meeting/DeviceControlButton";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
@@ -28,7 +28,7 @@ import MotionDetector from "@/components/MotionDetector";
 
 import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import { v4 as uuidv4 } from "uuid";
-import SpeechRecog from "../../components/Speech-Recognition";
+import SpeechRecog from "@/components/Speech-Recognition";
 import FilterSelectDialog from "@/components/FilterSelectDialog";
 import { useAtomValue } from "jotai/react";
 import { languageTargetAtom } from "@/atom";
@@ -36,16 +36,14 @@ import useLeaveSession from "@/hooks/useLeaveSession";
 
 const OneToOnePage = () => {
   const router = useRouter();
-  const pathname = usePathname();
-  const pathRef = useRef(pathname);
 
   /* Query Param으로 전달된 팬미팅 아이디 */
-  const searchParams = useSearchParams();
-  const fanMeetingId = searchParams?.get("fanMeetingId");
-  const sessionId = searchParams?.get("sessionId");
-  const idolName = searchParams?.get("idolName");
-  const motionType = searchParams?.get("motionType");
-  const gameType = searchParams?.get("gameType");
+  const searchParams = router.query;
+  const fanMeetingId = searchParams.fanMeetingId;
+  const sessionId = searchParams.sessionId;
+  const idolName = searchParams.idolName;
+  const motionType = searchParams.motionType;
+  const gameType = searchParams.gameType;
 
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();
@@ -407,35 +405,6 @@ const OneToOnePage = () => {
     setMyConnection(undefined);
   };
 
-  useEffect(() => {
-    console.log("현재 pathname:", pathname, "이전 pathname:", pathRef.current);
-
-    // 첫 마운트 시에는 skip (첫 마운트에서 pathRef.current는 초기값이므로)
-    if (pathRef.current && pathRef.current !== pathname) {
-      console.log("경로가 변경되었습니다.");
-      if (pathname !== "/one-to-one") {
-        console.log("one-to-one 페이지가 아니므로 세션을 종료합니다.");
-        leaveSession();
-      }
-    }
-
-    // 현재의 pathname을 저장
-    pathRef.current = pathname;
-  }, [pathname, searchParams]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      console.log("😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡.");
-      leaveSession();
-      console.log("🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠");
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [leaveSession]);
-
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     if (nextRoomType === "gameRoom") {
       router.push(
@@ -496,6 +465,24 @@ const OneToOnePage = () => {
     }
     setFilterPopupOpen(false);
   };
+
+  useEffect(() => {
+    const handleRouteChange = (url, { shallow }) => {
+      console.log(
+        `App is changing to ${url} ${
+          shallow ? "with" : "without"
+        } shallow routing`,
+      );
+    };
+
+    router.events.on("routeChangeStart", handleRouteChange);
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method:
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [router]);
 
   return (
     <Grid container spacing={2}>
