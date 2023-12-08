@@ -438,7 +438,7 @@ const OneToOnePage = () => {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [leaveSession]);
+  }, []);
 
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     if (nextRoomType === "gameRoom") {
