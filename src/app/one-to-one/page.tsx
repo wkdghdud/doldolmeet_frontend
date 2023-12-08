@@ -32,6 +32,7 @@ import SpeechRecog from "../../components/Speech-Recognition";
 import FilterSelectDialog from "@/components/FilterSelectDialog";
 import { useAtomValue } from "jotai/react";
 import { languageTargetAtom } from "@/atom";
+import useLeaveSession from "@/hooks/useLeaveSession";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -491,11 +492,7 @@ const OneToOnePage = () => {
     setFilterPopupOpen(false);
   };
 
-  // useEffect(() => {
-  //   return () => {
-  //     leaveSession();
-  //   };
-  // }, [leaveSession]);
+  useLeaveSession(leaveSession);
 
   return (
     <Grid container spacing={2}>
