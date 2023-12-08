@@ -125,7 +125,7 @@ export default function Header() {
               fontWeight: 800,
               marginTop: "0.2%",
               marginRight: "0.7%",
-              fontSize: "1.2rem",
+              fontSize: "1.21rem",
               fontFamily: "Plus Jakarta Sans, sans-serif",
             }}
           >
