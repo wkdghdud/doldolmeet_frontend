@@ -175,10 +175,11 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   }, []);
 
   const joinNextRoom = async () => {
-    await leaveWaitingRoom();
-    router.push(
-      `/one-to-one?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}&idolName=${nextIdolName}&motionType=${motionType}&gameType=${gameType}`,
-    );
+    await leaveWaitingRoom().then(() => {
+      router.push(
+        `/one-to-one?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}&idolName=${nextIdolName}&motionType=${motionType}&gameType=${gameType}`,
+      );
+    });
   };
 
   const leaveWaitingRoom = async () => {
