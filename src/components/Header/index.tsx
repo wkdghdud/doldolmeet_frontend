@@ -1,5 +1,14 @@
 "use client";
-import { AppBar, Stack, Toolbar } from "@mui/material";
+import {
+  AppBar,
+  ListItemText,
+  MenuItem,
+  MenuList,
+  Popover,
+  Stack,
+  styled,
+  Toolbar,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import Link from "next/link";
 import GradientButton from "@/components/GradientButton";
@@ -8,11 +17,25 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Role } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
+import SmallAvatar from "@/components/avatar/SmallAvatar";
+import { useRouter } from "next/navigation";
+
+const MenuItemStyled = styled(MenuItem)(({ theme }) => ({
+  "&.Mui-selected": {
+    backgroundColor: theme.palette.grey["100"],
+  },
+}));
 
 export default function Header() {
   const { data: session } = useSession();
 
+  const router = useRouter();
+
   const [role, setRole] = useState<Role>(Role.FAN);
+  const [profileImg, setProfileImg] = useState<string | undefined>();
+  const [anchorEl, setAnchorEl] = useState<(EventTarget & Element) | null>(
+    null,
+  );
 
   const token = useJwtToken();
 
@@ -20,9 +43,17 @@ export default function Header() {
     token.then((res) => {
       if (res) {
         setRole(res.auth);
+        setProfileImg(res.profileImgUrl);
       }
     });
   }, [token]);
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <AppBar
@@ -68,19 +99,59 @@ export default function Header() {
           </Stack>
         )}
 
-        <Link
-          href="/login"
-          style={{ textDecoration: "none", marginLeft: "8px" }}
-        >
-          <GradientButton
-            variant="contained"
-            disableElevation
-            sx={{ px: 3, borderRadius: 10 }}
-            onClick={session?.user ? () => signOut() : () => signIn()}
+        {session?.user ? (
+          <>
+            <SmallAvatar
+              imgSrc={profileImg}
+              anchorEl2={anchorEl}
+              setAnchorEl2={setAnchorEl}
+            />
+            <Popover
+              id={id}
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              PaperProps={{
+                elevation: 10,
+                style: {
+                  width: "95px",
+                },
+              }}
+              sx={{ mt: 1 }}
+            >
+              <MenuList>
+                {/*TODO: 게임방 이동 URL로 수정 필요 */}
+                <MenuItemStyled onClick={() => router.push("")}>
+                  <ListItemText>게임방</ListItemText>
+                </MenuItemStyled>
+                <MenuItemStyled onClick={() => router.push("/my-page")}>
+                  <ListItemText>마이 페이지</ListItemText>
+                </MenuItemStyled>
+                <MenuItemStyled onClick={() => signOut()}>
+                  <ListItemText>로그아웃</ListItemText>
+                </MenuItemStyled>
+              </MenuList>
+            </Popover>
+          </>
+        ) : (
+          <Link
+            href="/login"
+            style={{ textDecoration: "none", marginLeft: "8px" }}
           >
-            {session?.user ? "로그아웃" : "로그인"}
-          </GradientButton>
-        </Link>
+            <GradientButton
+              variant="contained"
+              disableElevation
+              sx={{ px: 3, borderRadius: 10 }}
+              onClick={() => signIn()}
+            >
+              {"로그인"}
+            </GradientButton>
+          </Link>
+        )}
       </Toolbar>
     </AppBar>
   );
