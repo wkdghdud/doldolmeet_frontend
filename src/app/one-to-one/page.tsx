@@ -119,32 +119,6 @@ const OneToOnePage = () => {
   /* 남은 통화 시간 */
   const [timeLimit, setTimeLimit] = useState(60);
 
-  /*라우터 감지*/
-  const leaveSession = async () => {
-    if (sessionId && myConnection?.connectionId) {
-      await closeOpenViduConnection(sessionId, myConnection?.connectionId);
-    }
-
-    // state 초기화
-    setMyStream(undefined);
-    setPartnerStream(undefined);
-    setMyConnection(undefined);
-  };
-
-  useEffect(() => {
-    const handleRouteChange = () => {
-      leaveSession();
-    };
-
-    // 라우팅 변경 시 이벤트 리스너 추가
-    router.events.on("routeChangeStart", handleRouteChange);
-
-    // 컴포넌트 언마운트 시 이벤트 리스너 제거
-    return () => {
-      router.events.off("routeChangeStart", handleRouteChange);
-    };
-  }, [leaveSession]); // 의존성 배열에는 leaveSession만 포함
-
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -425,6 +399,21 @@ const OneToOnePage = () => {
     setPartnerStream(undefined);
     setMyConnection(undefined);
   };
+
+  /*라우터 감지*/
+  useEffect(() => {
+    const handleRouteChange = () => {
+      leaveSession();
+    };
+
+    // 라우팅 변경 시 이벤트 리스너 추가
+    router.events.on("routeChangeStart", handleRouteChange);
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [leaveSession]); // 의존성 배열에는 leaveSession만 포함
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
