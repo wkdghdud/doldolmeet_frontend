@@ -401,15 +401,37 @@ const OneToOnePage = () => {
   };
 
   useEffect(() => {
+    // 페이지 내 이동을 감지하여 leaveSession 호출
+    const handleRouteChange = () => {
+      leaveSession();
+    };
+
+    // Next.js 라우터 이벤트 리스너 등록
+    router.events.on("routeChangeStart", handleRouteChange);
+
+    // 브라우저 창 닫기 이벤트 리스너 등록
     const handleBeforeUnload = (event) => {
       leaveSession();
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
     return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [leaveSession]);
+
+  // useEffect(() => {
+  //   const handleBeforeUnload = (event) => {
+  //     leaveSession();
+  //   };
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+  //
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //   };
+  // }, [leaveSession]);
 
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     if (nextRoomType === "gameRoom") {
