@@ -416,6 +416,7 @@ const OneToOnePage = () => {
     // URL 변경을 감지하는 이벤트 핸들러
     const handleHistoryChange = () => {
       if (window.location.pathname !== "/one-to-one") {
+        console.log("🥲 URL이 변경되었어요");
         leaveSession();
       }
     };
