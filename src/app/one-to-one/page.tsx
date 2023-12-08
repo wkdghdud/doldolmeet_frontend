@@ -427,11 +427,12 @@ const OneToOnePage = () => {
   }, [pathname, searchParams]);
 
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
+    const handleBeforeUnload = async (event) => {
       console.log("😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡.");
-      leaveSession();
+      await leaveSession();
       console.log("🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠");
     };
+
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
