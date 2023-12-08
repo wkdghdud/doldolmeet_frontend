@@ -38,6 +38,24 @@ const OneToOnePage = () => {
   const router = useRouter();
 
   useEffect(() => {
+    router.beforePopState(({ as }) => {
+      const currentPath = router.asPath;
+      if (as !== currentPath) {
+        // Will run when leaving the current page; on back/forward actions
+        // Add your logic here, like toggling the modal state
+        // for example
+        leaveSession();
+        return true;
+      }
+      return true;
+    });
+
+    return () => {
+      router.beforePopState(() => true);
+    };
+  }, [router]); // Add any state variables to dependencies array if needed.
+
+  useEffect(() => {
     const handleRouteChange = (url, { shallow }) => {
       leaveSession();
       console.log(
