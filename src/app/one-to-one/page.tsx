@@ -401,33 +401,16 @@ const OneToOnePage = () => {
     setMyConnection(undefined);
   };
 
-  // useEffect(() => {
-  //   const handleBeforeUnload = (event) => {
-  //     leaveSession();
-  //   };
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-  //
-  //   return () => {
-  //     window.removeEventListener("beforeunload", handleBeforeUnload);
-  //   };
-  // }, [leaveSession]);
-
   useEffect(() => {
-    const handleHistoryChange = () => {
-      if (router.asPath !== "/one-to-one") {
-        console.log("🥲 URL이 변경되었어요");
-        leaveSession();
-      }
+    const handleBeforeUnload = (event) => {
+      leaveSession();
     };
-
-    // popstate 이벤트 리스너 추가
-    window.addEventListener("popstate", handleHistoryChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      // popstate 이벤트 리스너 제거
-      window.removeEventListener("popstate", handleHistoryChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [router]);
+  }, [leaveSession]);
 
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     if (nextRoomType === "gameRoom") {
