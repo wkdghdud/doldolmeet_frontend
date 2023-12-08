@@ -145,7 +145,7 @@ const AdminInitFanMeetingPage = () => {
         </Stack>
       </Grid>
       <Grid item>
-        <OpenViduSessionInfo />
+        <OpenViduSessionInfo fanMeetingId={fanMeetingId} />
       </Grid>
     </Grid>
   );
