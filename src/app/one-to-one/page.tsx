@@ -7,7 +7,7 @@ import {
   StreamManager,
 } from "openvidu-browser";
 import { Grid, Stack } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
@@ -37,6 +37,7 @@ import useLeaveSession from "@/hooks/useLeaveSession";
 const OneToOnePage = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const pathRef = useRef(pathname);
 
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
@@ -394,7 +395,7 @@ const OneToOnePage = () => {
   const leaveSession = async () => {
     if (sessionId && myConnection?.connectionId) {
       await closeOpenViduConnection(sessionId, myConnection?.connectionId);
-      console.log("🥲 세션을 나갔습니다.");
+      console.log("🥲🤡🤡🤡 세션🤡🤡을 나갔습니다.");
     }
 
     // state 초기화
@@ -404,10 +405,11 @@ const OneToOnePage = () => {
   };
 
   useEffect(() => {
-    console.log("🥲 pathname:", pathname);
-    if (pathname !== "/one-to-one") {
+    console.log("🥲 pathname ref:", pathRef.current);
+    if (pathRef.current !== "/one-to-one") {
       leaveSession();
     }
+    pathRef.current = pathname;
   }, [pathname]);
 
   useEffect(() => {
