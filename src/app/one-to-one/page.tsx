@@ -413,18 +413,20 @@ const OneToOnePage = () => {
   // }, [leaveSession]);
 
   useEffect(() => {
-    // URL 변경을 감지하는 함수
-    const handlePopState = () => {
-      leaveSession();
+    // URL 변경을 감지하는 이벤트 핸들러
+    const handleHistoryChange = () => {
+      if (window.location.pathname !== "/one-to-one") {
+        leaveSession();
+      }
     };
 
     // popstate 이벤트에 리스너 추가
-    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("popstate", handleHistoryChange);
 
     // 정리 함수
     return () => {
       // 이벤트 리스너 제거
-      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("popstate", handleHistoryChange);
     };
   }, []);
 
