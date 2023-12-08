@@ -7,7 +7,7 @@ import {
   StreamManager,
 } from "openvidu-browser";
 import { Grid, Stack } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
@@ -37,6 +37,7 @@ import useLeaveSession from "@/hooks/useLeaveSession";
 const OneToOnePage = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const pathRef = useRef(pathname);
 
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
@@ -392,8 +393,12 @@ const OneToOnePage = () => {
   };
   // 세션을 나가면서 정리
   const leaveSession = async () => {
+    console.log(
+      `leaveSession called.🥶🥶🥶 sessionId: ${sessionId}, connectionId: ${myConnection?.connectionId}`,
+    );
     if (sessionId && myConnection?.connectionId) {
       await closeOpenViduConnection(sessionId, myConnection?.connectionId);
+      console.log("🥲🤡🤡🤡 세션🤡🤡을 나갔습니다.");
     }
 
     // state 초기화
@@ -403,15 +408,26 @@ const OneToOnePage = () => {
   };
 
   useEffect(() => {
-    console.log("🥲 pathname:", pathname);
-    if (pathname !== "/one-to-one") {
-      leaveSession();
+    console.log("현재 pathname:", pathname, "이전 pathname:", pathRef.current);
+
+    // 첫 마운트 시에는 skip (첫 마운트에서 pathRef.current는 초기값이므로)
+    if (pathRef.current && pathRef.current !== pathname) {
+      console.log("경로가 변경되었습니다.");
+      if (pathname !== "/one-to-one") {
+        console.log("one-to-one 페이지가 아니므로 세션을 종료합니다.");
+        leaveSession();
+      }
     }
+
+    // 현재의 pathname을 저장
+    pathRef.current = pathname;
   }, [pathname]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
+      console.log("😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡.");
       leaveSession();
+      console.log("🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠");
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 
