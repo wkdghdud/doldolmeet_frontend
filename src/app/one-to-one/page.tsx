@@ -17,7 +17,7 @@ import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import DeviceControlButton from "@/components/meeting/DeviceControlButton";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
@@ -36,6 +36,7 @@ import useLeaveSession from "@/hooks/useLeaveSession";
 
 const OneToOnePage = () => {
   const router = useRouter();
+  const pathname = usePathname();
 
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
@@ -400,6 +401,13 @@ const OneToOnePage = () => {
     setPartnerStream(undefined);
     setMyConnection(undefined);
   };
+
+  useEffect(() => {
+    console.log("🥲 pathname:", pathname);
+    if (pathname !== "/one-to-one") {
+      leaveSession();
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
