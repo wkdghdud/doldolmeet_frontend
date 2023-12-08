@@ -28,9 +28,15 @@ export function middleware(req) {
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
   );
 
-  if (req.url) {
-    console.log("one-to-one 페이지에서 나간다~~ 다음 url: ", req.nextUrl);
-  }
+  console.log(
+    "one-to-one 페이지에서 나간다~~ 다음 url: ",
+    req.url,
+    req.nextUrl,
+  );
 
   return res;
 }
+
+export const config = {
+  matcher: "/one-to-one/*",
+};
