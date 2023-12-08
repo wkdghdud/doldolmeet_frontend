@@ -408,10 +408,18 @@ const OneToOnePage = () => {
   };
 
   useEffect(() => {
-    console.log("🥲 pathname ref:", pathRef.current);
-    if (pathRef.current !== "/one-to-one") {
-      leaveSession();
+    console.log("현재 pathname:", pathname, "이전 pathname:", pathRef.current);
+
+    // 첫 마운트 시에는 skip (첫 마운트에서 pathRef.current는 초기값이므로)
+    if (pathRef.current && pathRef.current !== pathname) {
+      console.log("경로가 변경되었습니다.");
+      if (pathname !== "/one-to-one") {
+        console.log("one-to-one 페이지가 아니므로 세션을 종료합니다.");
+        leaveSession();
+      }
     }
+
+    // 현재의 pathname을 저장
     pathRef.current = pathname;
   }, [pathname]);
 
