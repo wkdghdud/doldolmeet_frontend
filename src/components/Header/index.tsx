@@ -19,6 +19,8 @@ import { Role } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
 import SmallAvatar from "@/components/avatar/SmallAvatar";
 import { useRouter } from "next/navigation";
+import Typography from "@mui/material/Typography";
+import { backend_api } from "@/utils/api";
 
 const MenuItemStyled = styled(MenuItem)(({ theme }) => ({
   "&.Mui-selected": {
@@ -31,11 +33,15 @@ export default function Header() {
 
   const router = useRouter();
 
+  const [userName, setUserName] = useState<string>("");
+  const [sessionId, setSessionId] = useState<string>("");
   const [role, setRole] = useState<Role>(Role.FAN);
   const [profileImg, setProfileImg] = useState<string | undefined>();
   const [anchorEl, setAnchorEl] = useState<(EventTarget & Element) | null>(
     null,
   );
+
+  const gameRoomId = 1;
 
   const token = useJwtToken();
 
@@ -44,15 +50,28 @@ export default function Header() {
       if (res) {
         setRole(res.auth);
         setProfileImg(res.profileImgUrl);
+        setUserName(res.sub);
       }
     });
   }, [token]);
+
+  useEffect(() => {
+    moveToGameRoom();
+  }, []);
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const moveToGameRoom = async () => {
+    await backend_api()
+      .get(`/fanMeetings/${gameRoomId}/get-game-room-id`)
+      .then((res) => {
+        setSessionId(res.data.data);
+      });
   };
 
   return (
@@ -99,6 +118,23 @@ export default function Header() {
           </Stack>
         )}
 
+        {userName ? (
+          <Typography
+            sx={{
+              color: "#ed6ea0",
+              fontWeight: 800,
+              marginTop: "0.2%",
+              marginRight: "0.7%",
+              fontSize: "1.21rem",
+              fontFamily: "Plus Jakarta Sans, sans-serif",
+            }}
+          >
+            {userName}
+          </Typography>
+        ) : (
+          ""
+        )}
+
         {session?.user ? (
           <>
             <SmallAvatar
@@ -124,8 +160,13 @@ export default function Header() {
               sx={{ mt: 1 }}
             >
               <MenuList>
-                {/*TODO: 게임방 이동 URL로 수정 필요 */}
-                <MenuItemStyled onClick={() => router.push("")}>
+                <MenuItemStyled
+                  onClick={() =>
+                    router.push(
+                      `/game-page?fanMeetingId=${gameRoomId}&sessionId=${sessionId}`,
+                    )
+                  }
+                >
                   <ListItemText>게임방</ListItemText>
                 </MenuItemStyled>
                 <MenuItemStyled onClick={() => router.push("/my-page")}>
