@@ -400,21 +400,6 @@ const OneToOnePage = () => {
     setMyConnection(undefined);
   };
 
-  /*라우터 감지*/
-  useEffect(() => {
-    const handleRouteChange = () => {
-      leaveSession();
-    };
-
-    // 라우팅 변경 시 이벤트 리스너 추가
-    router.events.on("routeChangeStart", handleRouteChange);
-
-    // 컴포넌트 언마운트 시 이벤트 리스너 제거
-    return () => {
-      router.events.off("routeChangeStart", handleRouteChange);
-    };
-  }, [leaveSession]); // 의존성 배열에는 leaveSession만 포함
-
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       leaveSession();
