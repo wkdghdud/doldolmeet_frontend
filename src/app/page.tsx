@@ -5,23 +5,32 @@ import ForwardIcon from "@mui/icons-material/Forward";
 import GradientButton from "@/components/GradientButton";
 import PostCard from "@/components/PostCard";
 import { backend_api } from "@/utils/api";
-import { fetchFanMeetings } from "@/hooks/useFanMeetings";
-import { useQuery } from "@tanstack/react-query";
 import ShowDialog from "@/components/ShowDialog";
 import { fetchTodayFanmeeting } from "@/hooks/useTodayFanmeeting";
 import Link from "next/link";
 import data from "@/mock/fanMeeting.json";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Home() {
-  // const { data } = useQuery({
-  //   queryKey: ["fanMeetings", "opened"],
-  //   queryFn: ({ queryKey }) => fetchFanMeetings(queryKey[1]),
-  // });
+  const router = useRouter();
+  useEffect(() => {
+    const handleRouteChange = (url, { shallow }) => {
+      console.log(
+        `App is changing to ${url} ${
+          shallow ? "with" : "without"
+        } shallow routing`,
+      );
+    };
 
-  // const { data: todayMeeting } = useQuery({
-  //   queryKey: ["fanMeetings", "today"],
-  //   queryFn: () => fetchTodayFanmyeeting(),
+    router.events.on("routeChangeStart", handleRouteChange);
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method:
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [router]);
   // });
 
   const [todayMeeting, setTodayMeeting] = useState<any>();
