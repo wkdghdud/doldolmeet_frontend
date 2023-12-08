@@ -37,7 +37,7 @@ import { Router } from "next/router";
 const OneToOnePage = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const pathRef = useRef(pathname);
+  const prevPathRef = useRef<string | null>(null);
 
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = useSearchParams();
@@ -411,19 +411,15 @@ const OneToOnePage = () => {
   };
 
   useEffect(() => {
-    console.log("현재 pathname:", pathname, "이전 pathname:", pathRef.current);
-
-    // 첫 마운트 시에는 skip (첫 마운트에서 pathRef.current는 초기값이므로)
-    if (pathRef.current && pathRef.current !== pathname) {
-      console.log("경로가 변경되었습니다.");
-      if (pathname !== "/one-to-one") {
-        console.log("one-to-one 페이지가 아니므로 세션을 종료합니다.");
-        leaveSession();
-      }
+    // 첫 렌더링에서는 skip하고, 이후 경로가 변경될 때마다 체크
+    if (prevPathRef.current !== null && prevPathRef.current !== pathname) {
+      console.log(
+        `경로가 ${prevPathRef.current}에서 ${pathname}으로 변경되었습니다.`,
+      );
+      leaveSession();
     }
 
     // 현재의 pathname을 저장
-    pathRef.current = pathname;
   }, [pathname, searchParams]);
 
   const handleRouterChangeStart = (url: string) => {
