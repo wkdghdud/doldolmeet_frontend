@@ -421,7 +421,7 @@ const OneToOnePage = () => {
 
     // 현재의 pathname을 저장
     pathRef.current = pathname;
-  }, [pathname]);
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
