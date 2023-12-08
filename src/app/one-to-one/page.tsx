@@ -393,6 +393,9 @@ const OneToOnePage = () => {
   };
   // 세션을 나가면서 정리
   const leaveSession = async () => {
+    console.log(
+      `leaveSession called.🥶🥶🥶 sessionId: ${sessionId}, connectionId: ${myConnection?.connectionId}`,
+    );
     if (sessionId && myConnection?.connectionId) {
       await closeOpenViduConnection(sessionId, myConnection?.connectionId);
       console.log("🥲🤡🤡🤡 세션🤡🤡을 나갔습니다.");
@@ -414,7 +417,9 @@ const OneToOnePage = () => {
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
+      console.log("😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡.");
       leaveSession();
+      console.log("🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠");
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 
