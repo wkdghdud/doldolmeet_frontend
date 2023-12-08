@@ -39,6 +39,7 @@ const OneToOnePage = () => {
 
   useEffect(() => {
     const handleRouteChange = (url, { shallow }) => {
+      leaveSession();
       console.log(
         `App is changing to ${url} ${
           shallow ? "with" : "without"
