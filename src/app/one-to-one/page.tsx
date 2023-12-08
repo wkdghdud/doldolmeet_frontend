@@ -394,6 +394,7 @@ const OneToOnePage = () => {
   const leaveSession = async () => {
     if (sessionId && myConnection?.connectionId) {
       await closeOpenViduConnection(sessionId, myConnection?.connectionId);
+      console.log("🥲 세션을 나갔습니다.");
     }
 
     // state 초기화
