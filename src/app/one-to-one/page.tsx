@@ -17,7 +17,7 @@ import { Role } from "@/types";
 import useJwtToken, { JwtToken } from "@/hooks/useJwtToken";
 import DeviceControlButton from "@/components/meeting/DeviceControlButton";
 import { fetchFanToFanMeeting } from "@/hooks/useFanMeetings";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
@@ -32,7 +32,7 @@ import SpeechRecog from "../../components/Speech-Recognition";
 import FilterSelectDialog from "@/components/FilterSelectDialog";
 import { useAtomValue } from "jotai/react";
 import { languageTargetAtom } from "@/atom";
-import useLeaveSession from "@/hooks/useLeaveSession";
+import { Router } from "next/router";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -426,9 +426,26 @@ const OneToOnePage = () => {
     pathRef.current = pathname;
   }, [pathname, searchParams]);
 
+  const handleRouterChangeStart = (url: string) => {
+    console.log("handleRouterChangeStart", url);
+    leaveSession();
+    Router.events.emit("routeChangeError");
+  };
+
+  useEffect(() => {
+    Router.events.on("routeChangeStart", handleRouterChangeStart);
+    return () => {
+      Router.events.off("routeChangeStart", handleRouterChangeStart);
+    };
+  }, [Router.events]);
+
   useEffect(() => {
     const handleBeforeUnload = async (event) => {
       console.log("😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡.");
+      Router.events.on("routeChangeStart", (url) => {
+        console.log(`App is changing to ${url}`);
+        leaveSession();
+      });
       await leaveSession();
       console.log("🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠🧠");
     };
