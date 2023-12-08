@@ -121,12 +121,7 @@ export default function Header() {
         {userName ? (
           <Typography
             sx={{
-              color: "#ed6ea0",
-              fontWeight: 800,
-              marginTop: "0.2%",
-              marginRight: "0.7%",
-              fontSize: "1.21rem",
-              fontFamily: "Plus Jakarta Sans, sans-serif",
+              color: "#9e9e9e",
             }}
           >
             {userName}
