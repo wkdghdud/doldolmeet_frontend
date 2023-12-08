@@ -120,10 +120,22 @@ const OneToOnePage = () => {
   const [timeLimit, setTimeLimit] = useState(60);
 
   /*라우터 감지*/
+  const leaveSession = async () => {
+    if (sessionId && myConnection?.connectionId) {
+      await closeOpenViduConnection(sessionId, myConnection?.connectionId);
+    }
+
+    // state 초기화
+    setMyStream(undefined);
+    setPartnerStream(undefined);
+    setMyConnection(undefined);
+  };
+
   useEffect(() => {
     const handleRouteChange = () => {
       leaveSession();
     };
+
     // 라우팅 변경 시 이벤트 리스너 추가
     router.events.on("routeChangeStart", handleRouteChange);
 
@@ -131,7 +143,7 @@ const OneToOnePage = () => {
     return () => {
       router.events.off("routeChangeStart", handleRouteChange);
     };
-  }, [leaveSession]);
+  }, [leaveSession]); // 의존성 배열에는 leaveSession만 포함
 
   useEffect(() => {
     token.then((res) => {
