@@ -401,17 +401,6 @@ const OneToOnePage = () => {
     setMyConnection(undefined);
   };
 
-  // useEffect(() => {
-  //   const handleBeforeUnload = (event) => {
-  //     leaveSession();
-  //   };
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-  //
-  //   return () => {
-  //     window.removeEventListener("beforeunload", handleBeforeUnload);
-  //   };
-  // }, [leaveSession]);
-
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       leaveSession();
@@ -420,9 +409,8 @@ const OneToOnePage = () => {
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      leaveSession();
     };
-  }, []);
+  }, [leaveSession]);
 
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     if (nextRoomType === "gameRoom") {
@@ -485,7 +473,7 @@ const OneToOnePage = () => {
     setFilterPopupOpen(false);
   };
 
-  useLeaveSession(leaveSession);
+  // useLeaveSession(leaveSession);
 
   return (
     <Grid container spacing={2}>
