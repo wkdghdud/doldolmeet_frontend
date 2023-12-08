@@ -401,15 +401,34 @@ const OneToOnePage = () => {
   };
 
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
+    // 브라우저의 페이지 이동이나 닫힘 감지를 위한 핸들러
+    const handlePageChange = () => {
       leaveSession();
     };
-    window.addEventListener("beforeunload", handleBeforeUnload);
 
+    // popstate 이벤트 리스너 등록: 브라우저 내부 이동 감지 (예: 뒤로 가기)
+    window.addEventListener("popstate", handlePageChange);
+
+    // beforeunload 이벤트 리스너 등록: 페이지 닫힘 감지
+    window.addEventListener("beforeunload", handlePageChange);
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePageChange);
+      window.removeEventListener("beforeunload", handlePageChange);
     };
   }, [leaveSession]);
+
+  // useEffect(() => {
+  //   const handleBeforeUnload = (event) => {
+  //     leaveSession();
+  //   };
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+  //
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //   };
+  // }, [leaveSession]);
 
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     if (nextRoomType === "gameRoom") {
