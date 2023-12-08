@@ -47,11 +47,21 @@ const OneToOnePage = () => {
     };
 
     router.events.on("routeChangeStart", handleRouteChange);
+    router.events.on("routeChangeComplete", handleRouteChange);
+    router.events.on("routeChangeError", handleRouteChange);
+    router.events.on("beforeHistoryChange", handleRouteChange);
+    router.events.on("hashChangeStart", handleRouteChange);
+    router.events.on("hashChangeComplete", handleRouteChange);
 
     // If the component is unmounted, unsubscribe
     // from the event with the `off` method:
     return () => {
       router.events.off("routeChangeStart", handleRouteChange);
+      router.events.off("routeChangeComplete", handleRouteChange);
+      router.events.off("routeChangeError", handleRouteChange);
+      router.events.off("beforeHistoryChange", handleRouteChange);
+      router.events.off("hashChangeStart", handleRouteChange);
+      router.events.off("hashChangeComplete", handleRouteChange);
     };
   }, [router]);
 
