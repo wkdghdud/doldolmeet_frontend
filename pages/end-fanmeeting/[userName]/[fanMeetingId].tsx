@@ -175,7 +175,7 @@ const EndFanMeetingPage = () => {
           duration={1500}
         >
           {contents.map((url, index) => {
-            if (url !== null || url !== undefined || url !== "") {
+            if (url !== null && url !== undefined && url !== "") {
               const isVideo = url.endsWith(".mp4");
               return isVideo ? (
                 <div
