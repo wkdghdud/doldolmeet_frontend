@@ -152,7 +152,8 @@ export default function ShowDialog() {
           <DialogTitle style={{ textAlign: "center" }}></DialogTitle>
           <DialogActions style={{ justifyContent: "space-between" }}>
             <Link
-              href={`/waitingroom?id=${todayMeeting?.data?.id}`}
+              // href={`/waitingroom?id=${todayMeeting?.data?.id}`}
+              href={`/waitingroom2/${todayMeeting?.data?.id}`}
               style={{
                 textDecoration: "none",
                 color: "inherit",
