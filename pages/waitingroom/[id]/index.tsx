@@ -35,6 +35,9 @@ const WaitingRoom = () => {
   const searchParams = router.query;
   // const fanMeetingId = searchParams?.get("id");
   const fanMeetingId = searchParams.fanMeetingId;
+  useEffect(() => {
+    console.log("fanMeeti😇😇😇😇😇😇😇😇😇ngId", fanMeetingId);
+  }, []);
   const { data: fanMeeting } = useFanMeeting(fanMeetingId);
   const { data: waitRoomId } = useMainWaitRoom(fanMeetingId);
 
