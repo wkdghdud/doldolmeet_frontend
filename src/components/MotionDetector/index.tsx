@@ -219,25 +219,6 @@ const MotionDetector = ({
   useEffect(() => {
     console.log("MotionDetector component mounted!");
     const loadScripts = async () => {
-      const tfScript = document.createElement("script");
-      tfScript.src =
-        "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js";
-      document.body.appendChild(tfScript);
-
-      const tmPoseScript = document.createElement("script");
-      tmPoseScript.src =
-        "https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js";
-      document.body.appendChild(tmPoseScript);
-
-      await Promise.all([
-        new Promise((resolve) => {
-          tfScript.onload = resolve;
-        }),
-        new Promise((resolve) => {
-          tmPoseScript.onload = resolve;
-        }),
-      ]);
-
       // TensorFlow 및 Teachable Machine Pose 스크립트 로드 완료 후 초기화
       if (motionType === "bigHeart") {
         // console.log("😾😾😾😾😾😾😾motionType", motionType);
