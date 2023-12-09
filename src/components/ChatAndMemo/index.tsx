@@ -58,7 +58,7 @@ const ChatAndMemo = ({ chatRoomId, height }: Props) => {
           </Button>
           <Button
             variant={chatOpen ? "text" : "contained"}
-            onClick={() => setChatOpen(false)}
+            onClick={() => setChatOpen(true)}
             sx={{
               width: "46%",
               height: "70%",
