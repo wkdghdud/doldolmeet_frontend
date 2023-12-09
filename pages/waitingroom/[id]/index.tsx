@@ -1,6 +1,6 @@
 "use client";
 import { Grid, Stack } from "@mui/material";
-import { useRouter, useSearchParams } from "next/navigation";
+// import { useRouter, useSearchParams } from "next/navigation";
 import {
   fetchFanMeeting,
   useFanMeeting,
@@ -20,6 +20,8 @@ import ChatAndMemo from "@/components/ChatAndMemo";
 import Typography from "@mui/material/Typography";
 import StartFanMeetingDialog from "@/components/InviteDialog/StartFanMeetingDialog";
 
+import { useRouter } from "next/router";
+
 interface NextRoomEvent {
   nextRoomId: string;
   currRoomType: string;
@@ -30,10 +32,26 @@ interface NextRoomEvent {
 const WaitingRoom = () => {
   const router = useRouter();
   /* Query Param으로 전달된 팬미팅 아이디 */
-  const searchParams = useSearchParams();
-  const fanMeetingId = searchParams?.get("id");
+  const searchParams = router.query;
+  // const fanMeetingId = searchParams?.get("id");
+  const fanMeetingId = searchParams.fanMeetingId;
   const { data: fanMeeting } = useFanMeeting(fanMeetingId);
   const { data: waitRoomId } = useMainWaitRoom(fanMeetingId);
+
+  useEffect(() => {
+    router.beforePopState(({ as }) => {
+      const currentPath = router.asPath;
+      if (as !== currentPath) {
+        leaveWaitingRoom();
+        return true;
+      }
+      return true;
+    });
+
+    return () => {
+      router.beforePopState(() => true);
+    };
+  }, [router]);
 
   const [role, setRole] = useState<Role>(Role.FAN);
   const [userName, setUserName] = useState<string>("");
