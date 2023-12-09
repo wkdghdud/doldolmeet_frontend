@@ -38,7 +38,10 @@ const ChatAndMemo = ({ chatRoomId, height }: Props) => {
         >
           <Button
             variant={chatOpen ? "contained" : "text"}
-            onClick={() => setChatOpen(true)}
+            onClick={(e) => {
+              e.preventDefault();
+              setChatOpen(true);
+            }}
             sx={{
               width: "46%",
               height: "70%",
@@ -58,7 +61,10 @@ const ChatAndMemo = ({ chatRoomId, height }: Props) => {
           </Button>
           <Button
             variant={chatOpen ? "text" : "contained"}
-            onClick={() => setChatOpen(false)}
+            onClick={(e) => {
+              e.preventDefault();
+              setChatOpen(false);
+            }}
             sx={{
               width: "46%",
               height: "70%",
