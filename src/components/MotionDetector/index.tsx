@@ -185,7 +185,7 @@ const MotionDetector = ({
     return new Blob([u8arr], { type: mime });
   }
 
-  const signalPoseDetected = useCallback(async () => {
+  const signalPoseDetected = async () => {
     if (username !== "") {
       await openvidu_api.post(`/openvidu/api/signal`, {
         session: sessionId,
@@ -195,7 +195,7 @@ const MotionDetector = ({
       setMyPose(true);
       myPoseRef.current = true;
     }
-  }, [username, sessionId]);
+  };
 
   useEffect(() => {
     let timer = setTimeout(() => {
