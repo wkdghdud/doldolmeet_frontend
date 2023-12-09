@@ -7,6 +7,7 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
   const scratchCanvasRef = useRef(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [scratchPercentage, setScratchPercentage] = useState(0);
+  const pencilCursorUrl = "/coin.jpeg";
 
   useEffect(() => {
     const scratchCanvas = scratchCanvasRef.current;
@@ -79,7 +80,12 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
         ref={scratchCanvasRef}
         width={510}
         height={620}
-        style={{ position: "absolute", top: 0, left: 0 }}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          cursor: `url(${pencilCursorUrl}), auto`, // 이 부분을 추가합니다.
+        }}
       />
       {scratchPercentage > revealPercent && !isRevealed && (
         <GradientButton onClick={revealImage} style={{ marginTop: "10px" }}>
