@@ -36,6 +36,7 @@ const WaitingRoom = () => {
   // const fanMeetingId = searchParams?.get("id");
   const fanMeetingId = searchParams.id;
   useEffect(() => {
+    console.log("searchPar🥰🥰🥰🥰🥰🥰🥰ams", searchParams);
     console.log("fanMeeti😇😇😇😇😇😇😇😇😇ngId", fanMeetingId);
   }, []);
   const { data: fanMeeting } = useFanMeeting(fanMeetingId);
