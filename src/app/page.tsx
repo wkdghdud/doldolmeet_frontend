@@ -78,7 +78,8 @@ export default function Home() {
           }}
         >
           <Link
-            href={`/waitingroom?id=${todayMeeting?.data?.id}`}
+            // href={`/waitingroom?id=${todayMeeting?.data?.id}`}
+            href={`/waitingroom/${todayMeeting?.data?.id}`}
             style={{ width: "100%" }}
           >
             <Stack
