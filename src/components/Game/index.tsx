@@ -68,6 +68,7 @@ const SingGamePage = ({
 
   useEffect(() => {
     if (gameStart) {
+      audio.volume = 0.5;
       audio.play();
     }
     return () => {
@@ -91,6 +92,7 @@ const SingGamePage = ({
 
   useEffect(() => {
     if (replaynum >= 1) {
+      audio.volume = 0.5;
       audio.play();
       setTimeout(() => {
         audio.pause();

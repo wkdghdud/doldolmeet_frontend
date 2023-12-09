@@ -213,6 +213,7 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
       <JoinIdolRoomDialog
         open={popupOpen}
         idolImgUrl={popupImage}
+        onClose={() => setPopupOpen(false)}
         handleClose={handleClose}
         handleEnter={joinNextRoom}
       />

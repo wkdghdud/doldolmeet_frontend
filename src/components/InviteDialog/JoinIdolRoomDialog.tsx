@@ -1,12 +1,20 @@
 "use client";
-import { Dialog, DialogActions, DialogContent } from "@mui/material";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
 // @ts-ignore
 import GradientButton from "@/components/GradientButton";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface Props {
   open: boolean;
   idolImgUrl: string;
+  onClose: () => void;
   handleClose: (event, reason) => void;
   handleEnter: () => void;
 }
@@ -14,6 +22,7 @@ interface Props {
 const JoinIdolRoomDialog = ({
   open,
   idolImgUrl,
+  onClose,
   handleClose,
   handleEnter,
 }: Props) => {
@@ -33,6 +42,20 @@ const JoinIdolRoomDialog = ({
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+      <DialogTitle style={{ textAlign: "center" }}>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
       <DialogContent sx={{ display: "flex", justifyContent: "center" }}>
         <img
           src={idolImgUrl}
