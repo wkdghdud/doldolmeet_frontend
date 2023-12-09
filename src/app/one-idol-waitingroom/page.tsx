@@ -12,6 +12,8 @@ import { Role, RoomType } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
 import JoinIdolRoomDialog from "@/components/InviteDialog/JoinIdolRoomDialog";
 import { AWS_S3_URL } from "@/utils/api";
+import { useAtomValue } from "jotai/react";
+import { eventSourceAtom } from "@/atom";
 
 interface Props {
   fanStream: StreamManager | undefined;
@@ -31,6 +33,8 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   const [popupImage, setPopupImage] = useState<string>("");
   const [nextIdolName, setNextIdolName] = useState<string>("");
   const [motionType, setMotionType] = useState<string>("");
+
+  const eventSource = useAtomValue<EventSource | undefined>(eventSourceAtom);
 
   const token = useJwtToken();
 
@@ -92,9 +96,9 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   };
 
   const fetchSSE = async () => {
-    const eventSource = new EventSource(
-      `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
-    );
+    // const eventSource = new EventSource(
+    //   `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
+    // );
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 연결되었습니다.");
     });
@@ -119,17 +123,6 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
 
     eventSource.onopen = () => {
       console.log("연결되었습니다.");
-    };
-
-    eventSource.onmessage = async (e) => {
-      const res = await e.data;
-      // const parsedData = JSON.parse(res);
-      console.log("데이터가 도착했습니다.");
-      // console.log(parsedData);
-      joinSession("waitingRoom"); //
-      // alert(res)
-      // 받아오는 data로 할 일
-      // eventSource.close();
     };
 
     eventSource.onerror = (e) => {

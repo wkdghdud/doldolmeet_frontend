@@ -19,6 +19,8 @@ import InviteDialog from "@/components/InviteDialog";
 import ChatAndMemo from "@/components/ChatAndMemo";
 import Typography from "@mui/material/Typography";
 import StartFanMeetingDialog from "@/components/InviteDialog/StartFanMeetingDialog";
+import { useAtom } from "jotai/react";
+import { eventSourceAtom } from "@/atom";
 
 interface NextRoomEvent {
   nextRoomId: string;
@@ -43,6 +45,8 @@ const WaitingRoom = () => {
     undefined,
   );
   const [pepleAhead, setPeopleAhead] = useState<number>(0);
+
+  const [eventSource, setEventSource] = useAtom(eventSourceAtom);
 
   const token = useJwtToken();
 
@@ -109,6 +113,8 @@ const WaitingRoom = () => {
     const eventSource = new EventSource(
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
+
+    setEventSource(eventSource);
 
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 SSE 연결되었습니다.");

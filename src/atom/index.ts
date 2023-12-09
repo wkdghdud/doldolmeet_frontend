@@ -10,3 +10,5 @@ export const currSessionIdxAtom = atom(0);
 export const currSessionIdAtom = atom("SessionA");
 
 export const languageTargetAtom = atom<string>("ko");
+
+export const eventSourceAtom = atom<EventSource | null>(null);

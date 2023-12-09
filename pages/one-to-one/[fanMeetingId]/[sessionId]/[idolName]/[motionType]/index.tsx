@@ -30,7 +30,7 @@ import { fetchFanMeeting } from "@/hooks/fanmeeting";
 import { v4 as uuidv4 } from "uuid";
 import FilterSelectDialog from "@/components/FilterSelectDialog";
 import { useAtomValue } from "jotai/react";
-import { languageTargetAtom } from "@/atom";
+import { eventSourceAtom, languageTargetAtom } from "@/atom";
 import SpeechRecog from "@/components/Speech-Recognition";
 
 const OneToOnePage = () => {
@@ -132,6 +132,8 @@ const OneToOnePage = () => {
 
   /* 남은 통화 시간 */
   const [timeLimit, setTimeLimit] = useState(60);
+
+  const eventSource = useAtomValue(eventSourceAtom);
 
   useEffect(() => {
     token.then((res) => {
@@ -324,9 +326,9 @@ const OneToOnePage = () => {
   };
 
   const fetchSSE = async () => {
-    const eventSource = new EventSource(
-      `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
-    );
+    // const eventSource = new EventSource(
+    //   `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
+    // );
 
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 연결되었습니다.");
@@ -374,9 +376,9 @@ const OneToOnePage = () => {
   };
 
   const fetchSSE_idol = async () => {
-    const eventSource = new EventSource(
-      `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
-    );
+    // const eventSource = new EventSource(
+    //   `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
+    // );
 
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 아이돌 SSE 연결되었습니다.");

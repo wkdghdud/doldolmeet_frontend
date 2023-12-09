@@ -21,6 +21,8 @@ import IdolStreamView from "@/components/meeting/IdolStreamView";
 import FanStreamView from "@/components/meeting/FanStreamView";
 import Game, { Answer } from "@/components/Game";
 import WinnerDialog from "@/components/WinnerDialog";
+import { useAtomValue } from "jotai/react";
+import { eventSourceAtom } from "@/atom";
 
 const GamePage = () => {
   const router = useRouter();
@@ -78,6 +80,8 @@ const GamePage = () => {
   /* 다른 사람들의 응답 */
   const [answers, setAnswers] = useState<Answer[]>([]);
 
+  const eventSource = useAtomValue(eventSourceAtom);
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -106,9 +110,9 @@ const GamePage = () => {
   }, [role, userName]);
 
   const fetchSSE_idol = async () => {
-    const eventSource = new EventSource(
-      `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
-    );
+    // const eventSource = new EventSource(
+    //   `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
+    // );
 
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 아이돌 SSE 연결되었습니다.");
@@ -137,9 +141,9 @@ const GamePage = () => {
   };
 
   const fetchSSE = async () => {
-    const eventSource = new EventSource(
-      `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
-    );
+    // const eventSource = new EventSource(
+    //   `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
+    // );
 
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 연결되었습니다.");
