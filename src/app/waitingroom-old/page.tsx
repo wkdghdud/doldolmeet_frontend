@@ -242,7 +242,7 @@ const WaitingRoom = () => {
                 👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦당신은 {pepleAhead + 1}번째 순서입니당!👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦
               </Typography>
               <img
-                src={"/waiting_dino.gif"}
+                // src={"/waiting_dino.gif"}
                 alt="조금만 기다려주세요"
                 style={{
                   height: "30vh",
