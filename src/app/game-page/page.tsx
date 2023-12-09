@@ -392,6 +392,7 @@ const GamePage = () => {
             direction={"row"}
             sx={{
               width: "100%",
+              height: "40vh",
               backgroundColor: "#eeeeee",
               py: 2,
               px: 1,
