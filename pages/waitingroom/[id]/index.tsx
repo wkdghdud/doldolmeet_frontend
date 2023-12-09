@@ -31,12 +31,11 @@ interface NextRoomEvent {
 
 const WaitingRoom = () => {
   const router = useRouter();
-  /* Query Param으로 전달된 팬미팅 아이디 */
-  const searchParams = router.query;
+  const fanMeetingId = router.query.id;
   // const fanMeetingId = searchParams?.get("id");
-  const fanMeetingId = searchParams.id;
+  // const fanMeetingId = searchParams.id;
   useEffect(() => {
-    console.log("searchPar🥰🥰🥰🥰🥰🥰🥰ams", searchParams);
+    // console.log("searchPar🥰🥰🥰🥰🥰🥰🥰ams", searchParams);
     console.log("fanMeeti😇😇😇😇😇😇😇😇😇ngId", fanMeetingId);
   }, []);
   const { data: fanMeeting } = useFanMeeting(fanMeetingId);
