@@ -44,6 +44,10 @@ const MotionDetector = ({
   const myPoseRef = useRef(myPose);
   myPoseRef.current = myPose;
 
+  const [myPose2, setMyPose2] = useState<boolean>(false);
+  const myPoseRef2 = useRef(myPose2);
+  myPoseRef2.current = myPose2;
+
   let model, maxPredictions;
   let model2, maxPredictions2;
   let hasDetected = false;
@@ -192,8 +196,6 @@ const MotionDetector = ({
         type: "signal:pose_detected",
         data: username,
       });
-      setMyPose(true);
-      myPoseRef.current = true;
     }
   };
 
@@ -332,7 +334,7 @@ const MotionDetector = ({
     }
   }, [partnerPose, myPose, hasCaptured]);
 
-  const predict2 = useCallback(async () => {
+  const predict2 = async () => {
     const webcam = webcamRef.current;
 
     if (model2 && webcam && labelContainerRef2.current) {
@@ -367,8 +369,10 @@ const MotionDetector = ({
             detected = true;
           }
         }
-        if (detected && myPoseRef.current === false) {
+        if (detected && myPoseRef2.current === false) {
           // console.log("내가 시그널을 보냈어요", myPose);
+          setMyPose2(true);
+          myPoseRef2.current = true;
           await signalPoseDetected();
         }
       } catch (error) {
@@ -377,7 +381,7 @@ const MotionDetector = ({
     } else {
       // console.log("Model or webcam is not available!");
     }
-  }, [model2, webcamRef, labelContainerRef2, maxPredictions2, myPose]);
+  };
 
   const predict = useCallback(async () => {
     const webcam = webcamRef.current;
@@ -405,8 +409,9 @@ const MotionDetector = ({
             detected = true;
           }
         }
-        if (detected && !myPose) {
-          // console.log("✊✊✊✊✊✊✊✊✊✊", myPose);
+        if (detected && myPoseRef.current === false) {
+          setMyPose(true);
+          myPoseRef.current = true;
           await signalPoseDetected();
         }
       } catch (error) {
