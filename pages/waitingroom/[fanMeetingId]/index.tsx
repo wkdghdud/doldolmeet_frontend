@@ -31,9 +31,8 @@ interface NextRoomEvent {
 
 const WaitingRoom = () => {
   const router = useRouter();
-  const fanMeetingId = router.query.id;
-  // const fanMeetingId = searchParams?.get("id");
-  // const fanMeetingId = searchParams.id;
+  const searchParams = router.query;
+  const fanMeetingId = searchParams.fanMeetingId;
   useEffect(() => {
     // console.log("searchPar🥰🥰🥰🥰🥰🥰🥰ams", searchParams);
     console.log("fanMeeti😇😇😇😇😇😇😇😇😇ngId", fanMeetingId);
