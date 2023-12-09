@@ -321,8 +321,8 @@ const GamePage = () => {
         videoSource: undefined,
         publishAudio: role === Role.IDOL, // 아이돌인 경우에만 말할 수 있도록
         publishVideo: true,
-        resolution: "1280x720",
-        frameRate: 60,
+        resolution: "640x480",
+        frameRate: 30,
         insertMode: "APPEND",
         mirror: false,
       });
