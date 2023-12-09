@@ -3,11 +3,20 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { openvidu_api } from "@/utils/api";
 import { Role } from "@/types";
-import { Box, Dialog, DialogContent, Stack, TextField } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
+} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import GradientButton from "@/components/GradientButton";
 import ChatBalloon from "@/components/chat/ChatBalloon";
 import useJwtToken from "@/hooks/useJwtToken";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 
 export interface Answer {
   nickname: string;
@@ -253,9 +262,31 @@ const SingGamePage = ({
       </Box>
       {showAllIdolEnteredmodal && (
         <Dialog open={showAllIdolEnteredmodal}>
+          <DialogTitle style={{ textAlign: "center" }}>
+            <IconButton
+              aria-label="close"
+              onClick={() => setShowAllIdolEnteredmodal(false)}
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
           <DialogContent>
-            <Typography variant="h2" align="center" sx={{ my: 5 }}>
-              아이돌 도착
+            <img src={"/game_modal.png"} style={{ width: "100%" }} />
+            <Typography variant="h2" align="center" sx={{ marginTop: 2 }}>
+              멤버들이 모두 도착했어요!
+            </Typography>
+            <Typography
+              variant="h4"
+              align="center"
+              sx={{ marginTop: 2, fontWeight: 340 }}
+            >
+              곧 아이돌과 팬이 함께 하는 게임이 진행될 예정입니다 😎
             </Typography>
           </DialogContent>
         </Dialog>
