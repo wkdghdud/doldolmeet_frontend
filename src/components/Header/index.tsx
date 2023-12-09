@@ -164,6 +164,13 @@ export default function Header() {
                 >
                   <ListItemText>게임방</ListItemText>
                 </MenuItemStyled>
+                <MenuItemStyled
+                  onClick={() =>
+                    router.push(`/end-fanmeeting/${userName}/1?winner=true`)
+                  }
+                >
+                  <ListItemText>종료 페이지</ListItemText>
+                </MenuItemStyled>
                 <MenuItemStyled onClick={() => router.push("/my-page")}>
                   <ListItemText>마이 페이지</ListItemText>
                 </MenuItemStyled>
