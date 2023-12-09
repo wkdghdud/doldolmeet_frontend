@@ -48,12 +48,25 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
       setScratchPercentage(percentage);
     };
 
+    const changeCursor = () => {
+      scratchCanvas.style.cursor = `url('/coin.png'), auto`;
+    };
+
+    // 마우스 커서 원래대로 돌리는 함수
+    const revertCursor = () => {
+      scratchCanvas.style.cursor = "default";
+    };
+
     // 이벤트 리스너 추가
     scratchCanvas.addEventListener("mousemove", scratch);
+    scratchCanvas.addEventListener("mouseenter", changeCursor);
+    scratchCanvas.addEventListener("mouseleave", revertCursor);
 
     return () => {
       // 이벤트 리스너 제거
       scratchCanvas.removeEventListener("mousemove", scratch);
+      scratchCanvas.removeEventListener("mouseenter", changeCursor);
+      scratchCanvas.removeEventListener("mouseleave", revertCursor);
     };
   }, [brushSize, revealPercent]);
 
