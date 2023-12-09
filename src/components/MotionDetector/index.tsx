@@ -193,12 +193,12 @@ const MotionDetector = ({
         data: username,
       });
       setMyPose(true);
+      myPoseRef.current = true;
     }
   }, [username, sessionId]);
 
   useEffect(() => {
     let timer = setTimeout(() => {
-      console.log("hasCapturedRef.current", hasCapturedRef.current);
       if (hasCapturedRef.current === false) {
         console.log(
           "📸 포즈가 아직 안 취해졌지만 시간이 얼마 안 남아서 촬영합니다!",
@@ -320,7 +320,11 @@ const MotionDetector = ({
   };
 
   useEffect(() => {
-    if (partnerPose && myPoseRef.current && !hasCapturedRef.current) {
+    if (
+      partnerPose &&
+      myPoseRef.current === true &&
+      hasCapturedRef.current === false
+    ) {
       console.log("📸📸 사진촬영!!!!!📸📸", myPose);
       onCapture();
       setHasCaptured(true);
@@ -363,7 +367,7 @@ const MotionDetector = ({
             detected = true;
           }
         }
-        if (detected && !myPoseRef.current) {
+        if (detected && myPoseRef.current === false) {
           // console.log("내가 시그널을 보냈어요", myPose);
           await signalPoseDetected();
         }
