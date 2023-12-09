@@ -32,7 +32,7 @@ interface NextRoomEvent {
 const WaitingRoom = () => {
   const router = useRouter();
   const searchParams = router.query;
-  const fanMeetingId = searchParams.fanMeetingId;
+  const fanMeetingId = searchParams?.fanMeetingId;
   useEffect(() => {
     // console.log("searchPar🥰🥰🥰🥰🥰🥰🥰ams", searchParams);
     console.log("fanMeeti😇😇😇😇😇😇😇😇😇ngId", fanMeetingId);
