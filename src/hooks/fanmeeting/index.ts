@@ -13,8 +13,9 @@ export interface FanMeeting {
 }
 
 const fetchFanMeeting = async (
-  fanMeetingId: string,
+  fanMeetingId: string | string[] | undefined,
 ): Promise<FanMeeting | undefined> => {
+  if (!fanMeetingId) return undefined;
   const response = await backend_api()
     .get(`/fanMeetings/${fanMeetingId}`)
     .then(
@@ -36,6 +37,7 @@ interface MainWaitRoom {
 }
 
 const fetchMainWaitRoom = async (fanMeetingId: string) => {
+  if (!fanMeetingId) return undefined;
   const response = await backend_api()
     .get(`/fanMeetings/${fanMeetingId}/mainWaitRoom`)
     .then(
