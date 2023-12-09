@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { LinearProgress, Stack } from "@mui/material";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
+import Typography from "@mui/material/Typography";
 
 interface Props {
   timeLimit: number;
@@ -26,25 +27,24 @@ const LinearTimerBar = ({ timeLimit }: Props) => {
 
   return (
     <div style={{ width: "40%" }}>
-      {seconds <= 10 && (
+      {seconds > 0 && (
         <Stack
           direction={"row"}
           justifyContent={"center"}
           alignItems={"center"}
           spacing={2}
         >
-          {seconds <= 10 ? (
-            seconds % 2 === 1 ? (
-              <HourglassBottomIcon sx={{ color: "#FFAFCC" }} />
-            ) : (
-              <HourglassTopIcon sx={{ color: "#FFAFCC" }} />
-            )
-          ) : null}
+          {seconds % 2 === 1 ? (
+            <HourglassBottomIcon sx={{ color: "#FFAFCC" }} />
+          ) : (
+            <HourglassTopIcon sx={{ color: "#FFAFCC" }} />
+          )}
           <LinearProgress
             variant="determinate"
-            value={(seconds / 10) * 100}
+            value={((timeLimit - seconds) / timeLimit) * 100}
             sx={progressStyle}
           />
+          <Typography>{seconds}</Typography>
         </Stack>
       )}
     </div>
