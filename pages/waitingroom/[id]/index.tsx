@@ -34,7 +34,7 @@ const WaitingRoom = () => {
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = router.query;
   // const fanMeetingId = searchParams?.get("id");
-  const fanMeetingId = searchParams.fanMeetingId;
+  const fanMeetingId = searchParams.id;
   useEffect(() => {
     console.log("fanMeeti😇😇😇😇😇😇😇😇😇ngId", fanMeetingId);
   }, []);
