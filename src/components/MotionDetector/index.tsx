@@ -41,6 +41,8 @@ const MotionDetector = ({
   hasCapturedRef.current = hasCaptured;
 
   const [myPose, setMyPose] = useState<boolean>(false);
+  const myPoseRef = useRef(myPose);
+  myPoseRef.current = myPose;
 
   let model, maxPredictions;
   let model2, maxPredictions2;
@@ -184,7 +186,6 @@ const MotionDetector = ({
   }
 
   const signalPoseDetected = useCallback(async () => {
-    // console.log("🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶🥶", username);
     if (username !== "") {
       await openvidu_api.post(`/openvidu/api/signal`, {
         session: sessionId,
@@ -319,7 +320,7 @@ const MotionDetector = ({
   };
 
   useEffect(() => {
-    if (partnerPose && myPose && !hasCaptured) {
+    if (partnerPose && myPoseRef.current && !hasCapturedRef.current) {
       console.log("📸📸 사진촬영!!!!!📸📸", myPose);
       onCapture();
       setHasCaptured(true);
@@ -362,7 +363,7 @@ const MotionDetector = ({
             detected = true;
           }
         }
-        if (detected && !myPose) {
+        if (detected && !myPoseRef.current) {
           // console.log("내가 시그널을 보냈어요", myPose);
           await signalPoseDetected();
         }
