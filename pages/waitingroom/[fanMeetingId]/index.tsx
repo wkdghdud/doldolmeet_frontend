@@ -260,7 +260,7 @@ const WaitingRoom = () => {
                 sx={{
                   textAlign: "center",
                   position: "absolute",
-                  top: "35%",
+                  top: "45%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
                   zIndex: 1,
@@ -269,13 +269,30 @@ const WaitingRoom = () => {
                   marginBottom: 10,
                 }}
               >
-                👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦당신은 {pepleAhead + 1}번째 순서입니당!👨‍👦‍👦👩‍👧‍👦👨‍👧‍👦
+                당신은 {pepleAhead + 1}번째 순서입니다!
               </Typography>
+              <Typography
+                variant="h5"
+                sx={{
+                  textAlign: "center",
+                  position: "absolute",
+                  top: "70%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  zIndex: 1,
+                  fontWeight: 700,
+                  color: "#212121",
+                  marginBottom: 10,
+                }}
+              >
+                잠시만 기다려주세요...
+              </Typography>
+
               <img
-                src={"/waiting_dino.gif"}
+                src={"/banner.jpeg"}
                 alt="조금만 기다려주세요"
                 style={{
-                  height: "30vh",
+                  height: "27vh",
                   width: "100%",
                   borderRadius: 20,
                   objectFit: "cover",
