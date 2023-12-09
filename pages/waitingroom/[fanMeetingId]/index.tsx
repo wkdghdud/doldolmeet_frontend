@@ -69,10 +69,18 @@ const WaitingRoom = () => {
   /* FanMeeting 이름 */
   const [fanMeetingName, setFanMeetingName] = useState<string | undefined>();
 
+  const [eventSource, setEventSource] = useState<EventSource | null>(null);
+
   useEffect(() => {
     if (userName) {
       fetchSSE();
     }
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
   }, [userName]);
 
   useEffect(() => {
@@ -129,6 +137,8 @@ const WaitingRoom = () => {
     const eventSource = new EventSource(
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
+
+    setEventSource(eventSource);
 
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 SSE 연결되었습니다.");

@@ -32,6 +32,9 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   const [nextIdolName, setNextIdolName] = useState<string>("");
   const [motionType, setMotionType] = useState<string>("");
 
+  /* EventSource */
+  const [eventSource, setEventSource] = useState<EventSource | null>(null);
+
   const token = useJwtToken();
 
   useEffect(() => {
@@ -51,6 +54,12 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
         }
       });
     }
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
   }, [userName]);
 
   const joinSession = async (sessionId: string) => {
@@ -146,6 +155,8 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
         // 종료 시 할 일
       }
     };
+
+    setEventSource(eventSource);
 
     return true;
   };
