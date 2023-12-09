@@ -13,3 +13,9 @@ export default async function file(req: NextApiRequest, res: NextApiResponse) {
     arrayBuffer: Object.values(new Uint8Array(await blob.arrayBuffer())),
   });
 }
+
+export const config = {
+  api: {
+    responseLimit: false,
+  },
+};
