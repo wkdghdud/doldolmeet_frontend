@@ -20,6 +20,21 @@ import ScratchCard from "@/components/SecretCard";
 import { useSearchParams } from "next/navigation";
 import CloseIcon from "@mui/icons-material/Close";
 
+function captureVideoFrame(videoUrl, time, callback) {
+  const video = document.createElement("video");
+  video.src = videoUrl;
+  video.currentTime = time;
+  video.addEventListener("seeked", function () {
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(callback);
+  });
+  video.load();
+}
+
 const EndFanMeetingPage = () => {
   /* route query */
   const router = useRouter();
@@ -31,6 +46,7 @@ const EndFanMeetingPage = () => {
   const [contents, setContents] = useState<string[]>([]);
   const [isHovering, setIsHovering] = useState(false);
   const [showSecretCard, setShowSecretCard] = useState(false);
+  const [thumbnails, setThumbnails] = useState({});
 
   useEffect(() => {
     async function init() {
@@ -87,6 +103,23 @@ const EndFanMeetingPage = () => {
 
     init();
   }, [fanMeetingId]);
+
+  const generateThumbnails = (videoUrls) => {
+    videoUrls.forEach((url) => {
+      captureVideoFrame(url, 10, (blob) => {
+        const thumbnailUrl = URL.createObjectURL(blob);
+        setThumbnails((prevThumbnails) => ({
+          ...prevThumbnails,
+          [url]: thumbnailUrl,
+        }));
+      });
+    });
+  };
+  useEffect(() => {
+    // 썸네일 생성은 동영상 URL들이 로드된 후에만 수행됩니다.
+    const videoUrls = contents.filter((url) => url.endsWith(".mp4"));
+    generateThumbnails(videoUrls);
+  }, [contents]);
 
   const handleDownload = async (fileUrl) => {
     if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
@@ -190,19 +223,32 @@ const EndFanMeetingPage = () => {
                   onMouseOver={() => setIsHovering(true)}
                   onMouseOut={() => setIsHovering(false)}
                 >
-                  <video
-                    id={url}
-                    key={index}
-                    style={{
-                      display: "flex",
-                      width: "88%",
-                      marginTop: "auto",
-                      marginBottom: "auto",
-                    }}
-                    controls
-                  >
-                    <source src={url} type="video/mp4" />
-                  </video>
+                  {isVideo ? (
+                    <video
+                      id={url}
+                      key={index}
+                      style={{
+                        display: "flex",
+                        width: "88%",
+                        marginTop: "auto",
+                        marginBottom: "auto",
+                      }}
+                      controls
+                      poster={thumbnails[url]} // 썸네일 URL 사용
+                    >
+                      <source src={url} type="video/mp4" />
+                    </video>
+                  ) : (
+                    <img
+                      src={url}
+                      alt={"banner"}
+                      style={{
+                        width: "88%",
+                        maxHeight: "70vh",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
                   <Stack
                     direction="row"
                     spacing={4}
