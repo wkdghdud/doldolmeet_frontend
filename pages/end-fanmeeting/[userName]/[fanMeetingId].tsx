@@ -22,6 +22,10 @@ import CloseIcon from "@mui/icons-material/Close";
 
 function captureVideoFrame(videoUrl, time, callback) {
   const video = document.createElement("video");
+
+  // CORS 정책 준수를 위해 crossOrigin 속성 설정
+  video.crossOrigin = "anonymous"; // 또는 "use-credentials" 사용 가능
+
   video.src = videoUrl;
 
   video.addEventListener("loadedmetadata", function () {
