@@ -78,6 +78,14 @@ const GamePage = () => {
   /* 다른 사람들의 응답 */
   const [answers, setAnswers] = useState<Answer[]>([]);
 
+  /* EventSource */
+  const [fanEventSource, setFanEventSource] = useState<EventSource | null>(
+    null,
+  );
+  const [idolEventSource, setIdolEventSource] = useState<EventSource | null>(
+    null,
+  );
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -103,12 +111,23 @@ const GamePage = () => {
     if (role && userName !== "") {
       init();
     }
+
+    return () => {
+      if (fanEventSource) {
+        fanEventSource.close();
+      }
+      if (idolEventSource) {
+        idolEventSource.close();
+      }
+    };
   }, [role, userName]);
 
   const fetchSSE_idol = async () => {
     const eventSource = new EventSource(
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
+
+    setIdolEventSource(eventSource);
 
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 아이돌 SSE 연결되었습니다.");
@@ -140,6 +159,8 @@ const GamePage = () => {
     const eventSource = new EventSource(
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
+
+    setFanEventSource(eventSource);
 
     eventSource.addEventListener("connect", (e) => {
       console.log("🥹 연결되었습니다.");
