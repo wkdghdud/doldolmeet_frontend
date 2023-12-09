@@ -31,7 +31,6 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   const [popupImage, setPopupImage] = useState<string>("");
   const [nextIdolName, setNextIdolName] = useState<string>("");
   const [motionType, setMotionType] = useState<string>("");
-  const [gameType, setGameType] = useState<string>("");
 
   const token = useJwtToken();
 
@@ -115,7 +114,6 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
       setPopupImage(JSON.parse(e.data).roomThumbnail);
       setNextIdolName(JSON.parse(e.data).idolNickName);
       setMotionType(JSON.parse(e.data).motionType);
-      setGameType(JSON.parse(e.data).gameType);
       setPopupOpen(true);
     });
 

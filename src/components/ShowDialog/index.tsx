@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogActions,
-  DialogContent,
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
