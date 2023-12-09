@@ -47,9 +47,9 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
       const percentage = (transparentPixels / (pixels.length / 4)) * 100;
       setScratchPercentage(percentage);
 
-      // if (percentage > revealPercent && !isRevealed) {
-      //   revealImage();
-      // }
+      if (percentage > revealPercent && !isRevealed) {
+        revealImage();
+      }
     };
 
     const changeCursor = () => {
