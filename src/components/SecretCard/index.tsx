@@ -84,6 +84,7 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
           position: "absolute",
           top: 0,
           left: 0,
+          zIndex: 400,
           cursor: `url(${pencilCursorUrl}), auto`, // 이 부분을 추가합니다.
         }}
       />
