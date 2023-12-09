@@ -133,6 +133,14 @@ const OneToOnePage = () => {
   /* 남은 통화 시간 */
   const [timeLimit, setTimeLimit] = useState(60);
 
+  /* EventSource */
+  const [fanEventSource, setFanEventSource] = useState<EventSource | null>(
+    null,
+  );
+  const [idolEventSource, setIdolEventSource] = useState<EventSource | null>(
+    null,
+  );
+
   useEffect(() => {
     token.then((res) => {
       setRole(res?.auth);
@@ -159,6 +167,15 @@ const OneToOnePage = () => {
     if (role && userName !== "") {
       init();
     }
+
+    return () => {
+      if (fanEventSource) {
+        fanEventSource.close();
+      }
+      if (idolEventSource) {
+        idolEventSource.close();
+      }
+    };
   }, [role, userName]);
 
   const startRecording = async () => {
@@ -370,6 +387,8 @@ const OneToOnePage = () => {
       // eventSource.close();
     };
 
+    setFanEventSource(eventSource);
+
     return true;
   };
 
@@ -400,6 +419,8 @@ const OneToOnePage = () => {
       console.log("🥲 eventSource 에러가 발생했어요", e);
       // eventSource.close();
     };
+
+    setIdolEventSource(eventSource);
 
     return true;
   };
