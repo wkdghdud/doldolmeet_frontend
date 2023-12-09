@@ -1,23 +1,12 @@
+"use client";
 import React, { useRef, useEffect, useState } from "react";
-import { styled } from "@mui/material/styles";
+import "./styles/global.css";
 import GradientButton from "@/components/GradientButton";
-import { Theme } from "@mui/system";
-
-const ScratchCanvas = styled("canvas")(
-  ({ cursorUrl, theme }: { cursorUrl: string; theme?: Theme }) => ({
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 400,
-    cursor: `url(${cursorUrl}), auto`,
-  }),
-);
 
 const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
   const scratchCanvasRef = useRef(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [scratchPercentage, setScratchPercentage] = useState(0);
-  const pencilCursorUrl = "/coin.png"; // 이미지 경로 확인 필요
 
   useEffect(() => {
     const scratchCanvas = scratchCanvasRef.current;
@@ -86,11 +75,11 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
           animation: isRevealed ? "spin 3s linear" : "none",
         }}
       />
-      <ScratchCanvas
+      <canvas
         ref={scratchCanvasRef}
         width={510}
         height={620}
-        cursorUrl={pencilCursorUrl}
+        style={{ position: "absolute", top: 0, left: 0 }}
       />
       {scratchPercentage > revealPercent && !isRevealed && (
         <GradientButton onClick={revealImage} style={{ marginTop: "10px" }}>
