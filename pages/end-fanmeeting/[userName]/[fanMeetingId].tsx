@@ -342,7 +342,7 @@ const EndFanMeetingPage = () => {
             <ScratchCard
               imageSrc="/majong.jpeg"
               brushSize={20}
-              revealPercent={50}
+              revealPercent={30}
             />
           </DialogContentText>
           <DialogTitle style={{ textAlign: "center" }}>
