@@ -361,6 +361,8 @@ const EndFanMeetingPage = () => {
                   </Stack>
                 </div>
               );
+            } else {
+              return null;
             }
           })}
         </Carousel>
