@@ -23,7 +23,11 @@ import CloseIcon from "@mui/icons-material/Close";
 function captureVideoFrame(videoUrl, time, callback) {
   const video = document.createElement("video");
   video.src = videoUrl;
-  video.currentTime = time;
+
+  video.addEventListener("loadedmetadata", function () {
+    video.currentTime = time;
+  });
+
   video.addEventListener("seeked", function () {
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
@@ -32,9 +36,9 @@ function captureVideoFrame(videoUrl, time, callback) {
     ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(callback);
   });
+
   video.load();
 }
-
 const EndFanMeetingPage = () => {
   /* route query */
   const router = useRouter();
@@ -115,6 +119,7 @@ const EndFanMeetingPage = () => {
       });
     });
   };
+
   useEffect(() => {
     // 썸네일 생성은 동영상 URL들이 로드된 후에만 수행됩니다.
     const videoUrls = contents.filter(
