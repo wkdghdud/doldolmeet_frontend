@@ -36,7 +36,7 @@ const WaitingRoom = () => {
   useEffect(() => {
     // console.log("searchPar🥰🥰🥰🥰🥰🥰🥰ams", searchParams);
     console.log("fanMeeti😇😇😇😇😇😇😇😇😇ngId", fanMeetingId);
-  }, []);
+  }, [fanMeetingId]);
   const { data: fanMeeting } = useFanMeeting(fanMeetingId);
   const { data: waitRoomId } = useMainWaitRoom(fanMeetingId);
 
