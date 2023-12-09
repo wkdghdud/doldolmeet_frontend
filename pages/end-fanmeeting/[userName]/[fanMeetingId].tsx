@@ -117,7 +117,10 @@ const EndFanMeetingPage = () => {
   };
   useEffect(() => {
     // 썸네일 생성은 동영상 URL들이 로드된 후에만 수행됩니다.
-    const videoUrls = contents.filter((url) => url.endsWith(".mp4"));
+    const videoUrls = contents.filter(
+      (url) =>
+        url !== null && url !== undefined && url !== "" && url.endsWith(".mp4"),
+    );
     generateThumbnails(videoUrls);
   }, [contents]);
 
