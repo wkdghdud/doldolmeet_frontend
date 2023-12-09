@@ -7,7 +7,7 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
   const scratchCanvasRef = useRef(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [scratchPercentage, setScratchPercentage] = useState(0);
-  const pencilCursorUrl = "/coin.jpeg";
+  const pencilCursorUrl = "/coin.png";
 
   useEffect(() => {
     const scratchCanvas = scratchCanvasRef.current;
