@@ -78,8 +78,30 @@ const ChatAndMemo = ({ chatRoomId, height }: Props) => {
           </Button>
         </Stack>
       </Box>
-      <div style={{ height: height, width: "100%", maxWidth: "500px" }}>
-        {chatOpen ? <ShowChat roomId={chatRoomId} /> : <Memo />}
+      {/*<div style={{ height: height, width: "100%", maxWidth: "500px" }}>*/}
+      {/*  {chatOpen ? <ShowChat roomId={chatRoomId} /> : <Memo />}*/}
+      {/*</div>*/}
+      <div
+        style={{
+          display: chatOpen ? "block" : "none",
+          height: height,
+          width: "100%",
+          maxWidth: "500px",
+        }}
+      >
+        <ShowChat roomId={chatRoomId} />
+      </div>
+
+      {/* 메모 컴포넌트 */}
+      <div
+        style={{
+          display: chatOpen ? "none" : "block",
+          height: height,
+          width: "100%",
+          maxWidth: "500px",
+        }}
+      >
+        <Memo />
       </div>
     </>
   );
