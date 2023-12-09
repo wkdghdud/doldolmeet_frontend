@@ -53,10 +53,10 @@ const OneToOnePage = () => {
 
   /* Query Param으로 전달된 팬미팅 아이디 */
   const searchParams = router.query;
-  const fanMeetingId = searchParams.fanMeetingId;
-  const sessionId = searchParams.sessionId;
-  const idolName = searchParams.idolName;
-  const motionType = searchParams.motionType;
+  const fanMeetingId = searchParams?.fanMeetingId;
+  const sessionId = searchParams?.sessionId;
+  const idolName = searchParams?.idolName;
+  const motionType = searchParams?.motionType;
 
   /* OpenVidu */
   const [OV, setOV] = useState<OpenVidu | undefined>();

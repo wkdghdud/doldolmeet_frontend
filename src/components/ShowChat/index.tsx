@@ -61,6 +61,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           const receivedMessage = JSON.parse(message.body);
           setMessages((prevMessages) => [...prevMessages, receivedMessage]);
           console.log("$$$$$$$$$$$$$$ messages:", messages);
+          console.log("🟣🟣🟣🟣🟣🟣🟣🟣 myEgo & myTask & myChore:", messages);
         });
         // Send
         stompClient.send(
