@@ -56,9 +56,29 @@ const ChatAndMemo = ({ chatRoomId, height }: Props) => {
               채팅창
             </Typography>
           </Button>
+          {/*<Button*/}
+          {/*  variant={chatOpen ? "text" : "contained"}*/}
+          {/*  onClick={() => setChatOpen(true)}*/}
+          {/*  sx={{*/}
+          {/*    width: "46%",*/}
+          {/*    height: "70%",*/}
+          {/*    backgroundColor: chatOpen ? "#ffffff" : "#ff8fab",*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  <Typography*/}
+          {/*    variant={"button"}*/}
+          {/*    sx={{*/}
+          {/*      fontWeight: 700,*/}
+          {/*      color: chatOpen ? "#9e9e9e" : "#ffffff",*/}
+          {/*      letterSpacing: 3,*/}
+          {/*    }}*/}
+          {/*  >*/}
+          {/*    메모장*/}
+          {/*  </Typography>*/}
+          {/*</Button>*/}
           <Button
             variant={chatOpen ? "text" : "contained"}
-            onClick={() => setChatOpen(true)}
+            onClick={() => setChatOpen(false)} // 여기를 수정
             sx={{
               width: "46%",
               height: "70%",
