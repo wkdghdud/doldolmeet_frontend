@@ -11,6 +11,7 @@ interface Props {
 
 const PhotoTimeAlert = ({ open, motionType }: Props) => {
   const [audio, setAudio] = useState<any>(null);
+  const [showAlert, setShowAlert] = useState(open);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -31,8 +32,18 @@ const PhotoTimeAlert = ({ open, motionType }: Props) => {
     };
   }, [open, audio]);
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setShowAlert(false);
+    }, 2000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [open]);
+
   return (
-    <Fade in={open} timeout={2000}>
+    <Fade in={showAlert} timeout={500}>
       <Paper
         elevation={10}
         sx={{
