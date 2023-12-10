@@ -625,18 +625,18 @@ const OneToOnePage = () => {
         title={snackBarTitle}
         content={snackBarContent}
       />
-      {/*{fanMeetingId && idolName && sessionId && userName && photoTime && (*/}
-      {/*  <MotionDetector*/}
-      {/*    role={role}*/}
-      {/*    fanMeetingId={fanMeetingId}*/}
-      {/*    idolName={idolName}*/}
-      {/*    sessionId={sessionId}*/}
-      {/*    partnerPose={partnerPose}*/}
-      {/*    username={userName}*/}
-      {/*    motionType={motionType}*/}
-      {/*    updateShowOverlay={updateShowOverlay}*/}
-      {/*  />*/}
-      {/*)}*/}
+      {fanMeetingId && idolName && sessionId && userName && photoTime && (
+        <MotionDetector
+          role={role}
+          fanMeetingId={fanMeetingId}
+          idolName={idolName}
+          sessionId={sessionId}
+          partnerPose={partnerPose}
+          username={userName}
+          motionType={motionType}
+          updateShowOverlay={updateShowOverlay}
+        />
+      )}
       <FilterSelectDialog
         popupOpen={filterPopupOpen}
         onClose={() => setFilterPopupOpen(false)}
