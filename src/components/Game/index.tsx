@@ -251,15 +251,17 @@ const SingGamePage = ({
         )}
 
         {role === Role.IDOL && (
-          <>
+          <Stack direction="column" spacing={2}>
             <GradientButton onClick={startGame}>
-              게임 시작 버튼 활성화
+              🎬 게임 시작 버튼 활성화🎬
             </GradientButton>
-            <GradientButton onClick={send_replay}>다시 들려주기</GradientButton>
+            <GradientButton onClick={send_replay}>
+              🎶다시 들려주기🎶
+            </GradientButton>
             <GradientButton onClick={signalGoToEndPage}>
-              종료 페이지로 보내기
+              👋🏿종료 페이지로 보내기👋🏿
             </GradientButton>
-          </>
+          </Stack>
         )}
       </Box>
       {showAllIdolEnteredmodal && (
