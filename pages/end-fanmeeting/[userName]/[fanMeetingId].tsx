@@ -22,6 +22,10 @@ import CloseIcon from "@mui/icons-material/Close";
 
 function captureVideoFrame(videoUrl, time, callback) {
   const video = document.createElement("video");
+
+  // CORS 정책 준수를 위해 crossOrigin 속성 설정
+  video.crossOrigin = "anonymous"; // 또는 "use-credentials" 사용 가능
+
   video.src = videoUrl;
 
   video.addEventListener("loadedmetadata", function () {
@@ -29,12 +33,20 @@ function captureVideoFrame(videoUrl, time, callback) {
   });
 
   video.addEventListener("seeked", function () {
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(callback);
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(callback);
+    } catch (error) {
+      console.error("Error capturing video frame: ", error);
+    }
+  });
+
+  video.addEventListener("error", (e) => {
+    console.error("Error loading video: ", e);
   });
 
   video.load();
