@@ -156,10 +156,10 @@ const OneToOnePage = () => {
         await fetchSSE_idol();
         await joinSession();
       } else if (role === Role.FAN) {
-        await fetchSSE();
         // const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
         // setChatRoomId(fanToFanMeeting?.chatRoomId);
         await joinSession("");
+        await fetchSSE();
       } else {
         await joinSession();
       }
