@@ -98,8 +98,11 @@ const Memo = () => {
     const myMemo = async () => {
       const response = await backend_api()
         .get(`memos/my`)
-        .then((response: AxiosResponse) => setMymemo([...response.data]))
-        .catch((e) => console.error(e));
+        .then((response: AxiosResponse) => {
+          if (response && response.data) {
+            setMymemo([...response.data]);
+          }
+        });
     };
     myMemo();
   }, []);
