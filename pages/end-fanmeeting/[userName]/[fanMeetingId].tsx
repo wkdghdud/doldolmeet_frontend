@@ -216,10 +216,16 @@ const EndFanMeetingPage = () => {
             // idol: "karina",
           })
           .then((res) => {
-            setVideos(res.data);
-            setVideoUrls(Object.values(res.data).map((video) => video.url));
-            console.log("videos", videos);
-            console.log("vide🥶🥶🥶🥶🥶🥶oUrls", videoUrls);
+            if (Object.values(res.data).length > 0) {
+              const videoUrls: string[] = Object.values(res.data).map(
+                // @ts-ignore
+                (video) => video.url,
+              );
+              setVideos(res.data);
+              setVideoUrls((prev) => [...prev, ...videoUrls]);
+              console.log("videos", videos);
+              console.log("vide🥶🥶🥶🥶🥶🥶oUrls", videoUrls);
+            }
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
