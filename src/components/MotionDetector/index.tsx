@@ -201,24 +201,25 @@ const MotionDetector = ({
     }
   };
 
-  useEffect(() => {
-    let timer = setTimeout(() => {
-      if (hasCapturedRef.current === false) {
-        console.log(
-          "📸 포즈가 아직 안 취해졌지만 시간이 얼마 안 남아서 촬영합니다!",
-        );
-        if (role === Role.FAN) {
-          onCapture();
-        }
-        setHasCaptured(true);
-        updateShowOverlay(false);
-      }
-    }, 6000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+  // 수정 1
+  // useEffect(() => {
+  //   let timer = setTimeout(() => {
+  //     if (hasCapturedRef.current === false) {
+  //       console.log(
+  //         "📸 포즈가 아직 안 취해졌지만 시간이 얼마 안 남아서 촬영합니다!",
+  //       );
+  //       if (role === Role.FAN) {
+  //         onCapture();
+  //       }
+  //       setHasCaptured(true);
+  //       updateShowOverlay(false);
+  //     }
+  //   }, 6000);
+  //
+  //   return () => {
+  //     clearTimeout(timer);
+  //   };
+  // }, []);
 
   useEffect(() => {
     console.log("MotionDetector component mounted!");
@@ -358,7 +359,7 @@ const MotionDetector = ({
           }
         }
         if (detected && myPoseRef2.current === false) {
-          // console.log("내가 시그널을 보냈어요", myPose);
+          console.log("내가 시그널을 보냈어요", myPose); // 수정 1
           setMyPose2(true);
           myPoseRef2.current = true;
           await signalPoseDetected();
