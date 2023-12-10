@@ -344,7 +344,10 @@ const EndFanMeetingPage = () => {
           duration={1500}
         >
           {[...Object.values(videos), ...captures].map((item, i) => {
-            const isVideo = item.url && item.url.endsWith(".mp4");
+            const isVideo =
+              item.hasOwnProperty("url") &&
+              item.url &&
+              item.url.endsWith(".mp4");
             const contentUrl = isVideo ? item.url : s3Addr + item.captureUrl;
 
             return (
