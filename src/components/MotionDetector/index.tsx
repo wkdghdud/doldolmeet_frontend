@@ -49,8 +49,8 @@ const MotionDetector = ({
   const myPoseRef2 = useRef(myPose2);
   myPoseRef2.current = myPose2;
 
-  let model, maxPredictions;
-  let model2, maxPredictions2;
+  // let model, maxPredictions;
+  // let model2, maxPredictions2;
   let hasDetected = false;
 
   const [idolImgSrc, setidolImgSrc] = useState<string>("");
