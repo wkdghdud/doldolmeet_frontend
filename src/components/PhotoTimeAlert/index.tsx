@@ -39,7 +39,7 @@ const PhotoTimeAlert = ({ open, motionType }: Props) => {
 
     const timeoutId = setTimeout(() => {
       setShowAlert(false);
-    }, 1000);
+    }, 2000);
 
     return () => {
       clearTimeout(timeoutId);
