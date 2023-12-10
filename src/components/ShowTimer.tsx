@@ -41,10 +41,12 @@ const LinearTimerBar = ({ timeLimit }: Props) => {
           )}
           <LinearProgress
             variant="determinate"
-            value={((timeLimit - seconds) / timeLimit) * 100}
+            value={(seconds / timeLimit) * 100}
             sx={progressStyle}
           />
-          <Typography>{seconds}</Typography>
+          <Typography variant={"h5"} sx={{ color: "#ff86b3" }}>
+            {seconds}
+          </Typography>
         </Stack>
       )}
     </div>
