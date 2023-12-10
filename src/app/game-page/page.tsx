@@ -199,11 +199,15 @@ const GamePage = () => {
   };
 
   const joinNextRoom = async () => {
-    router.push(
-      `/end-fanmeeting/${userName}/${fanMeetingId}?winner=${
-        winnerRef.current ? "true" : "false"
-      }`,
-    );
+    if (role === Role.IDOL) {
+      router.push("/");
+    } else {
+      router.push(
+        `/end-fanmeeting/${userName}/${fanMeetingId}?winner=${
+          winnerRef.current ? "true" : "false"
+        }`,
+      );
+    }
   };
 
   const joinSession = async (_chatRoomId?: string) => {
