@@ -250,16 +250,21 @@ const EndFanMeetingPage = () => {
   // }, [fanMeetingId]);
 
   /* 캡쳐본 */
-  const imgDownLoad = (imgUrl) => {
-    const fileName = imgUrl;
+  const imgDownLoad = (capture) => {
+    if (!capture || !capture.captureUrl) {
+      console.error("Invalid capture object:", capture);
+      return;
+    }
+
+    const fullUrl = s3Addr + capture.captureUrl; // 전체 URL 생성
+    const fileName = capture.captureUrl.split("/").pop(); // URL에서 파일 이름 추출
 
     // Axios를 사용하여 파일 다운로드 요청
     backend_api()
-      .get(`s3/file/download?fileName=${fileName}`, {
-        responseType: "blob", // 파일 다운로드를 위해 responseType을 'blob'으로 설정
+      .get(`s3/file/download?fileName=${encodeURIComponent(fullUrl)}`, {
+        responseType: "blob",
       })
       .then((response) => {
-        // 파일 다운로드를 위해 Blob 형식으로 받은 응답을 처리
         const blob = new Blob([response.data], {
           type: response.headers["content-type"],
         });
@@ -269,8 +274,6 @@ const EndFanMeetingPage = () => {
         const link = document.createElement("a");
         link.href = url;
         link.setAttribute("download", fileName);
-
-        // 링크 클릭하여 파일 다운로드
         document.body.appendChild(link);
         link.click();
 
@@ -281,7 +284,6 @@ const EndFanMeetingPage = () => {
         console.error(error);
       });
   };
-
   const joinMemoryRoom = async () => {
     await router.push(`/my-page/${userName}/${fanMeetingId}`);
   };
