@@ -365,7 +365,7 @@ const EndFanMeetingPage = () => {
               >
                 {isVideo ? (
                   <video
-                    id={isVideo}
+                    id={item.url}
                     style={{
                       display: "flex",
                       width: "88%",
@@ -373,9 +373,9 @@ const EndFanMeetingPage = () => {
                       marginBottom: "auto",
                     }}
                     controls
-                    poster={thumbnails[isVideo]} // 썸네일 URL 사용
+                    poster={thumbnails[item.url]} // 썸네일 URL 사용
                   >
-                    <source src={isVideo} type="video/mp4" />
+                    <source src={item.url} type="video/mp4" />
                   </video>
                 ) : (
                   <img
@@ -409,8 +409,8 @@ const EndFanMeetingPage = () => {
                   <IconButton
                     onClick={() =>
                       isVideo
-                        ? handleDownload(contentUrl)
-                        : imgDownLoad(contentUrl)
+                        ? handleDownload(item.url)
+                        : imgDownLoad(s3Addr + item.captureUrl)
                     }
                     size="large"
                     sx={{
