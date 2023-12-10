@@ -360,32 +360,30 @@ const EndFanMeetingPage = () => {
                     onMouseOver={() => setIsHovering(true)}
                     onMouseOut={() => setIsHovering(false)}
                   >
-                    {isVideo ? (
-                      <video
-                        id={video.url}
-                        key={i}
-                        style={{
-                          display: "flex",
-                          width: "88%",
-                          marginTop: "auto",
-                          marginBottom: "auto",
-                        }}
-                        controls
-                        poster={thumbnails[video.url]} // 썸네일 URL 사용
-                      >
-                        <source src={video.url} type="video/mp4" />
-                      </video>
+                    <video
+                      id={video.url}
+                      key={i}
+                      style={{
+                        display: "flex",
+                        width: "88%",
+                        marginTop: "auto",
+                        marginBottom: "auto",
+                      }}
+                      controls
+                      poster={thumbnails[video.url]} // 썸네일 URL 사용
+                    >
+                      <source src={video.url} type="video/mp4" />
+                    </video>
                     ) : (
-                      <img
-                        src={video}
-                        alt={"banner"}
-                        style={{
-                          width: "88%",
-                          maxHeight: "70vh",
-                          objectFit: "cover",
-                        }}
-                      />
-                    )}
+                    <img
+                      src={video.url}
+                      alt={"banner"}
+                      style={{
+                        width: "88%",
+                        maxHeight: "70vh",
+                        objectFit: "cover",
+                      }}
+                    />
                     <Stack
                       direction="row"
                       spacing={4}
@@ -433,7 +431,19 @@ const EndFanMeetingPage = () => {
                   </div>
                 );
               }
+              return null;
             })}
+        </Carousel>
+
+        {/* 캡처용 Carousel */}
+        <Carousel
+          sx={{
+            height: "70vh",
+            minWidth: "40%",
+          }}
+          animation={"fade"}
+          duration={1500}
+        >
           {captures.map((cap, i) => (
             <div
               key={i}
