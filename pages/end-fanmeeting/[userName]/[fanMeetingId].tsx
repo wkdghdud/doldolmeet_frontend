@@ -206,50 +206,35 @@ const EndFanMeetingPage = () => {
         userName &&
         userName !== undefined &&
         fanMeetingId &&
-        fanMeetingId !== "undefined" &&
-        winner &&
-        winner !== undefined
+        fanMeetingId !== "undefined"
       ) {
-        // fanMeetingId가 유효한 경우에만 API 호출 수행
-        if (fanMeetingId && fanMeetingId !== "undefined") {
-          await backend_api()
-            .get(`/captures/${fanMeetingId}`)
-            .then((res) => {
-              if (res.data.data.length > 0) {
-                const captureUrls: string[] = res.data.data.map(
-                  (captureData) => `${AWS_S3_URL}/${captureData.captureUrl}`,
-                );
-                console.log("captureUrls", captureUrls);
-                setContents((prev) => [...prev, ...captureUrls]);
-              }
-            })
-            .catch((error) => {
-              console.error("Error fetching captures:", error);
-            });
-        }
-
         await backend_api()
           .post(`recording-java/api/recordings/get`, {
             fanMeetingId: fanMeetingId,
             fan: userName,
+            // idol: "karina",
           })
           .then((res) => {
-            if (Object.values(res.data).length > 0) {
-              const videoUrls: string[] = Object.values(res.data).map(
-                // @ts-ignore
-                (video) => video.url,
-              );
-              console.log("videoUrls", videoUrls);
-              setContents((prev) => [...prev, ...videoUrls]);
-            }
+            setVideos(res.data);
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
           });
+      }
 
-        if (winner === "true") {
-          setShowSecretCard(true);
-        }
+      // fanMeetingId가 유효한 경우에만 API 호출 수행
+      if (fanMeetingId && fanMeetingId !== "undefined") {
+        await backend_api()
+          .get(`/captures/${fanMeetingId}`)
+          .then((res) => {
+            setCaptures(res.data.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching captures:", error);
+          });
+      }
+      if (winner === "true") {
+        setShowSecretCard(true);
       }
     }
 
