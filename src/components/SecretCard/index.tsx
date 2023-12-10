@@ -7,7 +7,25 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
   const scratchCanvasRef = useRef(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [scratchPercentage, setScratchPercentage] = useState(0);
-  const audioRef = useRef(new Audio("/clap.mp3"));
+  const [audio, setAudio] = useState<any>(null); // 오디오 상태 추가
+
+  useEffect(() => {
+    // 오디오 객체 초기화
+    setAudio(new Audio("/mp3/clap.mp3")); // 올바른 파일 경로로 변경
+  }, []);
+
+  useEffect(() => {
+    if (isRevealed && audio) {
+      audio.play();
+    }
+
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, [isRevealed, audio]);
 
   useEffect(() => {
     const scratchCanvas = scratchCanvasRef.current;
@@ -80,8 +98,6 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
     setIsRevealed(true);
     // 가리개 캔버스 제거
     scratchCanvasRef.current.style.display = "none";
-
-    audioRef.current.play();
   };
 
   return (
