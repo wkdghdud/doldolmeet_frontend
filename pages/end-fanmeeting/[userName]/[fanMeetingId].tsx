@@ -206,32 +206,50 @@ const EndFanMeetingPage = () => {
         userName &&
         userName !== undefined &&
         fanMeetingId &&
-        fanMeetingId !== "undefined"
+        fanMeetingId !== "undefined" &&
+        winner &&
+        winner !== undefined
       ) {
+        // fanMeetingId가 유효한 경우에만 API 호출 수행
+        if (fanMeetingId && fanMeetingId !== "undefined") {
+          await backend_api()
+            .get(`/captures/${fanMeetingId}`)
+            .then((res) => {
+              if (res.data.data.length > 0) {
+                const captureUrls: string[] = res.data.data.map(
+                  (captureData) => `${AWS_S3_URL}/${captureData.captureUrl}`,
+                );
+                console.log("captureUrls", captureUrls);
+                setContents((prev) => [...prev, ...captureUrls]);
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching captures:", error);
+            });
+        }
+
         await backend_api()
           .post(`recording-java/api/recordings/get`, {
             fanMeetingId: fanMeetingId,
             fan: userName,
-            // idol: "karina",
           })
           .then((res) => {
-            setVideos(res.data);
+            if (Object.values(res.data).length > 0) {
+              const videoUrls: string[] = Object.values(res.data).map(
+                // @ts-ignore
+                (video) => video.url,
+              );
+              console.log("videoUrls", videoUrls);
+              setContents((prev) => [...prev, ...videoUrls]);
+            }
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
           });
-      }
 
-      // fanMeetingId가 유효한 경우에만 API 호출 수행
-      if (fanMeetingId && fanMeetingId !== "undefined") {
-        await backend_api()
-          .get(`/captures/${fanMeetingId}`)
-          .then((res) => {
-            setCaptures(res.data.data);
-          })
-          .catch((error) => {
-            console.error("Error fetching captures:", error);
-          });
+        if (winner === "true") {
+          setShowSecretCard(true);
+        }
       }
     }
 
@@ -340,7 +358,6 @@ const EndFanMeetingPage = () => {
           animation={"fade"}
           duration={1500}
         >
-          {/*{contents.map((url, index) => {*/}
           {Object.values(videos).length > 0 &&
             Object.values(videos).map((video, i) => {
               if (video.url) {
@@ -361,6 +378,7 @@ const EndFanMeetingPage = () => {
                     {isVideo ? (
                       <video
                         id={video.url}
+                        key={i}
                         style={{
                           display: "flex",
                           width: "88%",
@@ -374,7 +392,7 @@ const EndFanMeetingPage = () => {
                       </video>
                     ) : (
                       <img
-                        src={video.url}
+                        src={video}
                         alt={"banner"}
                         style={{
                           width: "88%",
@@ -444,6 +462,7 @@ const EndFanMeetingPage = () => {
             >
               <img
                 src={s3Addr + cap.captureUrl}
+                key={i}
                 alt={`Capture ${i}`}
                 style={{
                   width: "88%",
