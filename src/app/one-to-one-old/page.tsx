@@ -256,31 +256,30 @@ const OneToOnePage = () => {
           },
         });
       } else if (role === Role.FAN) {
-        await mySession
-          .connect(token, {
-            clientData: JSON.stringify({
-              role: role,
-              fanMeetingId: fanMeetingId,
-              userName: userName,
-              type: "idolRoom",
-              chatRoomId: _chatRoomId,
-              nickname: myNickName,
-              gameType: gameType,
-              idolName: idolName,
-            }),
-            kurentoOptions: {
-              allowedFilters: [
-                "FaceOverlayFilter",
-                "ChromaFilter",
-                "GStreamerFilter",
-              ],
-            },
-          })
-          .then(async () => {
-            if (role === Role.FAN) {
-              await startRecording();
-            }
-          });
+        await mySession.connect(token, {
+          clientData: JSON.stringify({
+            role: role,
+            fanMeetingId: fanMeetingId,
+            userName: userName,
+            type: "idolRoom",
+            chatRoomId: _chatRoomId,
+            nickname: myNickName,
+            gameType: gameType,
+            idolName: idolName,
+          }),
+          kurentoOptions: {
+            allowedFilters: [
+              "FaceOverlayFilter",
+              "ChromaFilter",
+              "GStreamerFilter",
+            ],
+          },
+        });
+        // .then(async () => {
+        //   if (role === Role.FAN) {
+        //     await startRecording();
+        //   }
+        // });
       }
 
       await ov.getUserMedia({
