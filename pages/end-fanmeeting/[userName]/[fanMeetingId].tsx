@@ -60,7 +60,7 @@ const EndFanMeetingPage = () => {
 
   const [user, setUser] = useState(null);
   const [captures, setCaptures] = useState([]);
-  const [videos, setVideos] = useState<string[]>([]); // Todo: captures를 videos로 변경해야됨
+  const [videos, setVideos] = useState([]); // Todo: captures를 videos로 변경해야됨
 
   /* States */
   const [contents, setContents] = useState<string[]>([]);
@@ -136,27 +136,14 @@ const EndFanMeetingPage = () => {
     });
   };
 
-  // useEffect(() => {
-  //   console.log("video😈😈😈😈😈😈s", videos);
-  //   if (videos.length > 0) {
-  //     const videoUrls = videos.filter(
-  //       (url) =>
-  //         url !== null &&
-  //         url !== undefined &&
-  //         url !== "" &&
-  //         url.endsWith(".mp4"),
-  //     );
-  //     generateThumbnails(videoUrls);
-  //   }
-  // }, [videos]); // videos 배열이 변경될 때마다 이 useEffect가 실행됩니다.
-
   useEffect(() => {
-    console.log("video🥶s", videos);
-    if (videos.length > 0) {
-      // videos 배열이 이미 URL만을 포함하고 있으므로 추가 필터링이 필요 없습니다.
-      generateThumbnails(videos);
-    }
-  }, [videos]);
+    // 썸네일 생성은 동영상 URL들이 로드된 후에만 수행됩니다.
+    const videoUrls = contents.filter(
+      (url) =>
+        url !== null && url !== undefined && url !== "" && url.endsWith(".mp4"),
+    );
+    generateThumbnails(videoUrls);
+  }, [contents]);
 
   // const handleDownload = async (fileUrl) => {
   //   if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
@@ -228,9 +215,7 @@ const EndFanMeetingPage = () => {
             // idol: "karina",
           })
           .then((res) => {
-            const videoUrls = Object.values(res.data).map((video) => video.url);
-            console.log("videoU🥶🥶🥶rls", videoUrls);
-            setVideos(videoUrls);
+            setVideos(res.data);
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
