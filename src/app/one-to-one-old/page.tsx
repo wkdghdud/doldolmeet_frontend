@@ -455,10 +455,7 @@ const OneToOnePage = () => {
 
   const joinNextRoom = async (sessionId: string, nextRoomType: string) => {
     if (nextRoomType === "gameRoom") {
-      router.push(
-        `/game-page?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
-      );
-      // router.push(`/end-fanmeeting/${userName}/${fanMeetingId}`);
+      router.push(`/game-page/${fanMeetingId}/${sessionId}`);
     } else {
       router.push(
         `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${sessionId}`,
