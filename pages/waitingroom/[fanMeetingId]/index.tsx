@@ -33,10 +33,7 @@ const WaitingRoom = () => {
   const router = useRouter();
   const searchParams = router.query;
   const fanMeetingId = searchParams?.fanMeetingId;
-  useEffect(() => {
-    // console.log("searchPar🥰🥰🥰🥰🥰🥰🥰ams", searchParams);
-    console.log("fanMeeti😇😇😇😇😇😇😇😇😇ngId", fanMeetingId);
-  }, [fanMeetingId]);
+
   const { data: fanMeeting } = useFanMeeting(fanMeetingId);
   const { data: waitRoomId } = useMainWaitRoom(fanMeetingId);
 
@@ -72,7 +69,7 @@ const WaitingRoom = () => {
   const [eventSource, setEventSource] = useState<EventSource | null>(null);
 
   useEffect(() => {
-    if (userName) {
+    if (fanMeetingId && userName) {
       fetchSSE();
     }
 
@@ -81,7 +78,7 @@ const WaitingRoom = () => {
         eventSource.close();
       }
     };
-  }, [userName]);
+  }, [fanMeetingId, userName]);
 
   useEffect(() => {
     token.then((res) => {
@@ -134,6 +131,8 @@ const WaitingRoom = () => {
   };
 
   const fetchSSE = () => {
+    if (!fanMeetingId || !userName) return;
+
     const eventSource = new EventSource(
       `https://api.doldolmeet.shop/fanMeetings/${fanMeetingId}/sse/${userName}`,
     );
@@ -157,7 +156,6 @@ const WaitingRoom = () => {
     );
 
     eventSource.addEventListener("numberOfPeopleAhead", (e: MessageEvent) => {
-      console.log("🥹 numberOfPeopleAhead: ", JSON.parse(e.data));
       setPeopleAhead(JSON.parse(e.data));
     });
 
