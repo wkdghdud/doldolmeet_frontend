@@ -228,16 +228,11 @@ const MotionDetector = ({
     };
 
     loadScripts();
-  }, [
-    webcamRef.current,
-    canvasRef.current,
-    labelContainerRef.current,
-    motionType,
-  ]);
+  }, [canvasRef.current, labelContainerRef.current, motionType]);
 
   const init = async () => {
     console.log("MotionDetector init() called");
-    if (webcamRef.current && canvasRef.current && labelContainerRef.current) {
+    if (canvasRef.current && labelContainerRef.current) {
       const URL = "/my-pose-model/";
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
@@ -266,7 +261,7 @@ const MotionDetector = ({
 
   const init2 = async () => {
     console.log("MotionDetector init2() called");
-    if (webcamRef.current && canvasRef.current && labelContainerRef2.current) {
+    if (canvasRef.current && labelContainerRef2.current) {
       const URL2 = "/my-pose-model2/";
       const modelURL2 = URL2 + "model.json";
       const metadataURL2 = URL2 + "metadata.json";
