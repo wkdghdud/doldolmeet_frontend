@@ -136,19 +136,27 @@ const EndFanMeetingPage = () => {
     });
   };
 
+  // useEffect(() => {
+  //   console.log("video😈😈😈😈😈😈s", videos);
+  //   if (videos.length > 0) {
+  //     const videoUrls = videos.filter(
+  //       (url) =>
+  //         url !== null &&
+  //         url !== undefined &&
+  //         url !== "" &&
+  //         url.endsWith(".mp4"),
+  //     );
+  //     generateThumbnails(videoUrls);
+  //   }
+  // }, [videos]); // videos 배열이 변경될 때마다 이 useEffect가 실행됩니다.
+
   useEffect(() => {
-    console.log("video😈😈😈😈😈😈s", videos);
+    console.log("video🥶s", videos);
     if (videos.length > 0) {
-      const videoUrls = videos.filter(
-        (url) =>
-          url !== null &&
-          url !== undefined &&
-          url !== "" &&
-          url.endsWith(".mp4"),
-      );
-      generateThumbnails(videoUrls);
+      // videos 배열이 이미 URL만을 포함하고 있으므로 추가 필터링이 필요 없습니다.
+      generateThumbnails(videos);
     }
-  }, [videos]); // videos 배열이 변경될 때마다 이 useEffect가 실행됩니다.
+  }, [videos]);
 
   // const handleDownload = async (fileUrl) => {
   //   if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
@@ -220,7 +228,9 @@ const EndFanMeetingPage = () => {
             // idol: "karina",
           })
           .then((res) => {
-            setVideos(res.data);
+            const videoUrls = Object.values(res.data).map((video) => video.url);
+            console.log("videoU🥶🥶🥶rls", videoUrls);
+            setVideos(videoUrls);
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
