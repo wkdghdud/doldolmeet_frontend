@@ -362,7 +362,7 @@ const EndFanMeetingPage = () => {
               >
                 {isVideo ? (
                   <video
-                    id={contentUrl}
+                    id={isVideo}
                     style={{
                       display: "flex",
                       width: "88%",
@@ -370,9 +370,9 @@ const EndFanMeetingPage = () => {
                       marginBottom: "auto",
                     }}
                     controls
-                    poster={thumbnails[contentUrl]} // 썸네일 URL 사용
+                    poster={thumbnails[isVideo]} // 썸네일 URL 사용
                   >
-                    <source src={contentUrl} type="video/mp4" />
+                    <source src={isVideo} type="video/mp4" />
                   </video>
                 ) : (
                   <img
