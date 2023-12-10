@@ -45,26 +45,25 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
   const messagesRef = useRef<HTMLElement | null>(null);
   const token = useJwtToken();
-  const [userId, setUserId] = useState("");
 
   const [langTarget, setLangTarget] = useAtom(languageTargetAtom);
 
   useEffect(() => {
     const initWebSocket = () => {
-      const sock = new SockJS(WS_STOMP_URL);
-      const stompClient = Stomp.over(sock);
-      setStompClient(stompClient);
+      if (stompClient) return;
 
-      stompClient.connect({}, (frame) => {
+      const sock = new SockJS(WS_STOMP_URL);
+      const _stompClient = Stomp.over(sock);
+      setStompClient(_stompClient);
+
+      _stompClient.connect({}, (frame) => {
         // Subscribe
-        stompClient.subscribe(`/sub/chat/room/${roomId}`, (message) => {
+        _stompClient.subscribe(`/sub/chat/room/${roomId}`, (message) => {
           const receivedMessage = JSON.parse(message.body);
           setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-          console.log("$$$$$$$$$$$$$$ messages:", messages);
-          console.log("🟣🟣🟣🟣🟣🟣🟣🟣 myEgo & myTask & myChore:", messages);
         });
         // Send
-        stompClient.send(
+        _stompClient.send(
           "/pub/chat/message",
           {},
           JSON.stringify({
@@ -76,7 +75,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       });
 
       return () => {
-        stompClient.disconnect();
+        _stompClient.disconnect();
       };
     };
 
@@ -87,10 +86,8 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
   useEffect(() => {
     token.then((res) => {
-      setUserId(res?.sub ?? "");
       setSender(res?.sub ?? "");
       setImgUrl(res?.profileImgUrl ?? "");
-      // console.log("############# imgUrl: ", imgUrl); // 됨
     });
   }, [token]);
 

@@ -32,6 +32,7 @@ import FilterSelectDialog from "@/components/FilterSelectDialog";
 import { useAtomValue } from "jotai/react";
 import { languageTargetAtom } from "@/atom";
 import SpeechRecog from "@/components/Speech-Recognition";
+import PhotoTimeAlert from "@/components/PhotoTimeAlert";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -643,6 +644,7 @@ const OneToOnePage = () => {
         onClose={() => setFilterPopupOpen(false)}
         onClickApplyFilter={onClickApplyFilter}
       />
+      <PhotoTimeAlert open={endSoon} motionType={motionType} />
     </Grid>
   );
 };

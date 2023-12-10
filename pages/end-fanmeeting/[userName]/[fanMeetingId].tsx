@@ -61,6 +61,7 @@ const EndFanMeetingPage = () => {
   const [user, setUser] = useState(null);
   const [captures, setCaptures] = useState([]);
   const [videos, setVideos] = useState([]); // Todo: captures를 videos로 변경해야됨
+  const [videosUrls, setVidesoUrls] = useState<string[]>([]); // Todo: captures를 videos로 변경해야됨
 
   /* States */
   const [contents, setContents] = useState<string[]>([]);
@@ -138,12 +139,12 @@ const EndFanMeetingPage = () => {
 
   useEffect(() => {
     // 썸네일 생성은 동영상 URL들이 로드된 후에만 수행됩니다.
-    const videoUrls = contents.filter(
+    const videoUrls = videosUrls.filter(
       (url) =>
         url !== null && url !== undefined && url !== "" && url.endsWith(".mp4"),
     );
     generateThumbnails(videoUrls);
-  }, [contents]);
+  }, [videosUrls]);
 
   // const handleDownload = async (fileUrl) => {
   //   if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
@@ -215,7 +216,16 @@ const EndFanMeetingPage = () => {
             // idol: "karina",
           })
           .then((res) => {
-            setVideos(res.data);
+            if (Object.values(res.data).length > 0) {
+              const videoUrls: string[] = Object.values(res.data).map(
+                // @ts-ignore
+                (video) => video.url,
+              );
+              setVideos(res.data);
+              setVidesoUrls((prev) => [...prev, ...videoUrls]);
+              console.log("videos", videos);
+              console.log("vide🥶🥶🥶🥶🥶🥶oUrls", videoUrls);
+            }
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
@@ -232,6 +242,9 @@ const EndFanMeetingPage = () => {
           .catch((error) => {
             console.error("Error fetching captures:", error);
           });
+      }
+      if (winner === "true") {
+        setShowSecretCard(true);
       }
     }
 
@@ -340,163 +353,99 @@ const EndFanMeetingPage = () => {
           animation={"fade"}
           duration={1500}
         >
-          {/*{contents.map((url, index) => {*/}
-          {Object.values(videos).length > 0 &&
-            Object.values(videos).map((video, i) => {
-              if (video.url) {
-                const isVideo = video.url.endsWith(".mp4");
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      display: "flex",
-                      height: "70vh",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      position: "relative",
-                    }}
-                    onMouseOver={() => setIsHovering(true)}
-                    onMouseOut={() => setIsHovering(false)}
-                  >
-                    {isVideo ? (
-                      <video
-                        id={video.url}
-                        style={{
-                          display: "flex",
-                          width: "88%",
-                          marginTop: "auto",
-                          marginBottom: "auto",
-                        }}
-                        controls
-                        poster={thumbnails[video.url]} // 썸네일 URL 사용
-                      >
-                        <source src={video.url} type="video/mp4" />
-                      </video>
-                    ) : (
-                      <img
-                        src={video.url}
-                        alt={"banner"}
-                        style={{
-                          width: "88%",
-                          maxHeight: "70vh",
-                          objectFit: "cover",
-                        }}
-                      />
-                    )}
-                    <Stack
-                      direction="row"
-                      spacing={4}
-                      sx={{
-                        position: "absolute",
-                        top: "45%",
-                        left: "35%",
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: "rgba(0,0,0,0.7)",
-                        display: isHovering ? "flex" : "none",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: "28%",
-                        height: "12%",
-                        borderRadius: 10,
-                      }}
-                    >
-                      <IconButton
-                        onClick={() => handleDownload(video.url)}
-                        size="large"
-                        sx={{
-                          color: "#FFFFFF",
-                          transform: "scale(1.5)",
-                          "&:hover": {
-                            color: "#FFAFCC",
-                          },
-                        }}
-                      >
-                        <GetApp fontSize={"inherit"} />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => shareTwitter(video.url)}
-                        sx={{
-                          color: "#FFFFFF",
-                          transform: "scale(1.5)",
-                          "&:hover": {
-                            color: "#FFAFCC",
-                          },
-                        }}
-                      >
-                        <Twitter />
-                      </IconButton>
-                    </Stack>
-                  </div>
-                );
-              }
-            })}
-          {captures.map((cap, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                position: "relative",
-              }}
-              onMouseOver={() => setIsHovering(true)}
-              onMouseOut={() => setIsHovering(false)}
-            >
-              <img
-                src={s3Addr + cap.captureUrl}
-                alt={`Capture ${i}`}
+          {[...Object.values(videos), ...captures].map((item, i) => {
+            const isVideo = item.url && item.url.endsWith(".mp4");
+            const contentUrl = isVideo ? item.url : s3Addr + item.captureUrl;
+
+            return (
+              <div
+                key={i}
                 style={{
-                  width: "88%",
-                  maxHeight: "70vh",
-                  objectFit: "cover",
-                }}
-              />
-              <Stack
-                direction="row"
-                spacing={4}
-                sx={{
-                  position: "absolute",
-                  top: "45%",
-                  left: "35%",
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                  display: isHovering ? "flex" : "none",
+                  display: "flex",
+                  height: "70vh",
                   justifyContent: "center",
                   alignItems: "center",
-                  width: "28%",
-                  height: "12%",
-                  borderRadius: 10,
+                  position: "relative",
                 }}
+                onMouseOver={() => setIsHovering(true)}
+                onMouseOut={() => setIsHovering(false)}
               >
-                <IconButton
-                  onClick={() => imgDownLoad(cap.captureUrl)}
-                  size="large"
+                {isVideo ? (
+                  <video
+                    id={item.url}
+                    style={{
+                      display: "flex",
+                      width: "88%",
+                      marginTop: "auto",
+                      marginBottom: "auto",
+                    }}
+                    controls
+                    poster={thumbnails[item.url]} // 썸네일 URL 사용
+                  >
+                    <source src={item.url} type="video/mp4" />
+                  </video>
+                ) : (
+                  <img
+                    src={s3Addr + item.captureUrl}
+                    alt={`Capture ${i}`}
+                    style={{
+                      width: "88%",
+                      maxHeight: "70vh",
+                      objectFit: "cover",
+                    }}
+                  />
+                )}
+                <Stack
+                  direction="row"
+                  spacing={4}
                   sx={{
-                    color: "#FFFFFF",
-                    transform: "scale(1.5)",
-                    "&:hover": {
-                      color: "#FFAFCC",
-                    },
+                    position: "absolute",
+                    top: "45%",
+                    left: "35%",
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "rgba(0,0,0,0.7)",
+                    display: isHovering ? "flex" : "none",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "28%",
+                    height: "12%",
+                    borderRadius: 10,
                   }}
                 >
-                  <GetApp fontSize={"inherit"} />
-                </IconButton>
-                <IconButton
-                  onClick={() => shareTwitter(s3Addr + cap.captureUrl)}
-                  sx={{
-                    color: "#FFFFFF",
-                    transform: "scale(1.5)",
-                    "&:hover": {
-                      color: "#FFAFCC",
-                    },
-                  }}
-                >
-                  <Twitter />
-                </IconButton>
-              </Stack>
-            </div>
-          ))}
+                  <IconButton
+                    onClick={() =>
+                      isVideo
+                        ? handleDownload(item.url)
+                        : imgDownLoad(item.captureUrl)
+                    }
+                    size="large"
+                    sx={{
+                      color: "#FFFFFF",
+                      transform: "scale(1.5)",
+                      "&:hover": {
+                        color: "#FFAFCC",
+                      },
+                    }}
+                  >
+                    <GetApp fontSize={"inherit"} />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => shareTwitter(contentUrl)}
+                    sx={{
+                      color: "#FFFFFF",
+                      transform: "scale(1.5)",
+                      "&:hover": {
+                        color: "#FFAFCC",
+                      },
+                    }}
+                  >
+                    <Twitter />
+                  </IconButton>
+                </Stack>
+              </div>
+            );
+          })}
         </Carousel>
       </Grid>
       {showSecretCard && (
