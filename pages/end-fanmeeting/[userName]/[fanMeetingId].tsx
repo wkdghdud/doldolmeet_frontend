@@ -348,7 +348,9 @@ const EndFanMeetingPage = () => {
           {[...Object.values(videos), ...captures].map((item, i) => {
             // item이 비디오 객체인지 확인, 캡처는 captureUrl 속성을 갖습니다.
             const isVideo =
-              item.hasOwnProperty("url") && item.url.endsWith(".mp4");
+              item.hasOwnProperty("url") &&
+              item.url &&
+              item.url.endsWith(".mp4");
             const contentUrl = isVideo ? item.url : s3Addr + item.captureUrl;
 
             return (
