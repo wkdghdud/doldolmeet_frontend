@@ -21,9 +21,7 @@ import { useRouter } from "next/router";
 import LinearTimerBar from "@/components/ShowTimer";
 import MyStreamView from "@/components/meeting/MyStreamView";
 import PartnerStreamView from "@/components/meeting/PartnerStreamView";
-// import ChatAndMemo from "@/components/ChatAndMemo";
-const ChatAndMemo = React.lazy(() => import("@/components/ChatAndMemo"));
-// const FilterSelectDialog = React.lazy(() => import('@/components/FilterSelectDialog'));
+import ChatAndMemo from "@/components/ChatAndMemo";
 import AlertSnackBar from "@/components/Timer";
 import { backend_api, SPRING_URL } from "@/utils/api";
 import MotionDetector from "@/components/MotionDetector";
@@ -228,7 +226,6 @@ const OneToOnePage = () => {
       setOV(ov);
 
       const mySession = ov.initSession();
-      setSession(mySession);
 
       mySession.on("streamCreated", (event) => {
         console.log("🥳 streamCreated 이벤트 발생: ", event);
@@ -263,22 +260,14 @@ const OneToOnePage = () => {
         }
       });
 
-      const [connection, devices, userMedia] = await Promise.all([
-        createOpenViduConnection(sessionId),
-        ov.getDevices(),
-        ov.getUserMedia({ audioSource: undefined, videoSource: undefined }),
-      ]);
-
+      const connection = await createOpenViduConnection(sessionId);
       if (connection) {
         setMyConnection(connection);
       }
-
-      const token = connection.token;
-
-      let connectPromise;
+      const { token } = connection;
 
       if (role === Role.IDOL) {
-        connectPromise = mySession.connect(token, {
+        await mySession.connect(token, {
           clientData: JSON.stringify({
             role: role,
             fanMeetingId: fanMeetingId,
@@ -296,7 +285,7 @@ const OneToOnePage = () => {
           },
         });
       } else if (role === Role.FAN) {
-        connectPromise = mySession
+        await mySession
           .connect(token, {
             clientData: JSON.stringify({
               role: role,
@@ -327,11 +316,12 @@ const OneToOnePage = () => {
         videoSource: undefined,
       });
 
-      // const devices = await ov.getDevices();
+      const devices = await ov.getDevices();
       const videoDevices = devices.filter(
         (device) => device.kind === "videoinput",
       );
-      const newPublisher = ov.initPublisherAsync(undefined, {
+
+      const newPublisher = await ov.initPublisherAsync(undefined, {
         audioSource: undefined,
         videoSource: videoDevices[0].deviceId,
         publishAudio: true,
@@ -342,8 +332,7 @@ const OneToOnePage = () => {
         mirror: false,
       });
 
-      await Promise.all([connectPromise, newPublisher]);
-
+      // newPublisher.subscribeToRemote();
       mySession.publish(newPublisher);
       setSession(mySession);
       setMyStream(newPublisher);
@@ -463,24 +452,22 @@ const OneToOnePage = () => {
     }
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      if (fanMeetingId) {
-        try {
-          const [fanMeeting, fanToFanMeeting] = await Promise.all([
-            fetchFanMeeting(fanMeetingId),
-            fetchFanToFanMeeting(fanMeetingId),
-          ]);
-          // 여기서 결과 데이터를 상태에 설정합니다.
-          setFanMeetingName(fanMeeting?.title);
-          setChatRoomId(fanToFanMeeting?.chatRoomId);
-        } catch (error) {
-          console.error("데이터 가져오기 에러:", error);
-        }
-      }
-    }
+  const fetchFanMeetingTitle = async () => {
+    try {
+      const fanMeeting = await fetchFanMeeting(fanMeetingId);
 
-    fetchData();
+      if (fanMeeting) {
+        setFanMeetingName(fanMeeting.title);
+      }
+    } catch (error) {
+      console.error("FanMeeting fetch error:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (fanMeetingId) {
+      fetchFanMeetingTitle();
+    }
   }, [fanMeetingId]);
 
   const toggleFilter = async () => {
@@ -618,45 +605,6 @@ const OneToOnePage = () => {
           </Grid>
         </Grid>
       </Grid>
-      <React.Suspense fallback={<div>Loading...</div>}>
-        {!fullScreen && (
-          <Grid
-            item
-            xs={3.5}
-            sx={{
-              backgroundColor: "rgba(238,238,238,0.7)",
-              borderRadius: 5,
-              padding: 2,
-            }}
-          >
-            <ChatAndMemo chatRoomId={chatRoomId} height={"75vh"} />
-          </Grid>
-        )}
-        <AlertSnackBar
-          open={snackBarOpen}
-          handleClose={() => setSnackBarOpen(false)}
-          title={snackBarTitle}
-          content={snackBarContent}
-        />
-        {/*{fanMeetingId && idolName && sessionId && userName && photoTime && (*/}
-        {/*  <MotionDetector*/}
-        {/*    role={role}*/}
-        {/*    fanMeetingId={fanMeetingId}*/}
-        {/*    idolName={idolName}*/}
-        {/*    sessionId={sessionId}*/}
-        {/*    partnerPose={partnerPose}*/}
-        {/*    username={userName}*/}
-        {/*    motionType={motionType}*/}
-        {/*    updateShowOverlay={updateShowOverlay}*/}
-        {/*  />*/}
-        {/*)}*/}
-        <FilterSelectDialog
-          popupOpen={filterPopupOpen}
-          onClose={() => setFilterPopupOpen(false)}
-          onClickApplyFilter={onClickApplyFilter}
-        />
-        <PhotoTimeAlert open={endSoon} motionType={motionType} />
-      </React.Suspense>
 
       {!fullScreen && (
         <Grid

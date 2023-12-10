@@ -22,6 +22,11 @@ import Game, { Answer } from "@/components/Game";
 import WinnerDialog from "@/components/WinnerDialog";
 import { useRouter } from "next/router";
 
+interface NameAndStream {
+  name: string;
+  stream: Subscriber;
+}
+
 const GamePage = () => {
   const router = useRouter();
 
@@ -40,10 +45,10 @@ const GamePage = () => {
   const [myNickName, setMyNickName] = useState<string | undefined>();
 
   /* 아이돌들의 Stream */
-  const [idolStreams, setIdolStreams] = useState<Subscriber[]>([]);
+  const [idolStreams, setIdolStreams] = useState<NameAndStream[]>([]);
 
   /* 팬들의 Stream */
-  const [fanStreams, setFanStreams] = useState<Subscriber[]>([]);
+  const [fanStreams, setFanStreams] = useState<NameAndStream[]>([]);
 
   /* 나의 Stream */
   const [myStream, setMyStream] = useState<Publisher | undefined>();
@@ -242,12 +247,16 @@ const GamePage = () => {
         const subscriber = mySession.subscribe(event.stream, undefined);
         const clientData = JSON.parse(event.stream.connection.data).clientData;
         const role = JSON.parse(clientData).role;
+        const nameAndStream = {
+          name: JSON.parse(clientData).nickname,
+          stream: subscriber,
+        };
         if (role === Role.IDOL) {
-          setIdolStreams((prev) => [...prev, subscriber]);
+          setIdolStreams((prev) => [...prev, nameAndStream]);
         } else if (role === Role.FAN) {
-          setFanStreams((prev) => [...prev, subscriber]);
+          setFanStreams((prev) => [...prev, nameAndStream]);
         } else {
-          setFanStreams((prev) => [...prev, subscriber]);
+          setFanStreams((prev) => [...prev, nameAndStream]);
         }
       });
 
@@ -389,7 +398,9 @@ const GamePage = () => {
   const deleteSubscriber = (role, streamManager) => {
     if (role === Role.IDOL) {
       setIdolStreams((prevSubscribers) => {
-        const index = prevSubscribers.indexOf(streamManager);
+        const index = prevSubscribers.findIndex(
+          (nameAndStream) => nameAndStream.stream === streamManager,
+        );
         if (index > -1) {
           const newSubscribers = [...prevSubscribers];
           newSubscribers.splice(index, 1);
@@ -400,7 +411,9 @@ const GamePage = () => {
       });
     } else if (role === Role.FAN) {
       setFanStreams((prevSubscribers) => {
-        const index = prevSubscribers.indexOf(streamManager);
+        const index = prevSubscribers.findIndex(
+          (nameAndStream) => nameAndStream.stream === streamManager,
+        );
         if (index > -1) {
           const newSubscribers = [...prevSubscribers];
           newSubscribers.splice(index, 1);
@@ -435,11 +448,11 @@ const GamePage = () => {
                 name={myNickName}
               />
             )}
-            {idolStreams.map((stream) => (
+            {idolStreams.map((nameAndStream) => (
               <IdolStreamView
-                key={stream.id}
-                streamManager={stream}
-                name={"아이돌"}
+                key={nameAndStream.stream.id}
+                streamManager={nameAndStream.stream}
+                name={nameAndStream.name ?? "아이돌"}
               />
             ))}
           </Stack>
@@ -474,11 +487,11 @@ const GamePage = () => {
                 name={myNickName}
               />
             )}
-            {fanStreams.map((stream) => (
+            {fanStreams.map((nameAndStream) => (
               <FanStreamView
-                key={stream.id}
-                streamManager={stream}
-                name={"팬"}
+                key={nameAndStream.stream.id}
+                streamManager={nameAndStream.stream}
+                name={nameAndStream.name ?? "팬"}
               />
             ))}
           </Stack>
