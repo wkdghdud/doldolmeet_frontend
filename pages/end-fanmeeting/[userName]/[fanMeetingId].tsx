@@ -379,7 +379,7 @@ const EndFanMeetingPage = () => {
                   </video>
                 ) : (
                   <img
-                    src={contentUrl}
+                    src={s3Addr + cap.captureUrl}
                     alt={`Capture ${i}`}
                     style={{
                       width: "88%",
@@ -410,7 +410,7 @@ const EndFanMeetingPage = () => {
                     onClick={() =>
                       isVideo
                         ? handleDownload(item.url)
-                        : imgDownLoad(s3Addr + item.captureUrl)
+                        : imgDownLoad(item.captureUrl)
                     }
                     size="large"
                     sx={{
