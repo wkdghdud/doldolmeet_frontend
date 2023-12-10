@@ -334,7 +334,7 @@ const GamePage = () => {
       const newPublisher = await ov.initPublisherAsync(undefined, {
         audioSource: undefined,
         videoSource: undefined,
-        publishAudio: role === Role.IDOL, // 아이돌인 경우에만 말할 수 있도록
+        publishAudio: role === Role.IDOL || userName === "hoyoung123", // 아이돌인 경우에만 말할 수 있도록
         publishVideo: true,
         resolution: "640x480",
         frameRate: 30,
@@ -422,7 +422,7 @@ const GamePage = () => {
               <IdolStreamView
                 key={myStream.id}
                 streamManager={myStream}
-                name={"아이돌"}
+                name={myNickName}
               />
             )}
             {idolStreams.map((stream) => (
@@ -444,6 +444,8 @@ const GamePage = () => {
             gameStart={gameStart}
             answers={answers}
             connectionId={myConnection?.connectionId}
+            publisher={myStream}
+            micOn={role === Role.IDOL || userName === "hoyoung123"}
           />
         </Stack>
       </Grid>
@@ -459,7 +461,7 @@ const GamePage = () => {
               <FanStreamView
                 key={myStream.id}
                 streamManager={myStream}
-                name={"팬"}
+                name={myNickName}
               />
             )}
             {fanStreams.map((stream) => (

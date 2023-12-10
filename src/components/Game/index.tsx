@@ -8,6 +8,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Grid,
   Stack,
   TextField,
 } from "@mui/material";
@@ -17,6 +18,8 @@ import ChatBalloon from "@/components/chat/ChatBalloon";
 import useJwtToken from "@/hooks/useJwtToken";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import { Publisher } from "openvidu-browser";
+import SmallDeviceControlButton from "@/components/meeting/SmallDeviceControlButton";
 
 export interface Answer {
   nickname: string;
@@ -34,6 +37,8 @@ interface Props {
   role: string | undefined;
   answers: Answer[];
   connectionId: string | undefined;
+  publisher: Publisher | undefined;
+  micOn: boolean;
 }
 
 const SingGamePage = ({
@@ -46,6 +51,8 @@ const SingGamePage = ({
   gameStart,
   answers,
   connectionId,
+  publisher,
+  micOn,
 }: Props) => {
   const [showAllIdolEnteredmodal, setShowAllIdolEnteredmodal] =
     useState<boolean>(false);
@@ -209,22 +216,43 @@ const SingGamePage = ({
         width: "100%",
         height: "38vh",
         backgroundColor: "#eeeeee",
-        py: 2,
+        py: 1,
         px: 1,
         borderRadius: 5,
       }}
     >
-      <Box sx={{ width: "100%", overflowY: "auto", px: 5, height: "30vh" }}>
-        {answers.length > 0 &&
-          answers.map((answer, index) => (
-            <ChatBalloon
-              sender={answer.nickname}
-              message={answer.answer}
-              profile={answer.profileImgUrl}
-              key={index}
-            />
-          ))}
-      </Box>
+      <Grid container sx={{ px: 3 }} columnGap={1}>
+        <Grid item xs={1}>
+          <SmallDeviceControlButton
+            publisher={publisher}
+            micInit={micOn}
+            cameraInit={true}
+          />
+        </Grid>
+        <Grid item xs={10}>
+          <Box
+            sx={{
+              width: "100%",
+              height: "30vh",
+              overflowY: "auto",
+              px: 2,
+              py: 2,
+              borderRadius: 2,
+              backgroundColor: "#FFFFFF",
+            }}
+          >
+            {answers.length > 0 &&
+              answers.map((answer, index) => (
+                <ChatBalloon
+                  sender={answer.nickname}
+                  message={answer.answer}
+                  profile={answer.profileImgUrl}
+                  key={index}
+                />
+              ))}
+          </Box>
+        </Grid>
+      </Grid>
       <Box sx={{ width: "100%", px: 2 }}>
         {gameStart ? (
           <Stack
