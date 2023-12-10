@@ -34,9 +34,9 @@ export default function ShowDialog() {
   const [role, setRole] = useState<Role>(Role.FAN);
   const [imgSrc, setImgSrc] = useState<string>("");
 
-  const [sessionId, setSessionId] = useState<string>("");
-  const [motionType, setMotionType] = useState<string>("");
-  const [idolName, setIdolName] = useState<string>("");
+  const [sessionId, setSessionId] = useState<string | undefined>();
+  const [motionType, setMotionType] = useState<string | undefined>();
+  const [idolName, setIdolName] = useState<string | undefined>();
 
   const token = useJwtToken();
 
@@ -150,22 +150,23 @@ export default function ShowDialog() {
           </DialogContentText>
           <DialogTitle style={{ textAlign: "center" }}></DialogTitle>
           <DialogActions style={{ justifyContent: "space-between" }}>
-            <Link
-              // href={`/waitingroom?id=${todayMeeting?.data?.id}`}
-              href={`/waitingroom/${todayMeeting?.data?.id}`}
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-                display: "block", // 링크를 블록 레벨 요소로 설정
-                width: "100%", // 전체 폭을 사용하도록 설정
-              }}
-            >
-              <GradientButton
-                sx={{ width: "100%", height: 45, borderRadius: 4 }}
+            {todayMeeting?.data?.id && (
+              <Link
+                href={`/waitingroom/${todayMeeting?.data?.id}`}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "block", // 링크를 블록 레벨 요소로 설정
+                  width: "100%", // 전체 폭을 사용하도록 설정
+                }}
               >
-                이동하기
-              </GradientButton>
-            </Link>
+                <GradientButton
+                  sx={{ width: "100%", height: 45, borderRadius: 4 }}
+                >
+                  이동하기
+                </GradientButton>
+              </Link>
+            )}
           </DialogActions>
         </>
       )}
@@ -204,21 +205,23 @@ export default function ShowDialog() {
             팬미팅을 시작하시겠습니까?
           </DialogContentText>
           <DialogActions style={{ justifyContent: "space-between" }}>
-            <Link
-              href={`one-to-one/${todayMeeting?.data?.id}/${sessionId}/${idolName}/${motionType}`}
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-                display: "block", // 링크를 블록 레벨 요소로 설정
-                width: "100%", // 전체 폭을 사용하도록 설정
-              }}
-            >
-              <GradientButton
-                sx={{ width: "100%", height: 45, borderRadius: 4 }}
+            {todayMeeting?.data?.id && sessionId && idolName && motionType && (
+              <Link
+                href={`one-to-one/${todayMeeting?.data?.id}/${sessionId}/${idolName}/${motionType}`}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "block", // 링크를 블록 레벨 요소로 설정
+                  width: "100%", // 전체 폭을 사용하도록 설정
+                }}
               >
-                이동하기
-              </GradientButton>
-            </Link>
+                <GradientButton
+                  sx={{ width: "100%", height: 45, borderRadius: 4 }}
+                >
+                  이동하기
+                </GradientButton>
+              </Link>
+            )}
           </DialogActions>
         </>
       )}
