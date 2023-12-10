@@ -19,15 +19,17 @@ const PhotoTimeAlert = ({ open, motionType }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (open) {
+    if (open && audio) {
       audio.play();
     }
 
     return () => {
-      audio.pause();
-      audio.currentTime = 0;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
     };
-  }, [open]);
+  }, [open, audio]);
 
   return (
     <Fade in={open} timeout={2000}>
