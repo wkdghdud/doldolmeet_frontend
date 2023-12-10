@@ -344,7 +344,9 @@ const EndFanMeetingPage = () => {
           duration={1500}
         >
           {[...Object.values(videos), ...captures].map((item, i) => {
-            const isVideo = item.url && item.url.endsWith(".mp4");
+            // item이 비디오 객체인지 확인, 캡처는 captureUrl 속성을 갖습니다.
+            const isVideo =
+              item.hasOwnProperty("url") && item.url.endsWith(".mp4");
             const contentUrl = isVideo ? item.url : s3Addr + item.captureUrl;
 
             return (
@@ -362,7 +364,6 @@ const EndFanMeetingPage = () => {
               >
                 {isVideo ? (
                   <video
-                    id={isVideo}
                     style={{
                       display: "flex",
                       width: "88%",
@@ -370,9 +371,9 @@ const EndFanMeetingPage = () => {
                       marginBottom: "auto",
                     }}
                     controls
-                    poster={thumbnails[isVideo]} // 썸네일 URL 사용
+                    poster={thumbnails[item.url]} // 썸네일은 item.url을 기준으로 합니다.
                   >
-                    <source src={isVideo} type="video/mp4" />
+                    <source src={item.url} type="video/mp4" />
                   </video>
                 ) : (
                   <img
