@@ -136,27 +136,19 @@ const EndFanMeetingPage = () => {
     });
   };
 
-  // useEffect(() => {
-  //   console.log("video😈😈😈😈😈😈s", videos);
-  //   if (videos.length > 0) {
-  //     const videoUrls = videos.filter(
-  //       (url) =>
-  //         url !== null &&
-  //         url !== undefined &&
-  //         url !== "" &&
-  //         url.endsWith(".mp4"),
-  //     );
-  //     generateThumbnails(videoUrls);
-  //   }
-  // }, [videos]); // videos 배열이 변경될 때마다 이 useEffect가 실행됩니다.
-
   useEffect(() => {
-    console.log("video🥶s", videos);
+    console.log("video😈😈😈😈😈😈s", videos);
     if (videos.length > 0) {
-      // videos 배열이 이미 URL만을 포함하고 있으므로 추가 필터링이 필요 없습니다.
-      generateThumbnails(videos);
+      const videoUrls = videos.filter(
+        (url) =>
+          url !== null &&
+          url !== undefined &&
+          url !== "" &&
+          url.endsWith(".mp4"),
+      );
+      generateThumbnails(videoUrls);
     }
-  }, [videos]);
+  }, [videos]); // videos 배열이 변경될 때마다 이 useEffect가 실행됩니다.
 
   // const handleDownload = async (fileUrl) => {
   //   if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
@@ -225,12 +217,16 @@ const EndFanMeetingPage = () => {
           .post(`recording-java/api/recordings/get`, {
             fanMeetingId: fanMeetingId,
             fan: userName,
-            // idol: "karina",
           })
           .then((res) => {
-            const videoUrls = Object.values(res.data).map((video) => video.url);
-            console.log("videoU🥶🥶🥶rls", videoUrls);
-            setVideos(videoUrls);
+            if (Object.values(res.data).length > 0) {
+              const videoUrls: string[] = Object.values(res.data).map(
+                // @ts-ignore
+                (video) => video.url,
+              );
+              console.log("videoUrls", videoUrls);
+              setVideos((prev) => [...prev, ...videoUrls]);
+            }
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
@@ -359,8 +355,8 @@ const EndFanMeetingPage = () => {
           duration={1500}
         >
           {[...Object.values(videos), ...captures].map((item, i) => {
-            const isVideo = item.url && item.url.endsWith(".mp4");
-            const contentUrl = isVideo ? item.url : s3Addr + item.captureUrl;
+            const isVideo = item && item.endsWith(".mp4");
+            const contentUrl = isVideo ? item : s3Addr + item.captureUrl;
 
             return (
               <div
@@ -377,7 +373,7 @@ const EndFanMeetingPage = () => {
               >
                 {isVideo ? (
                   <video
-                    id={item.url}
+                    id={item}
                     style={{
                       display: "flex",
                       width: "88%",
@@ -385,9 +381,9 @@ const EndFanMeetingPage = () => {
                       marginBottom: "auto",
                     }}
                     controls
-                    poster={thumbnails[item.url]} // 썸네일 URL 사용
+                    poster={thumbnails[item]} // 썸네일 URL 사용
                   >
-                    <source src={item.url} type="video/mp4" />
+                    <source src={item} type="video/mp4" />
                   </video>
                 ) : (
                   <img
