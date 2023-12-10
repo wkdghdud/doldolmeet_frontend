@@ -406,9 +406,7 @@ const EndFanMeetingPage = () => {
                 >
                   <IconButton
                     onClick={() =>
-                      isVideo
-                        ? handleDownload(contentUrl)
-                        : imgDownLoad(contentUrl)
+                      isVideo ? handleDownload(item.url) : imgDownLoad(item)
                     }
                     size="large"
                     sx={{
