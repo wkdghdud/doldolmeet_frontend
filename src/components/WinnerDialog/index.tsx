@@ -10,7 +10,7 @@ import { Publisher, StreamManager, Subscriber } from "openvidu-browser";
 import IdolStreamView from "@/components/meeting/IdolStreamView";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface Props {
   open: boolean;
@@ -20,19 +20,25 @@ interface Props {
 }
 
 const WinnerDialog = ({ open, onClose, winnerName, fanStream }: Props) => {
-  // @ts-ignore
-  const audio = new Audio("/mp3/fanfare.mp3");
+  const [audio, setAudio] = useState<any>(null);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAudio(new Audio("/mp3/fanfare.mp3"));
+    }
+  }, []);
 
   useEffect(() => {
-    if (open) {
+    if (open && audio) {
       audio.play();
     }
 
     return () => {
-      audio.pause();
-      audio.currentTime = 0;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
     };
-  }, [open]);
+  }, [open, audio]);
 
   return (
     <Dialog

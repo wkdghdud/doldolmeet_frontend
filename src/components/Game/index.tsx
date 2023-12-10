@@ -61,8 +61,14 @@ const SingGamePage = ({
   /* 정답 확인 */
   const isAnswer = "내 루돌프";
   const [answer, setAnswer] = useState("");
+
   /* audio */
-  const audio = new Audio("/mp3/idolsong1.mp3");
+  const [audio, setAudio] = useState<any>(null);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAudio(new Audio("/mp3/idolsong1.mp3"));
+    }
+  }, []);
 
   /* 토큰 정보 */
   const [nickname, setNickname] = useState<string>("");
@@ -76,15 +82,17 @@ const SingGamePage = ({
   }, [token]);
 
   useEffect(() => {
-    if (gameStart) {
+    if (gameStart && audio) {
       audio.volume = 0.5;
       audio.play();
     }
     return () => {
-      audio.pause();
-      audio.currentTime = 0;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
     };
-  }, [gameStart]);
+  }, [gameStart, audio]);
 
   /* 다시 들려 주기 관련 */
   const send_replay = useCallback(async () => {
@@ -100,11 +108,13 @@ const SingGamePage = ({
   }, [userName, sessionId]);
 
   useEffect(() => {
-    if (replaynum >= 1) {
+    if (replaynum >= 1 && audio) {
       audio.volume = 0.5;
       audio.play();
       setTimeout(() => {
-        audio.pause();
+        if (audio) {
+          audio.pause();
+        }
       }, 1000);
     }
   }, [replaynum]);
