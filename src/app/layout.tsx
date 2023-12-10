@@ -44,16 +44,6 @@ export default async function RootLayout({
             </Grid>
           </Providers>
         </AuthContext>
-        <Script
-          src={
-            "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"
-          }
-        />
-        <Script
-          src={
-            "https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js"
-          }
-        />
       </body>
     </html>
   );
