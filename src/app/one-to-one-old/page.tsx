@@ -137,9 +137,9 @@ const OneToOnePage = () => {
         await joinSession();
       } else if (role === Role.FAN) {
         await fetchSSE();
-        const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
-        setChatRoomId(fanToFanMeeting?.chatRoomId);
-        await joinSession(fanToFanMeeting?.chatRoomId);
+        // const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
+        // setChatRoomId(fanToFanMeeting?.chatRoomId);
+        await joinSession("");
       } else {
         await joinSession();
       }
