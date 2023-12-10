@@ -644,7 +644,7 @@ const OneToOnePage = () => {
         onClose={() => setFilterPopupOpen(false)}
         onClickApplyFilter={onClickApplyFilter}
       />
-      <PhotoTimeAlert open={photoTime} motionType={motionType} />
+      <PhotoTimeAlert open={endSoon} motionType={motionType} />
     </Grid>
   );
 };
