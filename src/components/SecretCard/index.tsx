@@ -7,7 +7,7 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
   const scratchCanvasRef = useRef(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [scratchPercentage, setScratchPercentage] = useState(0);
-  const audioRef = useRef(new Audio("/clap.mp3"));
+  const audio = new Audio("/clap.mp3");
 
   useEffect(() => {
     const scratchCanvas = scratchCanvasRef.current;
@@ -81,7 +81,7 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
     // 가리개 캔버스 제거
     scratchCanvasRef.current.style.display = "none";
 
-    audioRef.current.play();
+    audio.play();
   };
 
   return (
