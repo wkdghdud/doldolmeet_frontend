@@ -11,18 +11,18 @@ interface Props {
 
 const PhotoTimeAlert = ({ open, motionType }: Props) => {
   // @ts-ignore
-  const audio = new Audio("/mp3/photo_alert.mp3");
-
-  useEffect(() => {
-    if (open) {
-      audio.play();
-    }
-
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-    };
-  }, [open]);
+  // const audio = new Audio(photoAlertMp3);
+  //
+  // useEffect(() => {
+  //   if (open) {
+  //     audio.play();
+  //   }
+  //
+  //   return () => {
+  //     audio.pause();
+  //     audio.currentTime = 0;
+  //   };
+  // }, [open]);
 
   return (
     <Fade in={open} timeout={2000}>
