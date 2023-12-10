@@ -376,7 +376,7 @@ const EndFanMeetingPage = () => {
                   </video>
                 ) : (
                   <img
-                    src={s3Addr + cap.captureUrl}
+                    src={s3Addr + item.captureUrl}
                     alt={`Capture ${i}`}
                     style={{
                       width: "88%",
