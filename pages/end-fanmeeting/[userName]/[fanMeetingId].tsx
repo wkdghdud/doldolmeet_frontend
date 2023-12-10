@@ -137,13 +137,17 @@ const EndFanMeetingPage = () => {
   };
 
   useEffect(() => {
-    // 썸네일 생성은 동영상 URL들이 로드된 후에만 수행됩니다.
-    const videoUrls = videos.filter(
-      (url) =>
-        url !== null && url !== undefined && url !== "" && url.endsWith(".mp4"),
-    );
-    generateThumbnails(videoUrls);
-  }, [videos]);
+    if (videos.length > 0) {
+      const videoUrls = videos.filter(
+        (url) =>
+          url !== null &&
+          url !== undefined &&
+          url !== "" &&
+          url.endsWith(".mp4"),
+      );
+      generateThumbnails(videoUrls);
+    }
+  }, [videos]); // videos 배열이 변경될 때마다 이 useEffect가 실행됩니다.
 
   // const handleDownload = async (fileUrl) => {
   //   if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
