@@ -5,7 +5,6 @@ import html2canvas from "html2canvas";
 import { backend_api, openvidu_api } from "@/utils/api";
 import PhotoFrame from "@/components/PhotoFrame";
 import { Role } from "@/types";
-import { usePoseModel1, usePoseModel2 } from "@/components/PoseModelProvider";
 
 interface Props {
   fanMeetingId: string | null | undefined;
@@ -235,20 +234,16 @@ const MotionDetector = ({
     loadScripts();
   }, [canvasRef.current, labelContainerRef.current, motionType]);
 
-  const { model: model1, maxPredictions: maxPredictions1 } = usePoseModel1();
-  const { model: model2, maxPredictions: maxPredictions2 } = usePoseModel2();
-
   const init = async () => {
     console.log("MotionDetector init() called");
     if (canvasRef.current && labelContainerRef.current) {
-      // const URL = "/my-pose-model/";
-      // const modelURL = URL + "model.json";
-      // const metadataURL = URL + "metadata.json";
+      const URL = "/my-pose-model/";
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
 
-      // model = await tmPose.load(modelURL, metadataURL);
+      model = await tmPose.load(modelURL, metadataURL);
 
-      // maxPredictions1 = model.getTotalClasses();
-
+      maxPredictions = model.getTotalClasses();
       const size = 200;
       const flip = true;
       const webcam = new tmPose.Webcam(size, size, flip);
@@ -261,7 +256,7 @@ const MotionDetector = ({
       canvasRef.current.height = size;
 
       labelContainerRef.current.innerHTML = ""; // 레이블 컨테이너 초기화
-      for (let i = 0; i < maxPredictions1; i++) {
+      for (let i = 0; i < maxPredictions; i++) {
         labelContainerRef.current.appendChild(document.createElement("div"));
       }
       window.requestAnimationFrame(loop);
@@ -271,13 +266,13 @@ const MotionDetector = ({
   const init2 = async () => {
     console.log("MotionDetector init2() called");
     if (canvasRef.current && labelContainerRef2.current) {
-      // const URL2 = "/my-pose-model2/";
-      // const modelURL2 = URL2 + "model.json";
-      // const metadataURL2 = URL2 + "metadata.json";
-      //
-      // model2 = await tmPose.load(modelURL2, metadataURL2);
-      //
-      // maxPredictions2 = model2.getTotalClasses();
+      const URL2 = "/my-pose-model2/";
+      const modelURL2 = URL2 + "model.json";
+      const metadataURL2 = URL2 + "metadata.json";
+
+      model2 = await tmPose.load(modelURL2, metadataURL2);
+
+      maxPredictions2 = model2.getTotalClasses();
 
       const size = 200;
       const flip = true;
@@ -379,13 +374,11 @@ const MotionDetector = ({
   const predict = useCallback(async () => {
     const webcam = webcamRef.current;
 
-    if (model1 && webcam) {
+    if (model && webcam) {
       try {
-        const { pose, posenetOutput } = await model1.estimatePose(
-          webcam.canvas,
-        );
+        const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
 
-        const prediction = await model1.predict(posenetOutput);
+        const prediction = await model.predict(posenetOutput);
         let detected = false;
 
         for (let i = 0; i < maxPredictions; i++) {
@@ -414,7 +407,7 @@ const MotionDetector = ({
     } else {
       // console.log("Model or webcam is not available!");
     }
-  }, [model1, webcamRef, labelContainerRef, maxPredictions, myPose]);
+  }, [model, webcamRef, labelContainerRef, maxPredictions, myPose]);
 
   return (
     <div>

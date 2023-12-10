@@ -33,7 +33,6 @@ import { useAtomValue } from "jotai/react";
 import { languageTargetAtom } from "@/atom";
 import SpeechRecog from "@/components/Speech-Recognition";
 import PhotoTimeAlert from "@/components/PhotoTimeAlert";
-import { PoseModelProvider } from "@/components/PoseModelProvider";
 
 const OneToOnePage = () => {
   const router = useRouter();
@@ -629,20 +628,18 @@ const OneToOnePage = () => {
         title={snackBarTitle}
         content={snackBarContent}
       />
-      {fanMeetingId && idolName && sessionId && userName && photoTime && (
-        <PoseModelProvider>
-          <MotionDetector
-            role={role}
-            fanMeetingId={fanMeetingId}
-            idolName={idolName}
-            sessionId={sessionId}
-            partnerPose={partnerPose}
-            username={userName}
-            motionType={motionType}
-            updateShowOverlay={updateShowOverlay}
-          />
-        </PoseModelProvider>
-      )}
+      {/*{fanMeetingId && idolName && sessionId && userName && photoTime && (*/}
+      {/*  <MotionDetector*/}
+      {/*    role={role}*/}
+      {/*    fanMeetingId={fanMeetingId}*/}
+      {/*    idolName={idolName}*/}
+      {/*    sessionId={sessionId}*/}
+      {/*    partnerPose={partnerPose}*/}
+      {/*    username={userName}*/}
+      {/*    motionType={motionType}*/}
+      {/*    updateShowOverlay={updateShowOverlay}*/}
+      {/*  />*/}
+      {/*)}*/}
       <FilterSelectDialog
         popupOpen={filterPopupOpen}
         onClose={() => setFilterPopupOpen(false)}
