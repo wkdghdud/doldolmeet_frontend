@@ -364,7 +364,7 @@ const EndFanMeetingPage = () => {
             const isVideo = typeof item === "string" && item.endsWith(".mp4");
             const contentUrl = isVideo
               ? item
-              : item.hasOwnProperty("captureUrl")
+              : item.captureUrl
               ? `${AWS_S3_URL}/${item.captureUrl}`
               : "";
             return (
