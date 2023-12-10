@@ -18,11 +18,12 @@ const OpenViduVideoView = ({
   showOverlay,
   motionType,
 }: Props) => {
-  const videoRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (streamManager && videoRef.current) {
       streamManager.addVideoElement(videoRef.current);
+      videoRef.current.volume = 1;
     }
   }, [streamManager]);
 
