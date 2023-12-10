@@ -20,7 +20,8 @@ const MyStreamView = ({
   return (
     <>
       {stream === undefined ? (
-        <LocalCameraView name={name} />
+        // <LocalCameraView name={name} />
+        <div>LocalCameraView</div>
       ) : (
         <OpenViduVideoView
           name={name}
