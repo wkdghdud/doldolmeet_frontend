@@ -108,34 +108,32 @@ const GamePage = () => {
   }, [router]);
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        if (role === Role.IDOL) {
-          await fetchSSE_idol();
-        } else if (role === Role.FAN) {
-          await fetchSSE();
-          const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
-          await joinSession(fanToFanMeeting?.chatRoomId);
-        } else {
-          await joinSession();
-        }
-      } catch (error) {
-        console.error("Error in init:", error);
-      }
-    };
+    token.then((res) => {
+      setRole(res?.auth);
+      setUserName(res?.sub ?? "");
+      setMyNickName(res?.nickname ?? "");
+    });
+  }, [token]);
 
-    const fetchData = async () => {
-      try {
-        const res = await token;
-        setRole(res?.auth);
-        setUserName(res?.sub ?? "");
-        setMyNickName(res?.nickname ?? "");
-      } catch (error) {
-        console.error("Error in fetchData:", error);
+  useEffect(() => {
+    async function init() {
+      if (role === Role.IDOL) {
+        await fetchSSE_idol();
+        await joinSession();
+      } else if (role === Role.FAN) {
+        await fetchSSE();
+        const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
+        await joinSession(fanToFanMeeting?.chatRoomId);
+      } else {
+        await joinSession();
       }
-    };
+    }
 
-    const cleanupEventSources = () => {
+    if (role && userName !== "") {
+      init();
+    }
+
+    return () => {
       if (fanEventSource) {
         fanEventSource.close();
       }
@@ -143,14 +141,6 @@ const GamePage = () => {
         idolEventSource.close();
       }
     };
-
-    if (role && userName !== "") {
-      fetchData()
-        .then(init)
-        .catch((error) => console.error("Error in fetchData:", error));
-    }
-
-    return cleanupEventSources;
   }, [role, userName]);
 
   const fetchSSE_idol = async () => {
