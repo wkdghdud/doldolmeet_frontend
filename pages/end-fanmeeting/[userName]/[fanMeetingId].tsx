@@ -58,67 +58,71 @@ const EndFanMeetingPage = () => {
   const searchParams = useSearchParams();
   const winner = searchParams?.get("winner");
 
+  const [user, setUser] = useState(null);
+  const [captures, setCaptures] = useState([]);
+  const [videos, setVideos] = useState([]); // Todo: captures를 videos로 변경해야됨
+
   /* States */
   const [contents, setContents] = useState<string[]>([]);
   const [isHovering, setIsHovering] = useState(false);
   const [showSecretCard, setShowSecretCard] = useState(false);
   const [thumbnails, setThumbnails] = useState({});
 
-  useEffect(() => {
-    async function init() {
-      if (
-        userName &&
-        userName !== undefined &&
-        fanMeetingId &&
-        fanMeetingId !== "undefined" &&
-        winner &&
-        winner !== undefined
-      ) {
-        // fanMeetingId가 유효한 경우에만 API 호출 수행
-        if (fanMeetingId && fanMeetingId !== "undefined") {
-          await backend_api()
-            .get(`/captures/${fanMeetingId}`)
-            .then((res) => {
-              if (res.data.data.length > 0) {
-                const captureUrls: string[] = res.data.data.map(
-                  (captureData) => `${AWS_S3_URL}/${captureData.captureUrl}`,
-                );
-                console.log("captureUrls", captureUrls);
-                setContents((prev) => [...prev, ...captureUrls]);
-              }
-            })
-            .catch((error) => {
-              console.error("Error fetching captures:", error);
-            });
-        }
-
-        await backend_api()
-          .post(`recording-java/api/recordings/get`, {
-            fanMeetingId: fanMeetingId,
-            fan: userName,
-          })
-          .then((res) => {
-            if (Object.values(res.data).length > 0) {
-              const videoUrls: string[] = Object.values(res.data).map(
-                // @ts-ignore
-                (video) => video.url,
-              );
-              console.log("videoUrls", videoUrls);
-              setContents((prev) => [...prev, ...videoUrls]);
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching videos:", error);
-          });
-
-        if (winner === "true") {
-          setShowSecretCard(true);
-        }
-      }
-    }
-
-    init();
-  }, [fanMeetingId]);
+  // useEffect(() => {
+  //   async function init() {
+  //     if (
+  //       userName &&
+  //       userName !== undefined &&
+  //       fanMeetingId &&
+  //       fanMeetingId !== "undefined" &&
+  //       winner &&
+  //       winner !== undefined
+  //     ) {
+  //       // fanMeetingId가 유효한 경우에만 API 호출 수행
+  //       if (fanMeetingId && fanMeetingId !== "undefined") {
+  //         await backend_api()
+  //           .get(`/captures/${fanMeetingId}`)
+  //           .then((res) => {
+  //             if (res.data.data.length > 0) {
+  //               const captureUrls: string[] = res.data.data.map(
+  //                 (captureData) => `${AWS_S3_URL}/${captureData.captureUrl}`,
+  //               );
+  //               console.log("captureUrls", captureUrls);
+  //               setContents((prev) => [...prev, ...captureUrls]);
+  //             }
+  //           })
+  //           .catch((error) => {
+  //             console.error("Error fetching captures:", error);
+  //           });
+  //       }
+  //
+  //       await backend_api()
+  //         .post(`recording-java/api/recordings/get`, {
+  //           fanMeetingId: fanMeetingId,
+  //           fan: userName,
+  //         })
+  //         .then((res) => {
+  //           if (Object.values(res.data).length > 0) {
+  //             const videoUrls: string[] = Object.values(res.data).map(
+  //               // @ts-ignore
+  //               (video) => video.url,
+  //             );
+  //             console.log("videoUrls", videoUrls);
+  //             setContents((prev) => [...prev, ...videoUrls]);
+  //           }
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error fetching videos:", error);
+  //         });
+  //
+  //       if (winner === "true") {
+  //         setShowSecretCard(true);
+  //       }
+  //     }
+  //   }
+  //
+  //   init();
+  // }, [fanMeetingId]);
 
   const generateThumbnails = (videoUrls) => {
     videoUrls.forEach((url) => {
@@ -141,29 +145,138 @@ const EndFanMeetingPage = () => {
     generateThumbnails(videoUrls);
   }, [contents]);
 
-  const handleDownload = async (fileUrl) => {
-    if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
-      return;
+  // const handleDownload = async (fileUrl) => {
+  //   if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
+  //     return;
+  //   }
+  //
+  //   const {
+  //     data: { type, arrayBuffer },
+  //   } = await axios.get("/api/file", { params: { url: fileUrl } });
+  //
+  //   const blob = await new Blob([Uint8Array.from(arrayBuffer)], { type });
+  //   // <a> 태그의 href 속성값으로 들어갈 다운로드 URL
+  //   const objectURL = window.URL.createObjectURL(blob);
+  //
+  //   const a = document.createElement("a");
+  //   a.href = objectURL;
+  //   const fileName = fileUrl.endsWith(".mp4") ? "download.mp4" : "download.png";
+  //   a.download = fileName; // 다운로드할 파일명 설정
+  //   document.body.appendChild(a);
+  //   a.click();
+  //   document.body.removeChild(a);
+  //
+  //   // Optionally revoke the Object URL to free up resources
+  //   URL.revokeObjectURL(objectURL);
+  // };
+
+  /* 녹화본 */
+  const handleDownload = (videoUrl) => {
+    fetch(videoUrl)
+      .then((response) => response.blob()) // 비디오 데이터를 Blob 형식으로 받아옵니다.
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = userName + "video.mp4"; // 다운로드할 파일명 설정
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Optionally revoke the Object URL to free up resources
+        URL.revokeObjectURL(url);
+      })
+      .catch((error) => {
+        console.error("Error downloading the video:", error);
+      });
+  };
+
+  // const searchParams = useSearchParams();
+  const s3Addr = "https://s3.ap-northeast-2.amazonaws.com/doldolmeet.test/";
+  // const idolName = searchParams?.get("idolName");
+
+  // const joinMemoryRoom = async () => {
+  //   await router.push(`/my-page/${userName}/${fanMeetingId}`);
+  // };
+
+  useEffect(() => {
+    async function init() {
+      if (
+        userName &&
+        userName !== undefined &&
+        fanMeetingId &&
+        fanMeetingId !== "undefined"
+      ) {
+        await backend_api()
+          .post(`recording-java/api/recordings/get`, {
+            fanMeetingId: fanMeetingId,
+            fan: userName,
+            // idol: "karina",
+          })
+          .then((res) => {
+            setVideos(res.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching videos:", error);
+          });
+      }
+
+      // fanMeetingId가 유효한 경우에만 API 호출 수행
+      if (fanMeetingId && fanMeetingId !== "undefined") {
+        await backend_api()
+          .get(`/captures/${fanMeetingId}`)
+          .then((res) => {
+            setCaptures(res.data.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching captures:", error);
+          });
+      }
     }
 
-    const {
-      data: { type, arrayBuffer },
-    } = await axios.get("/api/file", { params: { url: fileUrl } });
+    init();
+  }, [fanMeetingId]);
 
-    const blob = await new Blob([Uint8Array.from(arrayBuffer)], { type });
-    // <a> 태그의 href 속성값으로 들어갈 다운로드 URL
-    const objectURL = window.URL.createObjectURL(blob);
+  // useEffect(() => {
+  //   console.log("videos", videos);
+  // }, [videos]);
 
-    const a = document.createElement("a");
-    a.href = objectURL;
-    const fileName = fileUrl.endsWith(".mp4") ? "download.mp4" : "download.png";
-    a.download = fileName; // 다운로드할 파일명 설정
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  // useEffect(() => {
+  //
+  // }, [fanMeetingId]);
 
-    // Optionally revoke the Object URL to free up resources
-    URL.revokeObjectURL(objectURL);
+  /* 캡쳐본 */
+  const imgDownLoad = (imgUrl) => {
+    const fileName = imgUrl;
+
+    // Axios를 사용하여 파일 다운로드 요청
+    backend_api()
+      .get(`s3/file/download?fileName=${fileName}`, {
+        responseType: "blob", // 파일 다운로드를 위해 responseType을 'blob'으로 설정
+      })
+      .then((response) => {
+        // 파일 다운로드를 위해 Blob 형식으로 받은 응답을 처리
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const url = window.URL.createObjectURL(blob);
+
+        // 생성된 URL을 사용하여 다운로드 링크 생성
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+
+        // 링크 클릭하여 파일 다운로드
+        document.body.appendChild(link);
+        link.click();
+
+        // 필요 없는 링크 제거
+        document.body.removeChild(link);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   const joinMemoryRoom = async () => {
@@ -227,162 +340,163 @@ const EndFanMeetingPage = () => {
           animation={"fade"}
           duration={1500}
         >
-          {contents.map((url, index) => {
-            if (url !== null && url !== undefined && url !== "") {
-              const isVideo = url.endsWith(".mp4");
-              return isVideo ? (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    height: "70vh",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    position: "relative",
-                  }}
-                  onMouseOver={() => setIsHovering(true)}
-                  onMouseOut={() => setIsHovering(false)}
-                >
-                  {isVideo ? (
-                    <video
-                      id={url}
-                      key={index}
-                      style={{
-                        display: "flex",
-                        width: "88%",
-                        marginTop: "auto",
-                        marginBottom: "auto",
-                      }}
-                      controls
-                      poster={thumbnails[url]} // 썸네일 URL 사용
-                    >
-                      <source src={url} type="video/mp4" />
-                    </video>
-                  ) : (
-                    <img
-                      src={url}
-                      alt={"banner"}
-                      style={{
-                        width: "88%",
-                        maxHeight: "70vh",
-                        objectFit: "cover",
-                      }}
-                    />
-                  )}
-                  <Stack
-                    direction="row"
-                    spacing={4}
-                    sx={{
-                      position: "absolute",
-                      top: "45%",
-                      left: "35%",
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: "rgba(0,0,0,0.7)",
-                      display: isHovering ? "flex" : "none",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: "28%",
-                      height: "12%",
-                      borderRadius: 10,
-                    }}
-                  >
-                    <IconButton
-                      onClick={() => handleDownload(url)}
-                      size="large"
-                      sx={{
-                        color: "#FFFFFF",
-                        transform: "scale(1.5)",
-                        "&:hover": {
-                          color: "#FFAFCC",
-                        },
-                      }}
-                    >
-                      <GetApp fontSize={"inherit"} />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => shareTwitter(url)}
-                      sx={{
-                        color: "#FFFFFF",
-                        transform: "scale(1.5)",
-                        "&:hover": {
-                          color: "#FFAFCC",
-                        },
-                      }}
-                    >
-                      <Twitter />
-                    </IconButton>
-                  </Stack>
-                </div>
-              ) : (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    position: "relative",
-                  }}
-                  onMouseOver={() => setIsHovering(true)}
-                  onMouseOut={() => setIsHovering(false)}
-                >
-                  <img
-                    key={index}
-                    src={url}
-                    alt={"banner"}
+          {/*{contents.map((url, index) => {*/}
+          {Object.values(videos).length > 0 &&
+            Object.values(videos).map((video, i) => {
+              if (video.url) {
+                const isVideo = video.url.endsWith(".mp4");
+                return (
+                  <div
+                    key={i}
                     style={{
-                      width: "88%",
-                      maxHeight: "70vh",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <Stack
-                    direction="row"
-                    spacing={4}
-                    sx={{
-                      position: "absolute",
-                      top: "45%",
-                      left: "35%",
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: "rgba(0,0,0,0.7)",
-                      display: isHovering ? "flex" : "none",
+                      display: "flex",
+                      height: "70vh",
                       justifyContent: "center",
                       alignItems: "center",
-                      width: "28%",
-                      height: "12%",
-                      borderRadius: 10,
+                      position: "relative",
                     }}
+                    onMouseOver={() => setIsHovering(true)}
+                    onMouseOut={() => setIsHovering(false)}
                   >
-                    <IconButton
-                      onClick={() => handleDownload(url)}
-                      size="large"
+                    {isVideo ? (
+                      <video
+                        id={video.url}
+                        style={{
+                          display: "flex",
+                          width: "88%",
+                          marginTop: "auto",
+                          marginBottom: "auto",
+                        }}
+                        controls
+                        poster={thumbnails[video.url]} // 썸네일 URL 사용
+                      >
+                        <source src={video.url} type="video/mp4" />
+                      </video>
+                    ) : (
+                      <img
+                        src={video.url}
+                        alt={"banner"}
+                        style={{
+                          width: "88%",
+                          maxHeight: "70vh",
+                          objectFit: "cover",
+                        }}
+                      />
+                    )}
+                    <Stack
+                      direction="row"
+                      spacing={4}
                       sx={{
-                        color: "#FFFFFF",
-                        transform: "scale(1.5)",
-                        "&:hover": {
-                          color: "#FFAFCC",
-                        },
+                        position: "absolute",
+                        top: "45%",
+                        left: "35%",
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.7)",
+                        display: isHovering ? "flex" : "none",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: "28%",
+                        height: "12%",
+                        borderRadius: 10,
                       }}
                     >
-                      <GetApp fontSize={"inherit"} />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => shareTwitter(url)}
-                      sx={{
-                        color: "#FFFFFF",
-                        transform: "scale(1.5)",
-                        "&:hover": {
-                          color: "#FFAFCC",
-                        },
-                      }}
-                    >
-                      <Twitter />
-                    </IconButton>
-                  </Stack>
-                </div>
-              );
-            }
-          })}
+                      <IconButton
+                        onClick={() => handleDownload(video.url)}
+                        size="large"
+                        sx={{
+                          color: "#FFFFFF",
+                          transform: "scale(1.5)",
+                          "&:hover": {
+                            color: "#FFAFCC",
+                          },
+                        }}
+                      >
+                        <GetApp fontSize={"inherit"} />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => shareTwitter(video.url)}
+                        sx={{
+                          color: "#FFFFFF",
+                          transform: "scale(1.5)",
+                          "&:hover": {
+                            color: "#FFAFCC",
+                          },
+                        }}
+                      >
+                        <Twitter />
+                      </IconButton>
+                    </Stack>
+                  </div>
+                );
+              }
+            })}
+          {captures.map((cap, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                position: "relative",
+              }}
+              onMouseOver={() => setIsHovering(true)}
+              onMouseOut={() => setIsHovering(false)}
+            >
+              <img
+                src={s3Addr + cap.captureUrl}
+                alt={`Capture ${i}`}
+                style={{
+                  width: "88%",
+                  maxHeight: "70vh",
+                  objectFit: "cover",
+                }}
+              />
+              <Stack
+                direction="row"
+                spacing={4}
+                sx={{
+                  position: "absolute",
+                  top: "45%",
+                  left: "35%",
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0,0,0,0.7)",
+                  display: isHovering ? "flex" : "none",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "28%",
+                  height: "12%",
+                  borderRadius: 10,
+                }}
+              >
+                <IconButton
+                  onClick={() => imgDownLoad(cap.captureUrl)}
+                  size="large"
+                  sx={{
+                    color: "#FFFFFF",
+                    transform: "scale(1.5)",
+                    "&:hover": {
+                      color: "#FFAFCC",
+                    },
+                  }}
+                >
+                  <GetApp fontSize={"inherit"} />
+                </IconButton>
+                <IconButton
+                  onClick={() => shareTwitter(s3Addr + cap.captureUrl)}
+                  sx={{
+                    color: "#FFFFFF",
+                    transform: "scale(1.5)",
+                    "&:hover": {
+                      color: "#FFAFCC",
+                    },
+                  }}
+                >
+                  <Twitter />
+                </IconButton>
+              </Stack>
+            </div>
+          ))}
         </Carousel>
       </Grid>
       {showSecretCard && (
