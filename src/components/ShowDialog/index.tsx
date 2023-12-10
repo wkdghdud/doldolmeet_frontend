@@ -62,10 +62,10 @@ export default function ShowDialog() {
 
   const idolRoomMove = async (todayMeeting) => {
     try {
-      if (todayMeeting?.data?.id) {
+      if (todayMeeting && todayMeeting.data && todayMeeting.data.id) {
         // 추가된 부분
         const idolRoomResponse = await backend_api().get(
-          `/roomOrder/${todayMeeting?.data?.id}`,
+          `/roomOrder/${todayMeeting.data.id}`,
         );
 
         setSessionId(idolRoomResponse.data.data.currentRoom);
