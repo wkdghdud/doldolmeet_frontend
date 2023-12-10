@@ -61,6 +61,7 @@ const EndFanMeetingPage = () => {
   const [user, setUser] = useState(null);
   const [captures, setCaptures] = useState([]);
   const [videos, setVideos] = useState([]); // Todo: captures를 videos로 변경해야됨
+  const [videosUrls, setVidesoUrls] = useState<string[]>([]); // Todo: captures를 videos로 변경해야됨
 
   /* States */
   const [contents, setContents] = useState<string[]>([]);
@@ -138,12 +139,12 @@ const EndFanMeetingPage = () => {
 
   useEffect(() => {
     // 썸네일 생성은 동영상 URL들이 로드된 후에만 수행됩니다.
-    const videoUrls = contents.filter(
+    const videoUrls = videosUrls.filter(
       (url) =>
         url !== null && url !== undefined && url !== "" && url.endsWith(".mp4"),
     );
     generateThumbnails(videoUrls);
-  }, [contents]);
+  }, [videosUrls]);
 
   // const handleDownload = async (fileUrl) => {
   //   if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
@@ -215,7 +216,16 @@ const EndFanMeetingPage = () => {
             // idol: "karina",
           })
           .then((res) => {
-            setVideos(res.data);
+            if (Object.values(res.data).length > 0) {
+              const videoUrls: string[] = Object.values(res.data).map(
+                // @ts-ignore
+                (video) => video.url,
+              );
+              setVideos(res.data);
+              setVidesoUrls((prev) => [...prev, ...videoUrls]);
+              console.log("videos", videos);
+              console.log("vide🥶🥶🥶🥶🥶🥶oUrls", videoUrls);
+            }
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
