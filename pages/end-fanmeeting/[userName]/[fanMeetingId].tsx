@@ -59,7 +59,7 @@ const EndFanMeetingPage = () => {
   const winner = searchParams?.get("winner");
 
   const [user, setUser] = useState(null);
-  const [captures, setCaptures] = useState([]);
+  const [captures, setCaptures] = useState<string[]>([]);
   const [videos, setVideos] = useState<string[]>([]); // Todo: captures를 videos로 변경해야됨
 
   /* States */
@@ -238,6 +238,7 @@ const EndFanMeetingPage = () => {
         await backend_api()
           .get(`/captures/${fanMeetingId}`)
           .then((res) => {
+            console.log("res.data🥶🥶🥶🥶🥶🥶.data", res.data.data);
             setCaptures(res.data.data);
           })
           .catch((error) => {
