@@ -375,7 +375,7 @@ const EndFanMeetingPage = () => {
                       marginBottom: "auto",
                     }}
                     controls
-                    poster={thumbnails[item]} // 썸네일 URL 사용
+                    poster={thumbnails[item.url]} // 썸네일 URL 사용
                   >
                     <source src={item.url} type="video/mp4" />
                   </video>
