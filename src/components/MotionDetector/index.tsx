@@ -144,8 +144,10 @@ const MotionDetector = ({
       })
         .then((canvas) => {
           audio.play();
-          const imageDataUrl = canvas.toDataURL("image/png");
-          uploadImage(imageDataUrl);
+          if (role === Role.FAN) {
+            const imageDataUrl = canvas.toDataURL("image/png");
+            uploadImage(imageDataUrl);
+          }
         })
         .catch((error) => {
           // console.error("html2canvas error:", error);
@@ -205,7 +207,9 @@ const MotionDetector = ({
         console.log(
           "📸 포즈가 아직 안 취해졌지만 시간이 얼마 안 남아서 촬영합니다!",
         );
-        onCapture();
+        if (role === Role.FAN) {
+          onCapture();
+        }
         setHasCaptured(true);
         updateShowOverlay(false);
       }
@@ -311,7 +315,9 @@ const MotionDetector = ({
       hasCapturedRef.current === false
     ) {
       console.log("📸📸 사진촬영!!!!!📸📸", myPose);
-      onCapture();
+      if (role === Role.FAN) {
+        onCapture();
+      }
       setHasCaptured(true);
       updateShowOverlay(false);
     }
