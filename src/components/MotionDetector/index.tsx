@@ -30,7 +30,7 @@ const MotionDetector = ({
   const audio = new Audio("/mp3/camera9.mp3");
 
   /* Ref */
-  const webcamRef = useRef(null);
+  const webcamRef = useRef<any>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const labelContainerRef = useRef<HTMLDivElement>(null);
   const labelContainerRef2 = useRef<HTMLDivElement>(null);
@@ -221,70 +221,77 @@ const MotionDetector = ({
     const loadScripts = async () => {
       // TensorFlow 및 Teachable Machine Pose 스크립트 로드 완료 후 초기화
       if (motionType === "bigHeart") {
-        // console.log("😾😾😾😾😾😾😾motionType", motionType);
         init();
       } else if (motionType === "halfHeart") {
-        // console.log("😾😾😾😾😾😾😾motionType", motionType);
         init2();
       }
     };
 
     loadScripts();
-  }, []);
+  }, [
+    webcamRef.current,
+    canvasRef.current,
+    labelContainerRef.current,
+    motionType,
+  ]);
 
   const init = async () => {
-    const URL = "/my-pose-model/";
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
+    console.log("MotionDetector init() called");
+    if (webcamRef.current && canvasRef.current && labelContainerRef.current) {
+      const URL = "/my-pose-model/";
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
 
-    model = await tmPose.load(modelURL, metadataURL);
+      model = await tmPose.load(modelURL, metadataURL);
 
-    maxPredictions = model.getTotalClasses();
-    const size = 200;
-    const flip = true;
-    const webcam = new tmPose.Webcam(size, size, flip);
-    await webcam.setup();
-    await webcam.play();
+      maxPredictions = model.getTotalClasses();
+      const size = 200;
+      const flip = true;
+      const webcam = new tmPose.Webcam(size, size, flip);
+      await webcam.setup();
+      await webcam.play();
 
-    // @ts-ignore
-    webcamRef.current = webcam;
+      webcamRef.current = webcam;
 
-    canvasRef.current.width = size;
-    canvasRef.current.height = size;
+      canvasRef.current.width = size;
+      canvasRef.current.height = size;
 
-    labelContainerRef.current.innerHTML = ""; // 레이블 컨테이너 초기화
-    for (let i = 0; i < maxPredictions; i++) {
-      labelContainerRef.current.appendChild(document.createElement("div"));
+      labelContainerRef.current.innerHTML = ""; // 레이블 컨테이너 초기화
+      for (let i = 0; i < maxPredictions; i++) {
+        labelContainerRef.current.appendChild(document.createElement("div"));
+      }
+      window.requestAnimationFrame(loop);
     }
-    window.requestAnimationFrame(loop);
   };
 
   const init2 = async () => {
-    const URL2 = "/my-pose-model2/";
-    const modelURL2 = URL2 + "model.json";
-    const metadataURL2 = URL2 + "metadata.json";
+    console.log("MotionDetector init2() called");
+    if (webcamRef.current && canvasRef.current && labelContainerRef2.current) {
+      const URL2 = "/my-pose-model2/";
+      const modelURL2 = URL2 + "model.json";
+      const metadataURL2 = URL2 + "metadata.json";
 
-    model2 = await tmPose.load(modelURL2, metadataURL2);
+      model2 = await tmPose.load(modelURL2, metadataURL2);
 
-    maxPredictions2 = model2.getTotalClasses();
+      maxPredictions2 = model2.getTotalClasses();
 
-    const size = 200;
-    const flip = true;
-    const webcam = new tmPose.Webcam(size, size, flip);
-    await webcam.setup();
-    await webcam.play();
+      const size = 200;
+      const flip = true;
+      const webcam = new tmPose.Webcam(size, size, flip);
+      await webcam.setup();
+      await webcam.play();
 
-    // @ts-ignore
-    webcamRef.current = webcam;
+      webcamRef.current = webcam;
 
-    canvasRef.current.width = size;
-    canvasRef.current.height = size;
+      canvasRef.current.width = size;
+      canvasRef.current.height = size;
 
-    labelContainerRef2.current.innerHTML = ""; // 레이블 컨테이너 초기화
-    for (let i = 0; i < maxPredictions2; i++) {
-      labelContainerRef2.current.appendChild(document.createElement("div"));
+      labelContainerRef2.current.innerHTML = ""; // 레이블 컨테이너 초기화
+      for (let i = 0; i < maxPredictions2; i++) {
+        labelContainerRef2.current.appendChild(document.createElement("div"));
+      }
+      window.requestAnimationFrame(loop);
     }
-    window.requestAnimationFrame(loop);
   };
 
   const loop = () => {
@@ -333,7 +340,6 @@ const MotionDetector = ({
             ": " +
             prediction[i].probability.toFixed(2);
 
-          // @ts-ignore
           labelContainerRef2.current.childNodes[i].innerHTML = classPrediction;
 
           if (
@@ -380,7 +386,6 @@ const MotionDetector = ({
             ": " +
             prediction[i].probability.toFixed(2);
 
-          // @ts-ignore
           labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
 
           if (
