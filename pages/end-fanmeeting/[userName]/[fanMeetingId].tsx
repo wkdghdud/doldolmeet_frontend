@@ -61,6 +61,7 @@ const EndFanMeetingPage = () => {
   const [user, setUser] = useState(null);
   const [captures, setCaptures] = useState([]);
   const [videos, setVideos] = useState([]); // Todo: captures를 videos로 변경해야됨
+  const [videoUrls, setVideoUrls] = useState<string[]>([]); // Todo: captures를 videos로 변경해야됨
 
   /* States */
   const [contents, setContents] = useState<string[]>([]);
@@ -216,6 +217,9 @@ const EndFanMeetingPage = () => {
           })
           .then((res) => {
             setVideos(res.data);
+            setVideoUrls(Object.values(res.data).map((video) => video.url));
+            console.log("videos", videos);
+            console.log("vide🥶🥶🥶🥶🥶🥶oUrls", videoUrls);
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
