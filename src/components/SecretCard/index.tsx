@@ -86,16 +86,16 @@ const ScratchCard = ({ imageSrc, brushSize, revealPercent }) => {
     if (isRevealed) {
       return;
     }
-    setIsRevealed(true);
-    scratchCanvasRef.current.style.display = "none";
-
     // 오디오 재생
     if (audio) {
       audio.play().catch((error) => {
         console.error("Audio playback failed", error);
       });
     }
+    setIsRevealed(true);
+    scratchCanvasRef.current.style.display = "none";
   };
+
   return (
     <div style={{ position: "relative" }}>
       <img
