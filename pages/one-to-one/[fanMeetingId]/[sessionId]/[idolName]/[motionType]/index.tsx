@@ -228,6 +228,7 @@ const OneToOnePage = () => {
       const mySession = ov.initSession();
 
       mySession.on("streamCreated", (event) => {
+        console.log("🥳 streamCreated 이벤트 발생: ", event);
         const subscriber = mySession.subscribe(event.stream, undefined);
         setPartnerStream(subscriber);
         if (role === Role.IDOL) {
