@@ -346,13 +346,13 @@ const MotionDetector = ({
           if (
             role === Role.FAN &&
             prediction[i].className == "Class 1" &&
-            prediction[i].probability > 0.9
+            prediction[i].probability > 0.1
           ) {
             detected = true;
           } else if (
             role === Role.IDOL &&
             prediction[i].className == "Class 2" &&
-            prediction[i].probability > 0.9
+            prediction[i].probability > 0.1
           ) {
             detected = true;
           }
