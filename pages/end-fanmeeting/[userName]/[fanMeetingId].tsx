@@ -360,40 +360,44 @@ const EndFanMeetingPage = () => {
           animation={"fade"}
           duration={1500}
         >
-          {[...Object.values(videos), ...captures].map((item, i) => {
-            if (item && typeof item === "string" && item !== "") {
-              const isVideo = item && item.endsWith(".mp4");
-              const contentUrl = isVideo ? item : s3Addr + item.captureUrl;
-              return (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    height: "70vh",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    position: "relative",
-                  }}
-                  onMouseOver={() => setIsHovering(true)}
-                  onMouseOut={() => setIsHovering(false)}
-                >
-                  {isVideo ? (
-                    <video
-                      id={item}
-                      style={{
-                        display: "flex",
-                        width: "88%",
-                        marginTop: "auto",
-                        marginBottom: "auto",
-                      }}
-                      controls
-                      poster={thumbnails[item]} // 썸네일 URL 사용
-                    >
-                      <source src={item} type="video/mp4" />
-                    </video>
-                  ) : (
+          {[...videos, ...captures].map((item, i) => {
+            const isVideo = typeof item === "string" && item.endsWith(".mp4");
+            const contentUrl = isVideo
+              ? item
+              : item.hasOwnProperty("captureUrl")
+              ? `${AWS_S3_URL}/${item.captureUrl}`
+              : "";
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  height: "70vh",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "relative",
+                }}
+                onMouseOver={() => setIsHovering(true)}
+                onMouseOut={() => setIsHovering(false)}
+              >
+                {isVideo ? (
+                  <video
+                    id={item}
+                    style={{
+                      display: "flex",
+                      width: "88%",
+                      marginTop: "auto",
+                      marginBottom: "auto",
+                    }}
+                    controls
+                    poster={thumbnails[item]} // 썸네일 URL 사용
+                  >
+                    <source src={item} type="video/mp4" />
+                  </video>
+                ) : (
+                  contentUrl && (
                     <img
-                      src={s3Addr + item.captureUrl}
+                      src={contentUrl}
                       alt={`Capture ${i}`}
                       style={{
                         width: "88%",
@@ -401,58 +405,58 @@ const EndFanMeetingPage = () => {
                         objectFit: "cover",
                       }}
                     />
-                  )}
-                  <Stack
-                    direction="row"
-                    spacing={4}
+                  )
+                )}
+                <Stack
+                  direction="row"
+                  spacing={4}
+                  sx={{
+                    position: "absolute",
+                    top: "45%",
+                    left: "35%",
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "rgba(0,0,0,0.7)",
+                    display: isHovering ? "flex" : "none",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "28%",
+                    height: "12%",
+                    borderRadius: 10,
+                  }}
+                >
+                  <IconButton
+                    onClick={() =>
+                      isVideo
+                        ? handleDownload(item.url)
+                        : imgDownLoad(item.captureUrl)
+                    }
+                    size="large"
                     sx={{
-                      position: "absolute",
-                      top: "45%",
-                      left: "35%",
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: "rgba(0,0,0,0.7)",
-                      display: isHovering ? "flex" : "none",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: "28%",
-                      height: "12%",
-                      borderRadius: 10,
+                      color: "#FFFFFF",
+                      transform: "scale(1.5)",
+                      "&:hover": {
+                        color: "#FFAFCC",
+                      },
                     }}
                   >
-                    <IconButton
-                      onClick={() =>
-                        isVideo
-                          ? handleDownload(item.url)
-                          : imgDownLoad(item.captureUrl)
-                      }
-                      size="large"
-                      sx={{
-                        color: "#FFFFFF",
-                        transform: "scale(1.5)",
-                        "&:hover": {
-                          color: "#FFAFCC",
-                        },
-                      }}
-                    >
-                      <GetApp fontSize={"inherit"} />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => shareTwitter(contentUrl)}
-                      sx={{
-                        color: "#FFFFFF",
-                        transform: "scale(1.5)",
-                        "&:hover": {
-                          color: "#FFAFCC",
-                        },
-                      }}
-                    >
-                      <Twitter />
-                    </IconButton>
-                  </Stack>
-                </div>
-              );
-            }
+                    <GetApp fontSize={"inherit"} />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => shareTwitter(contentUrl)}
+                    sx={{
+                      color: "#FFFFFF",
+                      transform: "scale(1.5)",
+                      "&:hover": {
+                        color: "#FFAFCC",
+                      },
+                    }}
+                  >
+                    <Twitter />
+                  </IconButton>
+                </Stack>
+              </div>
+            );
           })}
         </Carousel>
       </Grid>
