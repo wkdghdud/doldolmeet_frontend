@@ -2,7 +2,7 @@
 import Paper from "@mui/material/Paper";
 import { Fade, Grid } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
   open: boolean;
@@ -10,19 +10,24 @@ interface Props {
 }
 
 const PhotoTimeAlert = ({ open, motionType }: Props) => {
-  // @ts-ignore
-  // const audio = new Audio(photoAlertMp3);
-  //
-  // useEffect(() => {
-  //   if (open) {
-  //     audio.play();
-  //   }
-  //
-  //   return () => {
-  //     audio.pause();
-  //     audio.currentTime = 0;
-  //   };
-  // }, [open]);
+  const [audio, setAudio] = useState<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAudio(new Audio("/mp3/photo_alert.mp3"));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      audio.play();
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [open]);
 
   return (
     <Fade in={open} timeout={2000}>
