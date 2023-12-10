@@ -59,7 +59,7 @@ const EndFanMeetingPage = () => {
   const winner = searchParams?.get("winner");
 
   const [user, setUser] = useState(null);
-  const [captures, setCaptures] = useState<string[]>([]);
+  const [captures, setCaptures] = useState([]);
   const [videos, setVideos] = useState<string[]>([]); // Todo: captures를 videos로 변경해야됨
 
   /* States */
@@ -137,18 +137,13 @@ const EndFanMeetingPage = () => {
   };
 
   useEffect(() => {
-    console.log("video😈😈😈😈😈😈s", videos);
-    if (videos.length > 0) {
-      const videoUrls = videos.filter(
-        (url) =>
-          url !== null &&
-          url !== undefined &&
-          url !== "" &&
-          url.endsWith(".mp4"),
-      );
-      generateThumbnails(videoUrls);
-    }
-  }, [videos]); // videos 배열이 변경될 때마다 이 useEffect가 실행됩니다.
+    // 썸네일 생성은 동영상 URL들이 로드된 후에만 수행됩니다.
+    const videoUrls = videos.filter(
+      (url) =>
+        url !== null && url !== undefined && url !== "" && url.endsWith(".mp4"),
+    );
+    generateThumbnails(videoUrls);
+  }, [videos]);
 
   // const handleDownload = async (fileUrl) => {
   //   if (fileUrl === null || fileUrl === undefined || fileUrl === "") {
@@ -217,16 +212,10 @@ const EndFanMeetingPage = () => {
           .post(`recording-java/api/recordings/get`, {
             fanMeetingId: fanMeetingId,
             fan: userName,
+            // idol: "karina",
           })
           .then((res) => {
-            if (Object.values(res.data).length > 0) {
-              const videoUrls: string[] = Object.values(res.data).map(
-                // @ts-ignore
-                (video) => video.url,
-              );
-              console.log("videoUrls", videoUrls);
-              setVideos((prev) => [...prev, ...videoUrls]);
-            }
+            setVideos(res.data);
           })
           .catch((error) => {
             console.error("Error fetching videos:", error);
@@ -238,13 +227,7 @@ const EndFanMeetingPage = () => {
         await backend_api()
           .get(`/captures/${fanMeetingId}`)
           .then((res) => {
-            if (res.data.data.length > 0) {
-              const captureUrls: string[] = res.data.data.map(
-                (captureData) => `${AWS_S3_URL}/${captureData.captureUrl}`,
-              );
-              console.log("capt😈😈😈😈😈😈ureUrls", captureUrls);
-              setCaptures((prev) => [...prev, ...captureUrls]);
-            }
+            setCaptures(res.data.data);
           })
           .catch((error) => {
             console.error("Error fetching captures:", error);
@@ -360,13 +343,10 @@ const EndFanMeetingPage = () => {
           animation={"fade"}
           duration={1500}
         >
-          {[...videos, ...captures].map((item, i) => {
-            const isVideo = typeof item === "string" && item.endsWith(".mp4");
-            const contentUrl = isVideo
-              ? item
-              : item.captureUrl
-              ? `${AWS_S3_URL}/${item.captureUrl}`
-              : "";
+          {[...Object.values(videos), ...captures].map((item, i) => {
+            const isVideo = item.url && item.url.endsWith(".mp4");
+            const contentUrl = isVideo ? item.url : s3Addr + item.captureUrl;
+
             return (
               <div
                 key={i}
@@ -382,7 +362,7 @@ const EndFanMeetingPage = () => {
               >
                 {isVideo ? (
                   <video
-                    id={item}
+                    id={item.url}
                     style={{
                       display: "flex",
                       width: "88%",
@@ -390,22 +370,20 @@ const EndFanMeetingPage = () => {
                       marginBottom: "auto",
                     }}
                     controls
-                    poster={thumbnails[item]} // 썸네일 URL 사용
+                    poster={thumbnails[item.url]} // 썸네일 URL 사용
                   >
-                    <source src={item} type="video/mp4" />
+                    <source src={item.url} type="video/mp4" />
                   </video>
                 ) : (
-                  contentUrl && (
-                    <img
-                      src={contentUrl}
-                      alt={`Capture ${i}`}
-                      style={{
-                        width: "88%",
-                        maxHeight: "70vh",
-                        objectFit: "cover",
-                      }}
-                    />
-                  )
+                  <img
+                    src={s3Addr + item.captureUrl}
+                    alt={`Capture ${i}`}
+                    style={{
+                      width: "88%",
+                      maxHeight: "70vh",
+                      objectFit: "cover",
+                    }}
+                  />
                 )}
                 <Stack
                   direction="row"
