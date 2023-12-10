@@ -33,6 +33,10 @@ const PhotoTimeAlert = ({ open, motionType }: Props) => {
   }, [open, audio]);
 
   useEffect(() => {
+    if (open) {
+      setShowAlert(true);
+    }
+
     const timeoutId = setTimeout(() => {
       setShowAlert(false);
     }, 2000);
