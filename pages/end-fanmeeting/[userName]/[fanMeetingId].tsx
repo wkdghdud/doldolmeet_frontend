@@ -238,8 +238,13 @@ const EndFanMeetingPage = () => {
         await backend_api()
           .get(`/captures/${fanMeetingId}`)
           .then((res) => {
-            console.log("res.data🥶🥶🥶🥶🥶🥶.data", res.data.data);
-            setCaptures(res.data.data);
+            if (res.data.data.length > 0) {
+              const captureUrls: string[] = res.data.data.map(
+                (captureData) => `${AWS_S3_URL}/${captureData.captureUrl}`,
+              );
+              console.log("capt😈😈😈😈😈😈ureUrls", captureUrls);
+              setCaptures((prev) => [...prev, ...captureUrls]);
+            }
           })
           .catch((error) => {
             console.error("Error fetching captures:", error);
