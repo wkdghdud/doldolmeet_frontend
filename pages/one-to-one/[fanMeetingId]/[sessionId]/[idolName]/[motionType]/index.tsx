@@ -332,7 +332,7 @@ const OneToOnePage = () => {
         mirror: false,
       });
 
-      newPublisher.subscribeToRemote();
+      // newPublisher.subscribeToRemote();
       mySession.publish(newPublisher);
       setSession(mySession);
       setMyStream(newPublisher);
