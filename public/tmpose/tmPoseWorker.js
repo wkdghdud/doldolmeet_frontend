@@ -5,11 +5,12 @@ let webcam;
 
 const init = async () => {
   console.log("tmPoseWorker init");
-  const URL = "/my-pose-model/";
+  const URL = "../my-pose-model/";
   const modelURL = URL + "model.json";
   const metadataURL = URL + "metadata.json";
 
   model = await tmPose.load(modelURL, metadataURL);
+  console.log("tmPoseWorker model loaded");
 
   postMessage({ type: "modelLoaded", model: model }); // Notify the main thread
 };
