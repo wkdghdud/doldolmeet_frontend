@@ -93,12 +93,12 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
     // 정리 함수
     return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
       if (stompClient) {
         stompClient.disconnect();
         setStompClient(null);
-      }
-      if (subscription) {
-        subscription.unsubscribe();
       }
     };
   }, [roomId]);
