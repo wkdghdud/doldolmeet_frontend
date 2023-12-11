@@ -37,12 +37,12 @@ const loop = async () => {
   }
 };
 
-onmessage = (event) => {
+onmessage = async (event) => {
   const { type } = event.data;
 
   switch (type) {
     case "init":
-      init();
+      await init();
       break;
     case "start":
       loop();
