@@ -215,6 +215,7 @@ const GamePage = () => {
   };
 
   const joinNextRoom = async () => {
+    await leaveSession();
     if (role === Role.IDOL) {
       router.push("/");
     } else {
