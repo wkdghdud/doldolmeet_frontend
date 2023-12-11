@@ -204,24 +204,36 @@ export const createOpenViduSession = async (sessionId) => {
     }
   }
 };
-
 export const createOpenViduConnection = async (sessionId) => {
-  const response = await openvidu_api.post(
-    "/openvidu/api/sessions/" + sessionId + "/connection",
-    {
-      kurentoOptions: {
-        allowedFilters: [
-          "FaceOverlayFilter",
-          "ChromaFilter",
-          "GStreamerFilter",
-        ],
-      },
-    },
-    {
-      headers: { "Content-Type": "application/json" },
-    },
-  );
-  return response.data; // return Connection object
+  let retryCount = 0;
+
+  while (retryCount < 2) {
+    try {
+      const response = await openvidu_api.post(
+        `/openvidu/api/sessions/${sessionId}/connection`,
+        {
+          kurentoOptions: {
+            allowedFilters: [
+              "FaceOverlayFilter",
+              "ChromaFilter",
+              "GStreamerFilter",
+            ],
+          },
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+
+      return response.data; // return Connection object
+    } catch (error) {
+      console.error(`Error in createOpenViduConnection: ${error.message}`);
+      retryCount++;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+
+  throw new Error("OpenVidu 커넥션 실패");
 };
 
 export const closeOpenViduSession = async (sessionName: string) => {
