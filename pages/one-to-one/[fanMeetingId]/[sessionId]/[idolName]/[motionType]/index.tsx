@@ -153,13 +153,13 @@ const OneToOnePage = () => {
   useEffect(() => {
     async function init() {
       if (role === Role.IDOL) {
-        await fetchSSE_idol();
         await joinSession();
+        await fetchSSE_idol();
       } else if (role === Role.FAN) {
-        await fetchSSE();
         const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
-        setChatRoomId(fanToFanMeeting?.chatRoomId);
         await joinSession(fanToFanMeeting?.chatRoomId);
+        setChatRoomId(fanToFanMeeting?.chatRoomId);
+        await fetchSSE();
       } else {
         await joinSession();
       }
@@ -285,30 +285,24 @@ const OneToOnePage = () => {
           },
         });
       } else if (role === Role.FAN) {
-        await mySession
-          .connect(token, {
-            clientData: JSON.stringify({
-              role: role,
-              fanMeetingId: fanMeetingId,
-              userName: userName,
-              type: "idolRoom",
-              chatRoomId: _chatRoomId,
-              nickname: myNickName,
-              idolName: idolName,
-            }),
-            kurentoOptions: {
-              allowedFilters: [
-                "FaceOverlayFilter",
-                "ChromaFilter",
-                "GStreamerFilter",
-              ],
-            },
-          })
-          .then(async () => {
-            if (role === Role.FAN) {
-              await startRecording();
-            }
-          });
+        await mySession.connect(token, {
+          clientData: JSON.stringify({
+            role: role,
+            fanMeetingId: fanMeetingId,
+            userName: userName,
+            type: "idolRoom",
+            chatRoomId: _chatRoomId,
+            nickname: myNickName,
+            idolName: idolName,
+          }),
+          kurentoOptions: {
+            allowedFilters: [
+              "FaceOverlayFilter",
+              "ChromaFilter",
+              "GStreamerFilter",
+            ],
+          },
+        });
       }
 
       await ov.getUserMedia({
@@ -336,6 +330,9 @@ const OneToOnePage = () => {
       mySession.publish(newPublisher);
       setSession(mySession);
       setMyStream(newPublisher);
+      if (role === Role.FAN) {
+        await startRecording();
+      }
     } catch (error) {
       console.error("Error in enterFanmeeting:", error);
       return null;
