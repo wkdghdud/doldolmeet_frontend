@@ -236,14 +236,30 @@ const MotionDetector = ({
 
   const init = async () => {
     console.log("MotionDetector init() called");
+    const initStartTime = performance.now();
+    console.log("⏰ initStartTime:", initStartTime);
     if (canvasRef.current && labelContainerRef.current) {
       const URL = "/my-pose-model/";
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
-
+      const loadStartTime = performance.now();
       model = await tmPose.load(modelURL, metadataURL);
+      const loadEndTime = performance.now();
+      console.log(
+        `⏰ loadStartTime: ${loadStartTime} / loadEndTime: ${loadEndTime} => loadDuration: ${
+          loadEndTime - loadStartTime
+        }`,
+      );
 
+      const getTotalClassesStartTime = performance.now();
       maxPredictions = model.getTotalClasses();
+      const getTotalClassesEndTime = performance.now();
+      console.log(
+        `⏰ getTotalClasses => start: ${getTotalClassesStartTime} / end: ${getTotalClassesEndTime} => duration: ${
+          getTotalClassesEndTime - getTotalClassesStartTime
+        }`,
+      );
+
       const size = 200;
       const flip = true;
       const webcam = new tmPose.Webcam(size, size, flip);
@@ -259,6 +275,12 @@ const MotionDetector = ({
       for (let i = 0; i < maxPredictions; i++) {
         labelContainerRef.current.appendChild(document.createElement("div"));
       }
+      const predictStartTime = performance.now();
+      console.log("⏰ predictStartTime:", predictStartTime);
+      console.log(
+        "⏰ prodict까지 걸린 시간:",
+        predictStartTime - initStartTime,
+      );
       window.requestAnimationFrame(loop);
     }
   };
