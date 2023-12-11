@@ -11,7 +11,6 @@ import {
 import { Role, RoomType } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
 import JoinIdolRoomDialog from "@/components/InviteDialog/JoinIdolRoomDialog";
-import { AWS_S3_URL } from "@/utils/api";
 
 interface Props {
   fanStream: StreamManager | undefined;
@@ -47,12 +46,13 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
   }, [token]);
 
   useEffect(() => {
-    if (userName) {
-      fetchSSE().then((res) => {
-        if (res && sessionId) {
-          joinSession(sessionId);
-        }
-      });
+    async function init() {
+      await fetchSSE();
+      await joinSession(sessionId);
+    }
+
+    if (userName && sessionId) {
+      init();
     }
 
     return () => {
@@ -60,42 +60,42 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
         eventSource.close();
       }
     };
-  }, [userName]);
+  }, [userName, sessionId]);
 
   const joinSession = async (sessionId: string) => {
     try {
       // OpenVidu 객체 생성
       const ov = new OpenVidu();
-      // setOV(ov);
 
       const mySession = ov.initSession();
 
-      mySession.on("streamCreated", (event) => {
-        const subscriber = mySession.subscribe(event.stream, undefined);
-        // setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]); // subscribers 배열에 추가
-      });
-
-      mySession.on("streamDestroyed", (event) => {
-        // deleteSubscriber(event.stream.streamManager);
-      });
-
       const connection = await createOpenViduConnection(sessionId);
-      // if (connection) {
-      //   setMyConnection(connection);
-      // }
-      const { token } = connection;
-      await mySession.connect(token, {
-        clientData: JSON.stringify({
-          role: role,
-          fanMeetingId: fanMeetingId,
-          userName: userName,
-          type: RoomType.waitingRoom,
-        }),
-      });
 
-      // setSession(mySession);
+      const { token } = connection;
+
+      let connectRetryCount = 0;
+      const maxConnectRetries = 2;
+      while (connectRetryCount < maxConnectRetries) {
+        try {
+          await mySession.connect(token, {
+            clientData: JSON.stringify({
+              role: role,
+              fanMeetingId: fanMeetingId,
+              userName: userName,
+              type: RoomType.waitingRoom,
+            }),
+          });
+          break;
+        } catch (e) {
+          console.error(e);
+          connectRetryCount++;
+          if (connectRetryCount === maxConnectRetries) {
+            throw e;
+          }
+        }
+      }
     } catch (error) {
-      console.error("Error in enterFanmeeting:", error);
+      console.error("Error in joinSession:", error);
       return null;
     }
   };
@@ -108,15 +108,6 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
       console.log("🥹 연결되었습니다.");
     });
 
-    eventSource.addEventListener(
-      "moveToFirstIdolWaitRoom",
-      (e: MessageEvent) => {
-        console.log("🥹 moveToFirstIdolWaitRoom: ", JSON.parse(e.data));
-        setNextRoomId(JSON.parse(e.data).nextRoomId);
-        setPopupOpen(true);
-      },
-    );
-
     eventSource.addEventListener("moveToIdolRoom", (e: MessageEvent) => {
       console.log("🥹 moveToIdolRoom: ", JSON.parse(e.data));
       setNextRoomId(JSON.parse(e.data).nextRoomId);
@@ -127,33 +118,12 @@ const OneIdolWaitingRoom = ({ fanStream }: Props) => {
     });
 
     eventSource.onopen = () => {
-      console.log("연결되었습니다.");
-    };
-
-    eventSource.onmessage = async (e) => {
-      const res = await e.data;
-      // const parsedData = JSON.parse(res);
-      console.log("데이터가 도착했습니다.");
-      // console.log(parsedData);
-      joinSession("waitingRoom"); //
-      // alert(res)
-      // 받아오는 data로 할 일
-      // eventSource.close();
+      console.log("SSE 연결되었습니다.");
     };
 
     eventSource.onerror = (e) => {
-      // 종료 또는 에러 발생 시 할 일
       console.log("error");
       console.log(e);
-      // eventSource.close();
-
-      if (e.error) {
-        // 에러 발생 시 할 일
-      }
-
-      if (e.target.readyState === EventSource.CLOSED) {
-        // 종료 시 할 일
-      }
     };
 
     setEventSource(eventSource);
