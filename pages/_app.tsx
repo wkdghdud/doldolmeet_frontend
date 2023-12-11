@@ -10,6 +10,7 @@ import AuthContext from "@/components/AuthContext";
 import Header from "@/components/Header";
 import { Grid } from "@mui/material";
 import CustomThemeProvider from "@/components/ThemeProvider";
+import MotionDetectProvider from "@/components/MotionDetectProvider";
 
 const defaultQueryFn = async ({ queryKey }) => {
   const { data } = await axios.get(
@@ -36,6 +37,7 @@ export default function MyApp({ Component, pageProps }) {
       <CustomThemeProvider>
         <QueryClientProvider client={queryClient}>
           <HydrationBoundary state={pageProps.dehydratedState}>
+            <MotionDetectProvider />
             <Header />
             <Grid
               container

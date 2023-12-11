@@ -5,6 +5,8 @@ import html2canvas from "html2canvas";
 import { backend_api, openvidu_api } from "@/utils/api";
 import PhotoFrame from "@/components/PhotoFrame";
 import { Role } from "@/types";
+import { useAtomValue } from "jotai/react";
+import { bigHeartModelAtom, halfHeartModelAtom } from "@/atom";
 
 interface Props {
   fanMeetingId: string | null | undefined;
@@ -48,8 +50,10 @@ const MotionDetector = ({
   const myPoseRef2 = useRef(myPose2);
   myPoseRef2.current = myPose2;
 
-  let model, maxPredictions;
-  let model2, maxPredictions2;
+  const model = useAtomValue(bigHeartModelAtom);
+  const model2 = useAtomValue(halfHeartModelAtom);
+
+  let maxPredictions, maxPredictions2;
   let hasDetected = false;
 
   const [idolImgSrc, setidolImgSrc] = useState<string>("");
@@ -237,11 +241,11 @@ const MotionDetector = ({
   const init = async () => {
     console.log("MotionDetector init() called");
     if (canvasRef.current && labelContainerRef.current) {
-      const URL = "/my-pose-model/";
-      const modelURL = URL + "model.json";
-      const metadataURL = URL + "metadata.json";
-
-      model = await tmPose.load(modelURL, metadataURL);
+      // const URL = "/my-pose-model/";
+      // const modelURL = URL + "model.json";
+      // const metadataURL = URL + "metadata.json";
+      //
+      // model = await tmPose.load(modelURL, metadataURL);
 
       maxPredictions = model.getTotalClasses();
       const size = 200;
@@ -266,11 +270,11 @@ const MotionDetector = ({
   const init2 = async () => {
     console.log("MotionDetector init2() called");
     if (canvasRef.current && labelContainerRef2.current) {
-      const URL2 = "/my-pose-model2/";
-      const modelURL2 = URL2 + "model.json";
-      const metadataURL2 = URL2 + "metadata.json";
-
-      model2 = await tmPose.load(modelURL2, metadataURL2);
+      // const URL2 = "/my-pose-model2/";
+      // const modelURL2 = URL2 + "model.json";
+      // const metadataURL2 = URL2 + "metadata.json";
+      //
+      // model2 = await tmPose.load(modelURL2, metadataURL2);
 
       maxPredictions2 = model2.getTotalClasses();
 
