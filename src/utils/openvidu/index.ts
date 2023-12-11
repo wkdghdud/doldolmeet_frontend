@@ -226,6 +226,7 @@ export const createOpenViduConnection = async (sessionId) => {
       );
 
       return response.data; // return Connection object
+      break;
     } catch (error) {
       console.error(`Error in createOpenViduConnection: ${error.message}`);
       retryCount++;
