@@ -618,30 +618,30 @@ const OneToOnePage = () => {
           <ChatAndMemo chatRoomId={chatRoomId} height={"75vh"} />
         </Grid>
       )}
-      {/*<AlertSnackBar*/}
-      {/*  open={snackBarOpen}*/}
-      {/*  handleClose={() => setSnackBarOpen(false)}*/}
-      {/*  title={snackBarTitle}*/}
-      {/*  content={snackBarContent}*/}
-      {/*/>*/}
-      {/*{fanMeetingId && idolName && sessionId && userName && photoTime && (*/}
-      {/*  <MotionDetector*/}
-      {/*    role={role}*/}
-      {/*    fanMeetingId={fanMeetingId}*/}
-      {/*    idolName={idolName}*/}
-      {/*    sessionId={sessionId}*/}
-      {/*    partnerPose={partnerPose}*/}
-      {/*    username={userName}*/}
-      {/*    motionType={motionType}*/}
-      {/*    updateShowOverlay={updateShowOverlay}*/}
-      {/*  />*/}
-      {/*)}*/}
-      {/*<FilterSelectDialog*/}
-      {/*  popupOpen={filterPopupOpen}*/}
-      {/*  onClose={() => setFilterPopupOpen(false)}*/}
-      {/*  onClickApplyFilter={onClickApplyFilter}*/}
-      {/*/>*/}
-      {/*<PhotoTimeAlert open={endSoon} motionType={motionType} />*/}
+      <AlertSnackBar
+        open={snackBarOpen}
+        handleClose={() => setSnackBarOpen(false)}
+        title={snackBarTitle}
+        content={snackBarContent}
+      />
+      {fanMeetingId && idolName && sessionId && userName && photoTime && (
+        <MotionDetector
+          role={role}
+          fanMeetingId={fanMeetingId}
+          idolName={idolName}
+          sessionId={sessionId}
+          partnerPose={partnerPose}
+          username={userName}
+          motionType={motionType}
+          updateShowOverlay={updateShowOverlay}
+        />
+      )}
+      <FilterSelectDialog
+        popupOpen={filterPopupOpen}
+        onClose={() => setFilterPopupOpen(false)}
+        onClickApplyFilter={onClickApplyFilter}
+      />
+      <PhotoTimeAlert open={endSoon} motionType={motionType} />
     </Grid>
   );
 };

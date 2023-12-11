@@ -20,18 +20,18 @@ const WaitingImage = ({ waitingFor, name }: Props) => {
         <br />
         조금만 기다려주세요!
       </TypographyOnImage>
-      {/*<img*/}
-      {/*  src={waitingFor === Role.IDOL ? "/hi.gif" : "/fan.webp"}*/}
-      {/*  alt="조금만 기다려주세요"*/}
-      {/*  style={{*/}
-      {/*    maxWidth: "95%",*/}
-      {/*    height: "68vh",*/}
-      {/*    borderRadius: 20,*/}
-      {/*    objectFit: "cover",*/}
-      {/*    position: "relative",*/}
-      {/*    zIndex: 0,*/}
-      {/*  }}*/}
-      {/*/>*/}
+      <img
+        src={waitingFor === Role.IDOL ? "/hi.gif" : "/fan.webp"}
+        alt="조금만 기다려주세요"
+        style={{
+          maxWidth: "95%",
+          height: "68vh",
+          borderRadius: 20,
+          objectFit: "cover",
+          position: "relative",
+          zIndex: 0,
+        }}
+      />
     </div>
   );
 };
