@@ -33,6 +33,7 @@ const loop = async () => {
 };
 
 const predict = async (webcam) => {
+  console.log("🙈 tmPoseWorker predict");
   if (model && webcam) {
     try {
       const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
@@ -51,7 +52,7 @@ const predict = async (webcam) => {
           detected = true;
         }
       }
-
+      console.log("📣 predict_result", classPrediction, detected);
       postMessage({
         type: "predict_result",
         classPrediction: classPrediction,

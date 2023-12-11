@@ -368,6 +368,7 @@ const MotionDetector = ({
       if (webcam) {
         webcam.update();
         if (motionType === "bigHeart") {
+          console.log("🚀 predict 요청을 보냄");
           postMessage({ type: "predict", webcam: webcam });
         } else if (motionType === "halfHeart") {
           predict2();
