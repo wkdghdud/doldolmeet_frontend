@@ -7,7 +7,6 @@ import PhotoFrame from "@/components/PhotoFrame";
 import { Role } from "@/types";
 
 interface Props {
-  poseModel: any;
   fanMeetingId: string | null | undefined;
   idolName: string | null | undefined;
   sessionId: string | null | undefined;
@@ -19,7 +18,6 @@ interface Props {
 }
 
 const MotionDetector = ({
-  poseModel,
   role,
   fanMeetingId,
   idolName,
@@ -56,6 +54,44 @@ const MotionDetector = ({
 
   const [idolImgSrc, setidolImgSrc] = useState<string>("");
   const [fanImgSrc, setFanImgSrc] = useState<string>("");
+
+  /***********************************/
+  /*        MotionDetector           */
+  /***********************************/
+
+  const workerRef = useRef<Worker>();
+  const [poseModel, setPoseModel] = useState<any>(undefined);
+
+  useEffect(() => {
+    // Create a new Web Worker
+    const worker = new Worker(
+      new URL("../../../public/tmpose/tmPoseWorker.js", import.meta.url),
+    );
+    workerRef.current = worker;
+
+    // Initialize the Web Worker
+    worker.postMessage({ type: "init" });
+
+    // Handle messages from the Web Worker
+    worker.onmessage = (event) => {
+      const { type } = event.data;
+
+      switch (type) {
+        case "modelLoaded":
+          console.log("🥳 모델이 로드되었습니다.", model);
+          break;
+        case "predict_result":
+          console.log("🥳 predict_result", event.data);
+        default:
+          break;
+      }
+    };
+
+    return () => {
+      // Terminate the Web Worker when the component is unmounted
+      worker.terminate();
+    };
+  }, []);
 
   /* videoElement가 화면에 보이는 상태대로 canvasElement에 복사하여 이미지의 data url을 반환하는 함수 */
   const createImageDataUrl = (
@@ -224,18 +260,27 @@ const MotionDetector = ({
 
   useEffect(() => {
     console.log("MotionDetector component mounted!");
-    const loadScripts = async () => {
-      // TensorFlow 및 Teachable Machine Pose 스크립트 로드 완료 후 초기화
-      if (motionType === "bigHeart") {
-        init();
-      } else if (motionType === "halfHeart") {
-        init2();
-      }
-    };
+    // const loadScripts = async () => {
+    //   // TensorFlow 및 Teachable Machine Pose 스크립트 로드 완료 후 초기화
+    //   if (motionType === "bigHeart") {
+    //     init();
+    //   } else if (motionType === "halfHeart") {
+    //     init2();
+    //   }
+    // };
+    //
+    // loadScripts();
 
-    loadScripts();
-  }, [canvasRef.current, labelContainerRef.current, motionType]);
-
+    if (workerRef.current) {
+      workerRef.current.postMessage({ type: "init" });
+      init();
+    }
+  }, [
+    canvasRef.current,
+    labelContainerRef.current,
+    workerRef.current,
+    motionType,
+  ]);
   const init = async () => {
     console.log("MotionDetector init() called");
     const initStartTime = performance.now();
@@ -244,23 +289,23 @@ const MotionDetector = ({
       // const URL = "/my-pose-model/";
       // const modelURL = URL + "model.json";
       // const metadataURL = URL + "metadata.json";
-      const loadStartTime = performance.now();
+      // const loadStartTime = performance.now();
       // model = await tmPose.load(modelURL, metadataURL);
-      const loadEndTime = performance.now();
-      console.log(
-        `⏰ loadStartTime: ${loadStartTime} / loadEndTime: ${loadEndTime} => loadDuration: ${
-          loadEndTime - loadStartTime
-        }`,
-      );
+      // const loadEndTime = performance.now();
+      // console.log(
+      //   `⏰ loadStartTime: ${loadStartTime} / loadEndTime: ${loadEndTime} => loadDuration: ${
+      //     loadEndTime - loadStartTime
+      //   }`,
+      // );
 
-      const getTotalClassesStartTime = performance.now();
-      maxPredictions = poseModel.getTotalClasses();
-      const getTotalClassesEndTime = performance.now();
-      console.log(
-        `⏰ getTotalClasses => start: ${getTotalClassesStartTime} / end: ${getTotalClassesEndTime} => duration: ${
-          getTotalClassesEndTime - getTotalClassesStartTime
-        }`,
-      );
+      // const getTotalClassesStartTime = performance.now();
+      // maxPredictions = poseModel.getTotalClasses();
+      // const getTotalClassesEndTime = performance.now();
+      // console.log(
+      //   `⏰ getTotalClasses => start: ${getTotalClassesStartTime} / end: ${getTotalClassesEndTime} => duration: ${
+      //     getTotalClassesEndTime - getTotalClassesStartTime
+      //   }`,
+      // );
 
       const size = 200;
       const flip = true;
@@ -323,7 +368,7 @@ const MotionDetector = ({
       if (webcam) {
         webcam.update();
         if (motionType === "bigHeart") {
-          predict();
+          postMessage({ type: "predict", webcam: webcam });
         } else if (motionType === "halfHeart") {
           predict2();
         }

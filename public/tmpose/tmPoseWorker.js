@@ -1,4 +1,5 @@
 import * as tmPose from "@teachablemachine/pose";
+import { useCallback } from "react";
 
 let model, maxPredictions;
 let webcam;
@@ -10,9 +11,10 @@ const init = async () => {
   const metadataURL = URL + "metadata.json";
 
   model = await tmPose.load(modelURL, metadataURL);
+  maxPredictions = model.getTotalClasses();
   console.log("tmPoseWorker model loaded");
 
-  postMessage({ type: "modelLoaded", model: JSON.stringify(model) }); // Notify the main thread
+  postMessage({ type: "modelLoaded" }); // Notify the main thread
 };
 
 const loop = async () => {
@@ -30,6 +32,39 @@ const loop = async () => {
   }
 };
 
+const predict = async (webcam) => {
+  if (model && webcam) {
+    try {
+      const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+
+      const prediction = await model.predict(posenetOutput);
+      let detected = false;
+
+      for (let i = 0; i < maxPredictions; i++) {
+        const classPrediction =
+          prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+
+        if (
+          prediction[i].className == "Class 1" &&
+          prediction[i].probability > 0.9
+        ) {
+          detected = true;
+        }
+      }
+
+      postMessage({
+        type: "predict_result",
+        classPrediction: classPrediction,
+        detected: detected,
+      }); // Notify the main thread
+    } catch (error) {
+      // console.error("Prediction error:", error);
+    }
+  } else {
+    // console.log("Model or webcam is not available!");
+  }
+};
+
 onmessage = async (event) => {
   const { type } = event.data;
 
@@ -37,8 +72,9 @@ onmessage = async (event) => {
     case "init":
       await init();
       break;
-    case "start":
-      loop();
+    case "predict":
+      const { webcam } = event.data;
+      predict(webcam);
       break;
     default:
       break;

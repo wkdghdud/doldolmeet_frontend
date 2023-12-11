@@ -576,10 +576,7 @@ const OneToOnePage = () => {
 
       switch (type) {
         case "modelLoaded":
-          const { model } = event.data;
-          setPoseModel(model);
-          poseModelRef.current = model;
-          console.log("🥳 모델이 로드되었습니다.", model);
+          console.log("🥳 모델이 로드되었습니다.");
           break;
         default:
           break;
@@ -591,6 +588,12 @@ const OneToOnePage = () => {
       worker.terminate();
     };
   }, []);
+
+  useEffect(() => {
+    if (photoTime && workerRef.current) {
+      workerRef.current.postMessage({ type: "start" });
+    }
+  }, [photoTime]);
 
   return (
     <Grid container spacing={2}>
@@ -719,7 +722,6 @@ const OneToOnePage = () => {
       />
       {fanMeetingId && idolName && sessionId && userName && photoTime && (
         <MotionDetector
-          poseModel={JSON.parse(poseModelRef.current)}
           role={role}
           fanMeetingId={fanMeetingId}
           idolName={idolName}
