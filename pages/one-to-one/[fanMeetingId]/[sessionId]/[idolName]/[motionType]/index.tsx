@@ -369,8 +369,8 @@ const OneToOnePage = () => {
         if (newPublisher) {
           session?.publish(newPublisher);
           setMyStream(newPublisher);
-          break;
         }
+        break;
       } catch (e) {
         console.error(e);
         retryCount++;
