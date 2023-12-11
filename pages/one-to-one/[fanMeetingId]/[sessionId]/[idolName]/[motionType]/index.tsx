@@ -280,7 +280,30 @@ const OneToOnePage = () => {
       }
       const { token } = connection;
 
-      await connectToSession({ token, chatRoomId });
+      if (role === Role.IDOL) {
+        await session?.connect(token, {
+          clientData: JSON.stringify({
+            role: role,
+            fanMeetingId: fanMeetingId,
+            userName: userName,
+            type: "idolRoom",
+            chatRoomId: _chatRoomId,
+            nickname: myNickName,
+          }),
+        });
+      } else if (role === Role.FAN) {
+        await session?.connect(token, {
+          clientData: JSON.stringify({
+            role: role,
+            fanMeetingId: fanMeetingId,
+            userName: userName,
+            type: "idolRoom",
+            chatRoomId: _chatRoomId,
+            nickname: myNickName,
+            idolName: idolName,
+          }),
+        });
+      }
 
       await initPublisher();
 
