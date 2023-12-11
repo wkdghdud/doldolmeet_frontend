@@ -247,8 +247,7 @@ const MotionDetector = ({
       //
       // model = await tmPose.load(modelURL, metadataURL);
 
-      const parsedModel = JSON.parse(model);
-      maxPredictions = parsedModel.getTotalClasses();
+      maxPredictions = model.getTotalClasses();
       const size = 200;
       const flip = true;
       const webcam = new tmPose.Webcam(size, size, flip);
@@ -277,8 +276,7 @@ const MotionDetector = ({
       //
       // model2 = await tmPose.load(modelURL2, metadataURL2);
 
-      const parsedModel2 = JSON.parse(model2);
-      maxPredictions2 = parsedModel2.getTotalClasses();
+      maxPredictions2 = model2.getTotalClasses();
 
       const size = 200;
       const flip = true;
@@ -334,12 +332,11 @@ const MotionDetector = ({
 
     if (model2 && webcam && labelContainerRef2.current) {
       try {
-        const parsedModel2 = JSON.parse(model2);
-        const { pose, posenetOutput } = await parsedModel2.estimatePose(
+        const { pose, posenetOutput } = await model2.estimatePose(
           webcam.canvas,
         );
 
-        const prediction = await parsedModel2.predict(posenetOutput);
+        const prediction = await model2.predict(posenetOutput);
         let detected = false;
 
         for (let i = 0; i < maxPredictions2; i++) {
@@ -383,12 +380,9 @@ const MotionDetector = ({
 
     if (model && webcam) {
       try {
-        const parsedModel = JSON.parse(model);
-        const { pose, posenetOutput } = await parsedModel.estimatePose(
-          webcam.canvas,
-        );
+        const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
 
-        const prediction = await parsedModel.predict(posenetOutput);
+        const prediction = await model.predict(posenetOutput);
         let detected = false;
 
         for (let i = 0; i < maxPredictions; i++) {

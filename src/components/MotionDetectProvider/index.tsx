@@ -14,7 +14,7 @@ const MotionDetectProvider = () => {
       const metadataURL = URL + "metadata.json";
 
       const loadedModel = await tmPose.load(modelURL, metadataURL);
-      setBigHeartModel(JSON.stringify(loadedModel));
+      setBigHeartModel(loadedModel);
     };
 
     const loadHalfHeartModel = async () => {
@@ -24,7 +24,7 @@ const MotionDetectProvider = () => {
       const metadataURL = URL + "metadata.json";
 
       const loadedModel = await tmPose.load(modelURL, metadataURL);
-      setHalfHeartModel(JSON.stringify(loadedModel));
+      setHalfHeartModel(loadedModel);
     };
 
     loadBigHeartModel();
