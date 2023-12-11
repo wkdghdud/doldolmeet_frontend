@@ -156,10 +156,10 @@ const OneToOnePage = () => {
         await fetchSSE_idol();
         await joinSession();
       } else if (role === Role.FAN) {
-        // const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
-        // setChatRoomId(fanToFanMeeting?.chatRoomId);
-        await joinSession("");
         await fetchSSE();
+        const fanToFanMeeting = await fetchFanToFanMeeting(fanMeetingId);
+        setChatRoomId(fanToFanMeeting?.chatRoomId);
+        await joinSession(fanToFanMeeting?.chatRoomId);
       } else {
         await joinSession();
       }
@@ -285,29 +285,30 @@ const OneToOnePage = () => {
           },
         });
       } else if (role === Role.FAN) {
-        await mySession.connect(token, {
-          clientData: JSON.stringify({
-            role: role,
-            fanMeetingId: fanMeetingId,
-            userName: userName,
-            type: "idolRoom",
-            chatRoomId: _chatRoomId,
-            nickname: myNickName,
-            idolName: idolName,
-          }),
-          kurentoOptions: {
-            allowedFilters: [
-              "FaceOverlayFilter",
-              "ChromaFilter",
-              "GStreamerFilter",
-            ],
-          },
-        });
-        // .then(async () => {
-        //   if (role === Role.FAN) {
-        //     await startRecording();
-        //   }
-        // });
+        await mySession
+          .connect(token, {
+            clientData: JSON.stringify({
+              role: role,
+              fanMeetingId: fanMeetingId,
+              userName: userName,
+              type: "idolRoom",
+              chatRoomId: _chatRoomId,
+              nickname: myNickName,
+              idolName: idolName,
+            }),
+            kurentoOptions: {
+              allowedFilters: [
+                "FaceOverlayFilter",
+                "ChromaFilter",
+                "GStreamerFilter",
+              ],
+            },
+          })
+          .then(async () => {
+            if (role === Role.FAN) {
+              await startRecording();
+            }
+          });
       }
 
       await ov.getUserMedia({
