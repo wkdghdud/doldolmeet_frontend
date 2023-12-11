@@ -11,14 +11,6 @@ const init = async () => {
 
   model = await tmPose.load(modelURL, metadataURL);
 
-  const size = 200;
-  const flip = true;
-  webcam = new tmPose.Webcam(size, size, flip);
-  await webcam.setup();
-  await webcam.play();
-
-  maxPredictions = model.getTotalClasses();
-
   postMessage({ type: "modelLoaded", model: model }); // Notify the main thread
 };
 
