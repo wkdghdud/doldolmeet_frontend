@@ -7,7 +7,7 @@ import {
   StreamManager,
 } from "openvidu-browser";
 import { Grid, Stack } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
@@ -548,6 +548,46 @@ const OneToOnePage = () => {
     setFilterPopupOpen(false);
   };
 
+  /***********************************/
+  /*        MotionDetector           */
+  /***********************************/
+
+  const workerRef = useRef<Worker>();
+  const [poseModel, setPoseModel] = useState<any>(undefined);
+
+  useEffect(() => {
+    // Create a new Web Worker
+    const worker = new Worker(
+      new URL(
+        "../../../../../../public/tmpose/tmPoseWorker.js",
+        import.meta.url,
+      ),
+    );
+    workerRef.current = worker;
+
+    // Initialize the Web Worker
+    worker.postMessage({ type: "init" });
+
+    // Handle messages from the Web Worker
+    worker.onmessage = (event) => {
+      const { type } = event.data;
+
+      switch (type) {
+        case "modelLoaded":
+          const { model } = event.data;
+          setPoseModel(model);
+          break;
+        default:
+          break;
+      }
+    };
+
+    return () => {
+      // Terminate the Web Worker when the component is unmounted
+      worker.terminate();
+    };
+  }, []);
+
   return (
     <Grid container spacing={2}>
       <Grid
@@ -673,8 +713,9 @@ const OneToOnePage = () => {
         title={snackBarTitle}
         content={snackBarContent}
       />
-      {fanMeetingId && idolName && sessionId && userName && (
+      {fanMeetingId && idolName && sessionId && userName && photoTime && (
         <MotionDetector
+          model={poseModel}
           role={role}
           fanMeetingId={fanMeetingId}
           idolName={idolName}

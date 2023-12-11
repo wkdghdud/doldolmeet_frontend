@@ -19,7 +19,7 @@ const init = async () => {
 
   maxPredictions = model.getTotalClasses();
 
-  // Add other initialization logic as needed
+  postMessage({ type: "modelLoaded", model: model }); // Notify the main thread
 };
 
 const loop = async () => {
