@@ -35,6 +35,7 @@ const SUPPORTED_TARGETS = [
   { code: "zh-CN", label: "Chinese" },
   { code: "ko", label: "Korean" },
 ];
+
 const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [message, setMessage] = useState<any>("");
   const [messages, setMessages] = useState<any[]>([]);
@@ -89,7 +90,18 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
     if (roomId) {
       initWebSocket();
     }
-  }, [roomId]);
+
+    // 정리 함수
+    return () => {
+      if (stompClient) {
+        stompClient.disconnect();
+        setStompClient(null);
+      }
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
+  }, [roomId, stompClient]);
 
   useEffect(() => {
     token.then((res) => {
@@ -104,20 +116,22 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
   const sendMessage = (e) => {
     e.preventDefault();
-    if (stompClient && message && message.trim() !== "") {
-      stompClient.send(
-        "/pub/chat/message",
-        {},
-        JSON.stringify({
-          type: "TALK",
-          roomId: roomId,
-          sender: sender,
-          message: message,
-          profileImg: imgUrl,
-        }),
-      );
-      setMessage("");
-    }
+    if (!stompClient || !message.trim()) return;
+
+    const newMessage = message.trim();
+    stompClient.send(
+      "/pub/chat/message",
+      {},
+      JSON.stringify({
+        type: "TALK",
+        roomId: roomId,
+        sender: sender,
+        message: newMessage,
+        profileImg: imgUrl,
+      }),
+    );
+
+    setMessage("");
   };
 
   const scrollToBottom = () => {
