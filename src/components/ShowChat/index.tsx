@@ -68,6 +68,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           },
         );
         setSubscription(_subscription);
+        console.log("💚 subcribe: ", roomId);
 
         // Send
         await _stompClient.send(
