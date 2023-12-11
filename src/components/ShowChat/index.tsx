@@ -51,19 +51,16 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [langTarget, setLangTarget] = useAtom(languageTargetAtom);
 
   useEffect(() => {
-    let _stompClient;
-    let _subscription;
-
-    const initWebSocket = () => {
+    const initWebSocket = async () => {
       if (stompClient && subscription) return;
 
       const sock = new SockJS(WS_STOMP_URL);
-      _stompClient = Stomp.over(sock);
+      const _stompClient = Stomp.over(sock);
       setStompClient(_stompClient);
 
-      _stompClient.connect({}, (frame) => {
+      await _stompClient.connect({}, async (frame) => {
         // Subscribe
-        _subscription = _stompClient.subscribe(
+        const _subscription = _stompClient.subscribe(
           `/sub/chat/room/${roomId}`,
           (message) => {
             const receivedMessage = JSON.parse(message.body);
@@ -73,7 +70,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         setSubscription(_subscription);
 
         // Send
-        _stompClient.send(
+        await _stompClient.send(
           "/pub/chat/message",
           {},
           JSON.stringify({
@@ -83,22 +80,28 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
           }),
         );
       });
+
+      return () => {
+        subscription.unsubscribe();
+        _stompClient.disconnect();
+      };
     };
 
     if (roomId) {
       initWebSocket();
     }
 
-    // 청소 함수
+    // 정리 함수
     return () => {
-      if (_subscription) {
-        _subscription.unsubscribe();
+      if (stompClient) {
+        stompClient.disconnect();
+        setStompClient(null);
       }
-      if (_stompClient && _stompClient.connected) {
-        _stompClient.disconnect();
+      if (subscription) {
+        subscription.unsubscribe();
       }
     };
-  }, [roomId, stompClient, subscription]);
+  }, [roomId]);
 
   useEffect(() => {
     token.then((res) => {
