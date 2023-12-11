@@ -58,7 +58,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       const _stompClient = Stomp.over(sock);
       setStompClient(_stompClient);
 
-      await _stompClient.connect({}, (frame) => {
+      await _stompClient.connect({}, async (frame) => {
         // Subscribe
         const _subscription = _stompClient.subscribe(
           `/sub/chat/room/${roomId}`,
