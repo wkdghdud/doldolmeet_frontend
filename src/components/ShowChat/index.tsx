@@ -51,14 +51,14 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [langTarget, setLangTarget] = useAtom(languageTargetAtom);
 
   useEffect(() => {
-    const initWebSocket = () => {
+    const initWebSocket = async () => {
       if (stompClient && subscription) return;
 
       const sock = new SockJS(WS_STOMP_URL);
       const _stompClient = Stomp.over(sock);
       setStompClient(_stompClient);
 
-      _stompClient.connect({}, (frame) => {
+      await _stompClient.connect({}, (frame) => {
         // Subscribe
         const _subscription = _stompClient.subscribe(
           `/sub/chat/room/${roomId}`,
@@ -70,7 +70,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         setSubscription(_subscription);
 
         // Send
-        _stompClient.send(
+        await _stompClient.send(
           "/pub/chat/message",
           {},
           JSON.stringify({
