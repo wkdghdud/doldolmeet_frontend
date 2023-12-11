@@ -60,14 +60,14 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
       _stompClient.connect({}, (frame) => {
         // Subscribe
-        const subscription = _stompClient.subscribe(
+        const _subscription = _stompClient.subscribe(
           `/sub/chat/room/${roomId}`,
           (message) => {
             const receivedMessage = JSON.parse(message.body);
             setMessages((prevMessages) => [...prevMessages, receivedMessage]);
           },
         );
-        setSubscription(subscription);
+        setSubscription(_subscription);
 
         // Send
         _stompClient.send(
@@ -101,7 +101,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
         subscription.unsubscribe();
       }
     };
-  }, [roomId, stompClient]);
+  }, [roomId]);
 
   useEffect(() => {
     token.then((res) => {
