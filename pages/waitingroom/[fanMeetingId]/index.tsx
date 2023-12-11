@@ -1,6 +1,5 @@
 "use client";
 import { Grid, Stack } from "@mui/material";
-// import { useRouter, useSearchParams } from "next/navigation";
 import {
   fetchFanMeeting,
   useFanMeeting,
@@ -15,7 +14,6 @@ import {
 } from "@/utils/openvidu";
 import { Role } from "@/types";
 import useJwtToken from "@/hooks/useJwtToken";
-import InviteDialog from "@/components/InviteDialog";
 import ChatAndMemo from "@/components/ChatAndMemo";
 import Typography from "@mui/material/Typography";
 import StartFanMeetingDialog from "@/components/InviteDialog/StartFanMeetingDialog";
@@ -105,7 +103,6 @@ const WaitingRoom = () => {
     try {
       // OpenVidu 객체 생성
       const ov = new OpenVidu();
-      // setOV(ov);
 
       const mySession = ov.initSession();
 
@@ -114,16 +111,28 @@ const WaitingRoom = () => {
         setConnection(connection);
       }
       const { token } = connection;
-      await mySession.connect(token, {
-        clientData: JSON.stringify({
-          role: role,
-          fanMeetingId: fanMeetingId,
-          userName: userName,
-          type: "waitingRoom",
-        }),
-      });
 
-      // setSession(mySession);
+      let connectRetryCount = 0;
+      const maxConnectRetries = 2;
+      while (connectRetryCount < maxConnectRetries) {
+        try {
+          await mySession.connect(token, {
+            clientData: JSON.stringify({
+              role: role,
+              fanMeetingId: fanMeetingId,
+              userName: userName,
+              type: "waitingRoom",
+            }),
+          });
+          break;
+        } catch (e) {
+          console.error(e);
+          connectRetryCount++;
+          if (connectRetryCount === maxConnectRetries) {
+            throw e;
+          }
+        }
+      }
     } catch (error) {
       console.error("Error in enterFanmeeting:", error);
       return null;
@@ -166,18 +175,7 @@ const WaitingRoom = () => {
     });
 
     eventSource.onerror = (e) => {
-      // 종료 또는 에러 발생 시 할 일
-      console.log("error");
-      console.log(e);
-      // eventSource.close();
-
-      if (e.error) {
-        // 에러 발생 시 할 일
-      }
-
-      if (e.target.readyState === EventSource.CLOSED) {
-        // 종료 시 할 일
-      }
+      console.log("eventSource error", e);
     };
   };
 
@@ -192,12 +190,6 @@ const WaitingRoom = () => {
     router.push(
       `/one-idol-waitingroom?fanMeetingId=${fanMeetingId}&sessionId=${nextRoomId}`,
     );
-  };
-
-  const [tabValue, setTabValue] = useState(0);
-
-  const handleChange = (event, newValue) => {
-    setTabValue(newValue);
   };
 
   const handleClose = (event, reason) => {
