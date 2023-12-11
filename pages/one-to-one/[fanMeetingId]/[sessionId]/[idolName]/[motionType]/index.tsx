@@ -181,40 +181,52 @@ const OneToOnePage = () => {
 
   const startRecording = async () => {
     const recording_name = uuidv4();
+    const maxRetries = 2;
+    let retryCount = 0;
 
-    console.log("🎥 startRecording", {
-      session: sessionId,
-      fanMeetingId: fanMeetingId,
-      fan: userName,
-      idol: idolName,
-      name: recording_name,
-      hasAudio: true,
-      hasVideo: true,
-      outputMode: "COMPOSED",
-    });
-
-    await backend_api()
-      .post(
-        SPRING_URL + "/recording-java/api/recording/start",
-
-        {
-          session: sessionId,
-          fanMeetingId: fanMeetingId ?? "1",
-          fan: userName,
-          idol: idolName,
-          name: recording_name,
-          hasAudio: true,
-          hasVideo: true,
-          outputMode: "COMPOSED",
-        },
-      )
-      .then((response) => {
-        setForceRecordingId(response.data.id);
-      })
-      .catch((error) => {
-        // console.error("Start recording WRONG:", error);
+    while (retryCount < maxRetries) {
+      console.log(`🎥 startRecording (Attempt ${retryCount + 1})`, {
+        session: sessionId,
+        fanMeetingId: fanMeetingId,
+        fan: userName,
+        idol: idolName,
+        name: recording_name,
+        hasAudio: true,
+        hasVideo: true,
+        outputMode: "COMPOSED",
       });
+
+      try {
+        const response = await backend_api().post(
+          SPRING_URL + "/recording-java/api/recording/start",
+          {
+            session: sessionId,
+            fanMeetingId: fanMeetingId ?? "1",
+            fan: userName,
+            idol: idolName,
+            name: recording_name,
+            hasAudio: true,
+            hasVideo: true,
+            outputMode: "COMPOSED",
+          },
+        );
+
+        setForceRecordingId(response.data.id);
+        break;
+      } catch (error) {
+        console.error(
+          `Start recording attempt ${retryCount + 1} failed:`,
+          error,
+        );
+        retryCount++;
+      }
+    }
+
+    if (retryCount === maxRetries) {
+      console.error("Max retries reached. Recording start failed.");
+    }
   };
+
   const updateShowOverlay = (newValue) => {
     setEndSoon(newValue);
   };
