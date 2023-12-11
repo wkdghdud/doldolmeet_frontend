@@ -715,7 +715,7 @@ const OneToOnePage = () => {
       />
       {fanMeetingId && idolName && sessionId && userName && photoTime && (
         <MotionDetector
-          model={poseModel}
+          poseModel={poseModel}
           role={role}
           fanMeetingId={fanMeetingId}
           idolName={idolName}

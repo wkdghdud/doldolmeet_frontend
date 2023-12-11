@@ -7,6 +7,7 @@ import PhotoFrame from "@/components/PhotoFrame";
 import { Role } from "@/types";
 
 interface Props {
+  poseModel: any;
   fanMeetingId: string | null | undefined;
   idolName: string | null | undefined;
   sessionId: string | null | undefined;
@@ -18,6 +19,7 @@ interface Props {
 }
 
 const MotionDetector = ({
+  poseModel,
   role,
   fanMeetingId,
   idolName,
@@ -238,7 +240,7 @@ const MotionDetector = ({
     console.log("MotionDetector init() called");
     const initStartTime = performance.now();
     console.log("⏰ initStartTime:", initStartTime);
-    if (model && canvasRef.current && labelContainerRef.current) {
+    if (poseModel && canvasRef.current && labelContainerRef.current) {
       // const URL = "/my-pose-model/";
       // const modelURL = URL + "model.json";
       // const metadataURL = URL + "metadata.json";
@@ -252,7 +254,7 @@ const MotionDetector = ({
       );
 
       const getTotalClassesStartTime = performance.now();
-      maxPredictions = model.getTotalClasses();
+      maxPredictions = poseModel.getTotalClasses();
       const getTotalClassesEndTime = performance.now();
       console.log(
         `⏰ getTotalClasses => start: ${getTotalClassesStartTime} / end: ${getTotalClassesEndTime} => duration: ${
