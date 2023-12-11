@@ -554,6 +554,8 @@ const OneToOnePage = () => {
 
   const workerRef = useRef<Worker>();
   const [poseModel, setPoseModel] = useState<any>(undefined);
+  const poseModelRef = useRef(poseModel);
+  poseModelRef.current = poseModel;
 
   useEffect(() => {
     // Create a new Web Worker
@@ -576,6 +578,8 @@ const OneToOnePage = () => {
         case "modelLoaded":
           const { model } = event.data;
           setPoseModel(model);
+          poseModelRef.current = model;
+          console.log("🥳 모델이 로드되었습니다.", model);
           break;
         default:
           break;
@@ -715,7 +719,7 @@ const OneToOnePage = () => {
       />
       {fanMeetingId && idolName && sessionId && userName && photoTime && (
         <MotionDetector
-          poseModel={poseModel}
+          poseModel={poseModelRef.current}
           role={role}
           fanMeetingId={fanMeetingId}
           idolName={idolName}
