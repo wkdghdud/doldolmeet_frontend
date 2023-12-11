@@ -213,7 +213,7 @@ const MotionDetector = ({
         setHasCaptured(true);
         updateShowOverlay(false);
       }
-    }, 6000);
+    }, 4000);
 
     return () => {
       clearTimeout(timer);
