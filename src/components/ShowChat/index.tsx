@@ -42,6 +42,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
   const [imgUrl, setImgUrl] = useState<string | undefined>("");
 
   const [stompClient, setStompClient] = useState<any>(null);
+  const [subscription, setSubscription] = useState<any>(null);
 
   const messagesRef = useRef<HTMLElement | null>(null);
   const token = useJwtToken();
@@ -50,7 +51,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
   useEffect(() => {
     const initWebSocket = () => {
-      if (stompClient) return;
+      if (stompClient && subscription) return;
 
       const sock = new SockJS(WS_STOMP_URL);
       const _stompClient = Stomp.over(sock);
@@ -58,10 +59,15 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
 
       _stompClient.connect({}, (frame) => {
         // Subscribe
-        _stompClient.subscribe(`/sub/chat/room/${roomId}`, (message) => {
-          const receivedMessage = JSON.parse(message.body);
-          setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-        });
+        const subscription = _stompClient.subscribe(
+          `/sub/chat/room/${roomId}`,
+          (message) => {
+            const receivedMessage = JSON.parse(message.body);
+            setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+          },
+        );
+        setSubscription(subscription);
+
         // Send
         _stompClient.send(
           "/pub/chat/message",
@@ -75,6 +81,7 @@ const ShowChat = ({ roomId }: { roomId: string | undefined }) => {
       });
 
       return () => {
+        subscription.unsubscribe();
         _stompClient.disconnect();
       };
     };
