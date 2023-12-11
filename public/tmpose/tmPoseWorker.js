@@ -12,7 +12,7 @@ const init = async () => {
   model = await tmPose.load(modelURL, metadataURL);
   console.log("tmPoseWorker model loaded");
 
-  postMessage({ type: "modelLoaded", model: model }); // Notify the main thread
+  postMessage({ type: "modelLoaded", model: JSON.stringify(model) }); // Notify the main thread
 };
 
 const loop = async () => {
