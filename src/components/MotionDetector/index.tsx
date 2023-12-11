@@ -285,7 +285,7 @@ const MotionDetector = ({
     console.log("MotionDetector init() called");
     const initStartTime = performance.now();
     console.log("⏰ initStartTime:", initStartTime);
-    if (poseModel && canvasRef.current && labelContainerRef.current) {
+    if (canvasRef.current && labelContainerRef.current) {
       // const URL = "/my-pose-model/";
       // const modelURL = URL + "model.json";
       // const metadataURL = URL + "metadata.json";
