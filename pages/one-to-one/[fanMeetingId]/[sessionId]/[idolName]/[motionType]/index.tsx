@@ -272,82 +272,109 @@ const OneToOnePage = () => {
         }
       });
 
+      setSession(mySession);
+
       const connection = await createOpenViduConnection(sessionId);
       if (connection) {
         setMyConnection(connection);
       }
       const { token } = connection;
 
-      if (role === Role.IDOL) {
-        await mySession.connect(token, {
-          clientData: JSON.stringify({
-            role: role,
-            fanMeetingId: fanMeetingId,
-            userName: userName,
-            type: "idolRoom",
-            chatRoomId: _chatRoomId,
-            nickname: myNickName,
-          }),
-          kurentoOptions: {
-            allowedFilters: [
-              "FaceOverlayFilter",
-              "ChromaFilter",
-              "GStreamerFilter",
-            ],
-          },
-        });
-      } else if (role === Role.FAN) {
-        await mySession.connect(token, {
-          clientData: JSON.stringify({
-            role: role,
-            fanMeetingId: fanMeetingId,
-            userName: userName,
-            type: "idolRoom",
-            chatRoomId: _chatRoomId,
-            nickname: myNickName,
-            idolName: idolName,
-          }),
-          kurentoOptions: {
-            allowedFilters: [
-              "FaceOverlayFilter",
-              "ChromaFilter",
-              "GStreamerFilter",
-            ],
-          },
-        });
-      }
+      await connectToSession({ token, chatRoomId });
 
-      await ov.getUserMedia({
-        audioSource: undefined,
-        videoSource: undefined,
-      });
+      await initPublisher();
 
-      const devices = await ov.getDevices();
-      const videoDevices = devices.filter(
-        (device) => device.kind === "videoinput",
-      );
-
-      const newPublisher = await ov.initPublisherAsync(undefined, {
-        audioSource: undefined,
-        videoSource: videoDevices[0].deviceId,
-        publishAudio: true,
-        publishVideo: true,
-        resolution: "640x480",
-        frameRate: 30,
-        insertMode: "APPEND",
-        mirror: false,
-      });
-
-      // newPublisher.subscribeToRemote();
-      mySession.publish(newPublisher);
-      setSession(mySession);
-      setMyStream(newPublisher);
       if (role === Role.FAN) {
         await startRecording();
       }
     } catch (error) {
       console.error("Error in enterFanmeeting:", error);
       return null;
+    }
+  };
+
+  const connectToSession = async ({
+    token,
+    chatRoomId,
+  }: {
+    token: string;
+    chatRoomId: string | undefined;
+  }) => {
+    let connectRetryCount = 0;
+    const maxConnectRetries = 2;
+    while (connectRetryCount < maxConnectRetries) {
+      try {
+        if (role === Role.IDOL) {
+          await session?.connect(token, {
+            clientData: JSON.stringify({
+              role: role,
+              fanMeetingId: fanMeetingId,
+              userName: userName,
+              type: "idolRoom",
+              chatRoomId: chatRoomId,
+              nickname: myNickName,
+            }),
+          });
+        } else if (role === Role.FAN) {
+          await session?.connect(token, {
+            clientData: JSON.stringify({
+              role: role,
+              fanMeetingId: fanMeetingId,
+              userName: userName,
+              type: "idolRoom",
+              chatRoomId: chatRoomId,
+              nickname: myNickName,
+              idolName: idolName,
+            }),
+          });
+        }
+
+        break;
+      } catch (e) {
+        console.error(e);
+        connectRetryCount++;
+        if (connectRetryCount === maxConnectRetries) {
+          throw e;
+        }
+      }
+    }
+  };
+
+  const initPublisher = async () => {
+    let retryCount = 0;
+
+    while (retryCount < 2) {
+      try {
+        await OV?.getUserMedia({
+          audioSource: undefined,
+          videoSource: undefined,
+        });
+
+        const devices = await OV?.getDevices();
+        const videoDevices = devices?.filter(
+          (device) => device.kind === "videoinput",
+        );
+
+        const newPublisher = await OV?.initPublisherAsync(undefined, {
+          audioSource: undefined,
+          videoSource: videoDevices[0].deviceId,
+          publishAudio: true,
+          publishVideo: true,
+          resolution: "640x480",
+          frameRate: 30,
+          insertMode: "APPEND",
+          mirror: false,
+        });
+
+        if (newPublisher) {
+          session?.publish(newPublisher);
+          setMyStream(newPublisher);
+          break;
+        }
+      } catch (e) {
+        console.error(e);
+        retryCount++;
+      }
     }
   };
 

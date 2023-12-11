@@ -28,11 +28,31 @@ interface FanToFanMeeting {
 }
 
 const fetchFanToFanMeeting = async (fanMeetingId): Promise<FanToFanMeeting> => {
-  const response = await backend_api()
-    .get(`/fanMeetings/${fanMeetingId}/fanToFanMeeting`)
-    .then((response: AxiosResponse) => response.data)
-    .catch((e) => console.error(e));
-  return response.data;
+  const maxRetries = 2;
+  let retryCount = 0;
+
+  while (retryCount < maxRetries) {
+    try {
+      const response = await backend_api()
+        .get(`/fanMeetings/${fanMeetingId}/fanToFanMeeting`)
+        .then((response: AxiosResponse) => response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error(`FanToFanMeeting 조회 에러 발생: ${error}`);
+
+      if (retryCount < maxRetries - 1) {
+        console.log(`Retrying in 1000ms...`);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+
+      retryCount++;
+    }
+  }
+
+  throw new Error(
+    `Failed to fetch FanToFanMeeting data after ${maxRetries} retries`,
+  );
 };
 
 const useFanToFanMeeting = (fanMeetingId) => {
