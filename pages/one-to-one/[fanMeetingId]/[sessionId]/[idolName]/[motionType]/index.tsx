@@ -7,7 +7,7 @@ import {
   StreamManager,
 } from "openvidu-browser";
 import { Grid, Stack } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import {
   closeOpenViduConnection,
@@ -280,32 +280,13 @@ const OneToOnePage = () => {
       }
       const { token } = connection;
 
-      if (role === Role.IDOL) {
-        await session?.connect(token, {
-          clientData: JSON.stringify({
-            role: role,
-            fanMeetingId: fanMeetingId,
-            userName: userName,
-            type: "idolRoom",
-            chatRoomId: _chatRoomId,
-            nickname: myNickName,
-          }),
-        });
-      } else if (role === Role.FAN) {
-        await session?.connect(token, {
-          clientData: JSON.stringify({
-            role: role,
-            fanMeetingId: fanMeetingId,
-            userName: userName,
-            type: "idolRoom",
-            chatRoomId: _chatRoomId,
-            nickname: myNickName,
-            idolName: idolName,
-          }),
-        });
-      }
+      await connectToSession({
+        session: mySession,
+        token: token,
+        chatRoomId: _chatRoomId,
+      });
 
-      await initPublisher();
+      await initPublisher({ ov: ov, session: mySession });
 
       if (role === Role.FAN) {
         await startRecording();
@@ -317,9 +298,11 @@ const OneToOnePage = () => {
   };
 
   const connectToSession = async ({
+    session,
     token,
     chatRoomId,
   }: {
+    session: Session;
     token: string;
     chatRoomId: string | undefined;
   }) => {
@@ -363,22 +346,28 @@ const OneToOnePage = () => {
     }
   };
 
-  const initPublisher = async () => {
+  const initPublisher = async ({
+    ov,
+    session,
+  }: {
+    ov: OpenVidu;
+    session: Session;
+  }) => {
     let retryCount = 0;
 
     while (retryCount < 2) {
       try {
-        await OV?.getUserMedia({
+        await ov.getUserMedia({
           audioSource: undefined,
           videoSource: undefined,
         });
 
-        const devices = await OV?.getDevices();
+        const devices = await ov.getDevices();
         const videoDevices = devices?.filter(
           (device) => device.kind === "videoinput",
         );
 
-        const newPublisher = await OV?.initPublisherAsync(undefined, {
+        const newPublisher = await ov.initPublisherAsync(undefined, {
           audioSource: undefined,
           videoSource: videoDevices[0].deviceId,
           publishAudio: true,
@@ -558,53 +547,6 @@ const OneToOnePage = () => {
     }
     setFilterPopupOpen(false);
   };
-
-  /***********************************/
-  /*        MotionDetector           */
-  /***********************************/
-
-  const workerRef = useRef<Worker>();
-  const [poseModel, setPoseModel] = useState<any>(undefined);
-  const poseModelRef = useRef(poseModel);
-  poseModelRef.current = poseModel;
-
-  useEffect(() => {
-    // Create a new Web Worker
-    const worker = new Worker(
-      new URL(
-        "../../../../../../public/tmpose/tmPoseWorker.js",
-        import.meta.url,
-      ),
-    );
-    workerRef.current = worker;
-
-    // Initialize the Web Worker
-    worker.postMessage({ type: "init" });
-
-    // Handle messages from the Web Worker
-    worker.onmessage = (event) => {
-      const { type } = event.data;
-
-      switch (type) {
-        case "modelLoaded":
-          console.log("🥳 모델이 로드되었습니다.");
-          break;
-        default:
-          break;
-      }
-    };
-
-    return () => {
-      // Terminate the Web Worker when the component is unmounted
-      worker.terminate();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (photoTime && workerRef.current) {
-      workerRef.current.postMessage({ type: "start" });
-    }
-  }, [photoTime]);
 
   return (
     <Grid container spacing={2}>
