@@ -280,13 +280,32 @@ const OneToOnePage = () => {
       }
       const { token } = connection;
 
-      await connectToSession({
-        session: mySession,
-        token: token,
-        chatRoomId: _chatRoomId,
-      });
+      if (role === Role.IDOL) {
+        await session?.connect(token, {
+          clientData: JSON.stringify({
+            role: role,
+            fanMeetingId: fanMeetingId,
+            userName: userName,
+            type: "idolRoom",
+            chatRoomId: _chatRoomId,
+            nickname: myNickName,
+          }),
+        });
+      } else if (role === Role.FAN) {
+        await session?.connect(token, {
+          clientData: JSON.stringify({
+            role: role,
+            fanMeetingId: fanMeetingId,
+            userName: userName,
+            type: "idolRoom",
+            chatRoomId: _chatRoomId,
+            nickname: myNickName,
+            idolName: idolName,
+          }),
+        });
+      }
 
-      await initPublisher({ ov: ov, session: mySession });
+      await initPublisher();
 
       if (role === Role.FAN) {
         await startRecording();
@@ -298,11 +317,9 @@ const OneToOnePage = () => {
   };
 
   const connectToSession = async ({
-    session,
     token,
     chatRoomId,
   }: {
-    session: Session;
     token: string;
     chatRoomId: string | undefined;
   }) => {
@@ -346,28 +363,22 @@ const OneToOnePage = () => {
     }
   };
 
-  const initPublisher = async ({
-    ov,
-    session,
-  }: {
-    ov: OpenVidu;
-    session: Session;
-  }) => {
+  const initPublisher = async () => {
     let retryCount = 0;
 
     while (retryCount < 2) {
       try {
-        await ov.getUserMedia({
+        await OV?.getUserMedia({
           audioSource: undefined,
           videoSource: undefined,
         });
 
-        const devices = await ov.getDevices();
+        const devices = await OV?.getDevices();
         const videoDevices = devices?.filter(
           (device) => device.kind === "videoinput",
         );
 
-        const newPublisher = await ov.initPublisherAsync(undefined, {
+        const newPublisher = await OV?.initPublisherAsync(undefined, {
           audioSource: undefined,
           videoSource: videoDevices[0].deviceId,
           publishAudio: true,
