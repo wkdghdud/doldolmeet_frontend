@@ -314,22 +314,29 @@ const GamePage = () => {
       }
       const { token } = connection;
 
-      await mySession.connect(token, {
-        clientData: JSON.stringify({
-          role: role,
-          fanMeetingId: fanMeetingId,
-          userName: userName,
-          nickname: myNickName,
-          type: "gameRoom",
-        }),
-        kurentoOptions: {
-          allowedFilters: [
-            "FaceOverlayFilter",
-            "ChromaFilter",
-            "GStreamerFilter",
-          ],
-        },
-      });
+      let sessionConnectCnt = 0;
+      const maxSessionConnectCnt = 2;
+
+      while (sessionConnectCnt < maxSessionConnectCnt) {
+        try {
+          await mySession.connect(token, {
+            clientData: JSON.stringify({
+              role: role,
+              fanMeetingId: fanMeetingId,
+              userName: userName,
+              nickname: myNickName,
+              type: "gameRoom",
+            }),
+          });
+          break;
+        } catch (e) {
+          console.error(e);
+          sessionConnectCnt++;
+          if (sessionConnectCnt === maxSessionConnectCnt) {
+            throw e;
+          }
+        }
+      }
 
       await ov.getUserMedia({
         audioSource: undefined,
