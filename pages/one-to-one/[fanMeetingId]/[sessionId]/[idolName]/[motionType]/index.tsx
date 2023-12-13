@@ -307,7 +307,7 @@ const OneToOnePage = () => {
     chatRoomId: string | undefined;
   }) => {
     let connectRetryCount = 0;
-    const maxConnectRetries = 2;
+    const maxConnectRetries = 3;
     while (connectRetryCount < maxConnectRetries) {
       try {
         if (role === Role.IDOL) {
@@ -339,9 +339,6 @@ const OneToOnePage = () => {
       } catch (e) {
         console.error(e);
         connectRetryCount++;
-        if (connectRetryCount === maxConnectRetries) {
-          throw e;
-        }
       }
     }
   };
@@ -355,7 +352,7 @@ const OneToOnePage = () => {
   }) => {
     let retryCount = 0;
 
-    while (retryCount < 2) {
+    while (retryCount < 3) {
       try {
         await ov.getUserMedia({
           audioSource: undefined,
