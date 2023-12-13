@@ -28,7 +28,11 @@ const OpenViduVideoView = ({
   }, [streamManager]);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div
+      style={{
+        position: "relative",
+      }}
+    >
       {name && (
         <Typography
           variant="h5"
@@ -83,9 +87,8 @@ const OpenViduVideoView = ({
           style={{
             position: "absolute",
             top: 0,
-            left: left ? 0 : "auto", // 왼쪽 이미지의 경우 왼쪽에 맞춤
-            right: left ? "auto" : 0, // 오른쪽 이미지의 경우 오른쪽에 맞춤
-            width: "50%", // 화면의 절반을 차지하도록 설정
+            left: 0,
+            width: "95%",
             height: "100%",
             objectFit: "cover",
             zIndex: 300,
@@ -96,4 +99,5 @@ const OpenViduVideoView = ({
     </div>
   );
 };
+
 export default OpenViduVideoView;
