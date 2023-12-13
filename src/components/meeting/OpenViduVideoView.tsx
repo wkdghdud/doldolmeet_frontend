@@ -87,9 +87,9 @@ const OpenViduVideoView = ({
           style={{
             position: "absolute",
             top: 0,
-            left: 0,
+            left: 12.5,
             width: "95%",
-            height: "100%",
+            height: "95%",
             objectFit: "cover",
             zIndex: 300,
           }}
