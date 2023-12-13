@@ -27,18 +27,6 @@ const OpenViduVideoView = ({
     }
   }, [streamManager]);
 
-  // Adjusted overlay positioning and size
-  const overlayStyle = {
-    position: "absolute",
-    top: 0,
-    left: left ? 0 : "auto", // Align left image to the left and right image to the right
-    right: left ? "auto" : 0, // Align right image to the right
-    width: "50%", // Set width to 50% to fit half of the screen
-    height: "100%",
-    objectFit: "cover",
-    zIndex: 300,
-  };
-
   return (
     <div style={{ position: "relative" }}>
       {name && (
@@ -92,12 +80,20 @@ const OpenViduVideoView = ({
               : undefined
           }
           alt="overlay"
-          style={overlayStyle} // Use the adjusted overlay style
+          style={{
+            position: "absolute",
+            top: 0,
+            left: left ? 0 : "auto", // 왼쪽 이미지의 경우 왼쪽에 맞춤
+            right: left ? "auto" : 0, // 오른쪽 이미지의 경우 오른쪽에 맞춤
+            width: "50%", // 화면의 절반을 차지하도록 설정
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 300,
+          }}
         />
       )}
       <canvas hidden={true} id={left ? "idol-canvas" : "fan-canvas"} />
     </div>
   );
 };
-
 export default OpenViduVideoView;
