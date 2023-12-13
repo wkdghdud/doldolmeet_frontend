@@ -27,12 +27,20 @@ const OpenViduVideoView = ({
     }
   }, [streamManager]);
 
+  // Adjusted overlay positioning and size
+  const overlayStyle = {
+    position: "absolute",
+    top: 0,
+    left: left ? 0 : "auto", // Align left image to the left and right image to the right
+    right: left ? "auto" : 0, // Align right image to the right
+    width: "50%", // Set width to 50% to fit half of the screen
+    height: "100%",
+    objectFit: "cover",
+    zIndex: 300,
+  };
+
   return (
-    <div
-      style={{
-        position: "relative",
-      }}
-    >
+    <div style={{ position: "relative" }}>
       {name && (
         <Typography
           variant="h5"
@@ -84,15 +92,7 @@ const OpenViduVideoView = ({
               : undefined
           }
           alt="overlay"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "95%",
-            height: "100%",
-            objectFit: "cover",
-            zIndex: 300,
-          }}
+          style={overlayStyle} // Use the adjusted overlay style
         />
       )}
       <canvas hidden={true} id={left ? "idol-canvas" : "fan-canvas"} />
