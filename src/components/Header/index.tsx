@@ -40,7 +40,6 @@ export default function Header() {
   const [anchorEl, setAnchorEl] = useState<(EventTarget & Element) | null>(
     null,
   );
-  const [idolRooms, setIdolRooms] = useState<string[]>([]);
 
   const gameRoomId = 1;
 
@@ -58,7 +57,6 @@ export default function Header() {
 
   useEffect(() => {
     moveToGameRoom();
-    moveToIdolRoom();
   }, []);
 
   const open = Boolean(anchorEl);
@@ -73,14 +71,6 @@ export default function Header() {
       .get(`/fanMeetings/${gameRoomId}/get-game-room-id`)
       .then((res) => {
         setSessionId(res.data.data);
-      });
-  };
-
-  const moveToIdolRoom = async () => {
-    await backend_api()
-      .get(`/roomOrder/idolRoom/1`)
-      .then((res) => {
-        setIdolRooms(res.data.data);
       });
   };
 
@@ -165,20 +155,6 @@ export default function Header() {
               sx={{ mt: 1 }}
             >
               <MenuList>
-                {/* 아이돌 방 강제 이동 페이지 */}
-                {idolRooms.map((idolRoom, idx) => (
-                  <MenuItemStyled
-                    key={idx}
-                    onClick={() =>
-                      router.push(
-                        `/one-to-one/1/${idolRoom.currentRoom}/${idolRoom.idolName}/${idolRoom.motionType}`,
-                      )
-                    }
-                  >
-                    <ListItemText>{idolRoom.idolName}</ListItemText>
-                  </MenuItemStyled>
-                ))}
-
                 <MenuItemStyled
                   onClick={() =>
                     router.push(`/game-page/${gameRoomId}/${sessionId}`)
