@@ -139,7 +139,7 @@ const SingGamePage = ({
     if (showAllIdolEnteredmodal) {
       setTimeout(() => {
         setShowAllIdolEnteredmodal(false);
-      }, 2000);
+      }, 3000);
     }
   }, [showAllIdolEnteredmodal]);
 
