@@ -86,13 +86,11 @@ const OpenViduVideoView = ({
           alt="overlay"
           style={{
             position: "absolute",
-            top: "50%", // 중앙에서 시작하도록 조정
-            left: left ? "50%" : "auto", // 왼쪽 이미지일 경우 왼쪽 하트의 오른쪽 끝이 중앙에 오도록 조정
-            right: left ? "auto" : "50%", // 오른쪽 이미지일 경우 오른쪽 하트의 왼쪽 끝이 중앙에 오도록 조정
-            transform: left ? "translateX(-100%)" : "translateX(0)", // 왼쪽 이미지일 경우 왼쪽으로 100% 이동하여 하트가 화면 중앙에서 시작하도록 함
-            width: "50%", // 화면의 절반을 차지하도록 설정
-            height: "auto", // 자동으로 높이 조정
-            objectFit: "contain", // 비율을 유지하면서 요소에 맞게 조정
+            top: 0,
+            left: 12.5,
+            width: "95%",
+            height: "95%",
+            objectFit: "cover",
             zIndex: 300,
           }}
         />
