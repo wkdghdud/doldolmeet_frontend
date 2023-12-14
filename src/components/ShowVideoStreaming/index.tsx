@@ -56,7 +56,7 @@ const ShowVideoStreaming = () => {
       width="100%"
       height="50vh"
       loop={true}
-      volume={0.4}
+      volume={0.3}
     />
   );
 };
