@@ -132,7 +132,7 @@ const OneToOnePage = () => {
   const [filterPopupOpen, setFilterPopupOpen] = useState(false);
 
   /* 남은 통화 시간 */
-  const [timeLimit, setTimeLimit] = useState(55);
+  const [timeLimit, setTimeLimit] = useState(50);
 
   /* EventSource */
   const [fanEventSource, setFanEventSource] = useState<EventSource | null>(
