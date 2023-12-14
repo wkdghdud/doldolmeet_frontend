@@ -66,7 +66,7 @@ const SingGamePage = ({
   const [winner, setWinner] = useState<string | undefined | null>();
 
   /* 정답 확인 */
-  const isAnswer = "내 루돌프";
+  const isAnswer = "하입보이";
   const [answer, setAnswer] = useState("");
 
   /* audio */
