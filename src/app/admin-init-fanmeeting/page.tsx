@@ -126,7 +126,7 @@ const AdminInitFanMeetingPage = () => {
         <Typography variant={"h5"}>팬미팅 아이디: {fanMeetingId}</Typography>
       </Grid>
       <Grid item>
-        <Stack direction={"row"} spacing={2}>
+        <Stack direction={"row"} spacing={2} sx={{ marginBottom: 5 }}>
           <Button variant={"contained"} onClick={joinMultipleSession}>
             팬미팅 생성하기
           </Button>
